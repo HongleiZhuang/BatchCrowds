@@ -1,0 +1,62 @@
+package learner;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map.Entry;
+
+import util.MapSorter;
+import model.RankingDataSet;
+
+public class NaiveLearner extends ScoreBasedRankingLearner {
+
+	int crowdk;
+	
+	static public ScoreBasedRankingLearner createNaiveLearner(RankingDataSet rkdata, int crowdk) {
+		return new NaiveLearner(rkdata, crowdk);
+	}
+	
+	private NaiveLearner(RankingDataSet rkdata, int crowdk) {
+		this.rkdata = rkdata;
+		this.scores = new double[rkdata.id2Name.size()];
+		this.crowdk = crowdk;
+	}
+	
+	@Override
+	void trainRankings() {
+		int[] poscnt = new int[scores.length];
+		int[] totcnt = new int[scores.length];
+		for (ArrayList<Integer> rankedList : rkdata.rankingLists) {
+			for (int k = 0; k < rankedList.size(); ++k) {
+				if (k < crowdk) ++poscnt[rankedList.get(k)];
+				++totcnt[rankedList.get(k)];
+			}
+		}
+		
+		for (int i = 0; i < scores.length; ++i) {
+			scores[i] = (double) poscnt[i] / totcnt[i];
+			System.out.println(poscnt[i] + "/" + totcnt[i]);
+		}
+		
+		
+		HashMap<String, Double> name2Score = new HashMap<String, Double>();
+		for (int i = 0; i < scores.length; ++i) {
+			name2Score.put(rkdata.id2Name.get(i), scores[i]);
+		}
+		ArrayList<Entry<String, Double>> sortedList = MapSorter.sortByValue(name2Score, false);
+		int top = 0;
+		for (Entry<String, Double> e: sortedList) {
+			System.out.println(e.getKey() + ":" + e.getValue() + "\t");
+//			System.out.print(e.getValue() + "\t");
+			if (++top >= 20) break;
+		}
+		System.out.println();
+	}
+
+	static public void main(String[] args) throws Exception {
+		RankingDataSet rkdata = new RankingDataSet();
+		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
+		ScoreBasedRankingLearner learner = NaiveLearner.createNaiveLearner(rkdata, 2);
+		learner.trainRankings();
+	}
+	
+}
