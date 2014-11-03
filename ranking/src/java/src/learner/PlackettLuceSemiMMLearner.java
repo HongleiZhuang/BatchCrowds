@@ -9,7 +9,7 @@ import model.SemiRankingDataSet;
 
 public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 
-	int maxIter = 200;      // Maximum iteration 
+	int maxIter = 100;      // Maximum iteration 
 	double epsilon = 1e-2;  // Stop criterion for convergence
 	
 	int curRow;
@@ -36,7 +36,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 			}
 		}
 				
-		for (int i = 0; i < tempScores[curRow].length; ++i) tempScores[curRow][i] = 1.0;
+		for (int i = 0; i < tempScores[curRow].length; ++i) tempScores[curRow][i] = 0.001;
 		
 		permLists = new ArrayList<ArrayList<ArrayList<int[]>>>();
 		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
@@ -73,32 +73,36 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 				}
 				
 				double prefixSum = 0.0;
-				for (int s = 0; s < semiRankedList.size() - 1; ++s) {
-					double sessionSum = 0.0;
-					int cnt = permLists.get(j).get(s).size();
-					if (cnt == 0) continue;
-					double[] suffixSubsessionSum = new double[semiRankedList.get(s).length];
+				for (int s = 0; s < semiRankedList.size(); ++s) {
 					for (int id : semiRankedList.get(s)) tempScores[nextRow][id] += prefixSum;
+					if (s == semiRankedList.size() - 1) break;
+					
+					double sessionSum = 0.0;
+					double[] suffixSubsessionSum = new double[semiRankedList.get(s).length];
+					int cnt = permLists.get(j).get(s).size();
+					if (cnt == 0) continue;					
 					for (int[] perm : permLists.get(j).get(s)) {
+						
 						suffixSubsessionSum[suffixSubsessionSum.length - 1] = tempScores[curRow][perm[perm.length - 1]];
 						for (int k = suffixSubsessionSum.length - 2; k >= 0; --k) suffixSubsessionSum[k] = suffixSubsessionSum[k + 1] + tempScores[curRow][perm[k]];
 						
 						double permPrefixSum = 0.0;
 						for (int k = 0; k < perm.length; ++k) {
 							permPrefixSum += (double) 1.0 / (suffixSubsessionSum[k] + suffixSessionSum[s + 1]);
-							tempScores[nextRow][perm[k]] += permPrefixSum / cnt;
+							tempScores[nextRow][perm[k]] += (double) permPrefixSum / cnt;
 						}
-						sessionSum += permPrefixSum / cnt;
+						sessionSum += (double)  permPrefixSum / cnt;
 					}
 					prefixSum += sessionSum;
 				}
+				
  			}
 
 			
 			for (int i = 0; i < scores.length; ++i) tempScores[nextRow][i] = (double) w[i] / tempScores[nextRow][i];
 			curRow ^= 1;
 			scores = tempScores[curRow];
-			normalizedByL1(scores);
+//			normalizedByL1(scores);
 			
 			
 			
