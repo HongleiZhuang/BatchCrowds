@@ -9,12 +9,17 @@ import model.SemiRankingDataSet;
 
 public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 
-	int maxIter = 100;      // Maximum iteration 
-	double epsilon = 1e-2;  // Stop criterion for convergence
+	int maxIter = 200;        // Maximum iteration 
+	double epsilon = 1e-2;    // Stop criterion for convergence
+	double tempLambda;  // Probability that a worker guesses the answer
+	
 	
 	int curRow;
 	double[][] tempScores; 
 	ArrayList<ArrayList<ArrayList<int[]>>> permLists;
+	
+	
+	double betaDistAlpha = 2, betaDistBeta = 2;
 	
 	static public ScoreBasedSemiRankingLearner createPlacketBasedSemiRankingLearner(SemiRankingDataSet rkdata) {
 		return new PlackettLuceSemiMMLearner(rkdata);
@@ -36,7 +41,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 			}
 		}
 				
-		for (int i = 0; i < tempScores[curRow].length; ++i) tempScores[curRow][i] = 0.001;
+		for (int i = 0; i < tempScores[curRow].length; ++i) tempScores[curRow][i] = 1;
 		
 		permLists = new ArrayList<ArrayList<ArrayList<int[]>>>();
 		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
@@ -99,7 +104,15 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
  			}
 
 			
-			for (int i = 0; i < scores.length; ++i) tempScores[nextRow][i] = (double) w[i] / tempScores[nextRow][i];
+			for (int i = 0; i < scores.length; ++i) {
+				double A = tempScores[nextRow][i];
+				double B = -tempScores[nextRow][i] - w[i] - betaDistAlpha - betaDistBeta + 2;
+				double C = w[i] + betaDistAlpha - 1;
+//				System.out.println("i = " + i + ", A = " + A + ", B = " + B + ", C =" + C);
+				if (A == 0) tempScores[nextRow][i] = -C / B;
+				else tempScores[nextRow][i] = (-B - Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+//				tempScores[nextRow][i] = (double) w[i] / tempScores[nextRow][i];
+			}
 			curRow ^= 1;
 			scores = tempScores[curRow];
 //			normalizedByL1(scores);
@@ -107,6 +120,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 			
 			
 			// ================Debug========================
+			System.out.println("==================Iter = " + iter + "====================");
 			for (int i = 0; i < scores.length; ++i) {
 				name2Score.put(rkdata.id2Name.get(i), scores[i]);
 			}
@@ -115,7 +129,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 			for (Entry<String, Double> e: sortedList) {
 				System.out.println(e.getKey() + ":" + e.getValue() + "\t");
 //				System.out.print(e.getValue() + "\t");
-				if (++top >= 20) break;
+//				if (++top >= 20) break;
 			}
 			System.out.println();
 //			System.out.println("================");
@@ -123,11 +137,97 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 		}
 	}
 	
+	
+	public void rescaleScores(double b, double rho, double tempLambda)  {
+		this.tempLambda = tempLambda;
+		double maxScore = getLInfinite(scores);
+		double alphaUpperBound = 1.0 / maxScore;
+		HashMap<Integer, Double> endPointsMap = new HashMap<Integer, Double>();
+		endPointsMap.put(-1, alphaUpperBound);
+		System.out.println(rkdata.semiRankingLists.size());
+		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
+			ArrayList<int[]> semiRankedList = rkdata.semiRankingLists.get(j);
+			double u = semiRankedList.get(0).length == 0 ? 1.0 : getMin(getScoreVector(semiRankedList.get(0)));
+			double l = semiRankedList.get(1).length == 0 ? 1.0 : getLInfinite(getScoreVector(semiRankedList.get(1)));
+//			System.out.println("u=" + u +  ", l="  + l);
+//			System.out.println("u_alpha=" + (0.5 / u) +  ", l_alpha="  + (0.5 / l));
+			if (0.5 < u * alphaUpperBound) endPointsMap.put(j * 2, 0.5 / u);
+			if (0.5 < l * alphaUpperBound) endPointsMap.put(j * 2 + 1, 0.5 / l);
+		}
+		System.out.println(endPointsMap.size());
+		double maxL = - Double.MAX_VALUE, bestAlpha = alphaUpperBound;
+		for (Entry<Integer, Double> e : endPointsMap.entrySet()) {
+			double tempAlpha = e.getValue();
+			System.out.println("when alpha = " + tempAlpha);
+			double L = 0.0;
+			for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
+				double lambda = this.tempLambda;
+				ArrayList<int[]> semiRankedList = rkdata.semiRankingLists.get(j);
+				double u = semiRankedList.get(0).length == 0 ? 1.0 : getMin(getScoreVector(semiRankedList.get(0)));
+				double l = semiRankedList.get(1).length == 0 ? 1.0 : getLInfinite(getScoreVector(semiRankedList.get(1)));
+				double p = getRandomPickingProb(b, rho, semiRankedList.get(0).length, semiRankedList.get(0).length + semiRankedList.get(1).length);
+				if (0.5 >= l * tempAlpha && 0.5 < u * tempAlpha) p = p * (1 - lambda) + lambda;
+				L += Math.log(p);
+			}
+			System.out.println("L = " + L);
+			if (L > maxL) {
+				bestAlpha = tempAlpha;
+				maxL = L;
+			}
+		}
+		for (int i = 0; i < scores.length; ++i) scores[i] *= bestAlpha;
+		
+		// ================Debug========================
+		HashMap<String, Double> name2Score = new HashMap<String, Double>();
+		for (int i = 0; i < scores.length; ++i) {
+			name2Score.put(rkdata.id2Name.get(i), scores[i]);
+		}
+		ArrayList<Entry<String, Double>> sortedList = MapSorter.sortByValue(name2Score, false);
+		int top = 0;
+		for (Entry<String, Double> e: sortedList) {
+			System.out.println(e.getKey() + ":" + e.getValue() + "\t");
+//			if (++top >= 20) break;
+		}
+		System.out.println();
+		// =============================================
+	}
+	
+	private double getRandomPickingProb(double b, double pho, int k, int n) {
+		//Assuming P(picking the k from [0,...,n]) = C(k + b)^(-pho) 
+		double[] randomPickProb = new double[n + 1];
+		for (int i = 0; i <= n; ++i) randomPickProb[i] = Math.exp(- pho * Math.log(i + b));
+		normalizedByL1(randomPickProb);
+		return randomPickProb[k];
+	}
+	
+	private double[] getScoreVector(int[] idVector) {
+		double[] ret = new double[idVector.length];
+		for (int i = 0; i < idVector.length; ++i) ret[i] = scores[idVector[i]];
+		return ret;
+	}
+
+	private double getMin(double[] v) {
+		double min = Math.abs(v[0]);
+		for (int i = 1; i < v.length; ++i) min = min < Math.abs(v[i]) ? min : Math.abs(v[i]);
+		return min;		
+	}
+	
+	private double getLInfinite(double[] v) {
+		double max = Math.abs(v[0]);
+		for (int i = 1; i < v.length; ++i) max = max > Math.abs(v[i]) ? max : Math.abs(v[i]);
+		return max;
+	}
+	
+	private void normalizedByLInfinite(double[] v) {
+		double lInfinite = getLInfinite(v);
+		if (lInfinite > 0) for (int i = 0; i < v.length; ++i) v[i] /= lInfinite;
+	}
+
+	
 	private void normalizedByL1(double[] v) {
 		double sum = 0.0;
 		for (double d : v) sum += Math.abs(d);
-		if (sum > 0) 
-			for (int i = 0; i < v.length; ++i) v[i] /= sum;
+		if (sum > 0) for (int i = 0; i < v.length; ++i) v[i] /= sum;
 	}
 	
 	ArrayList<int[]> getPermutation(int[] elemList) {
@@ -153,10 +253,11 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
 		PlackettLuceSemiMMLearner learner = new PlackettLuceSemiMMLearner(dataSet);
 		learner.trainRankings();
+		learner.rescaleScores(1, 1, 0.8);
+		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth.txt");
 	}
 	
-
 }

@@ -6,29 +6,28 @@ import java.util.Map.Entry;
 
 import util.MapSorter;
 import model.RankingDataSet;
+import model.SemiRankingDataSet;
 
-public class NaiveLearner extends ScoreBasedRankingLearner {
+public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 
-	int crowdk;
 	
-	static public ScoreBasedRankingLearner createNaiveLearner(RankingDataSet rkdata, int crowdk) {
-		return new NaiveLearner(rkdata, crowdk);
+	static public ScoreBasedSemiRankingLearner createNaiveLearner(SemiRankingDataSet rkdata) {
+		return new NaiveLearner(rkdata);
 	}
 	
-	private NaiveLearner(RankingDataSet rkdata, int crowdk) {
+	private NaiveLearner(SemiRankingDataSet rkdata) {
 		this.rkdata = rkdata;
 		this.scores = new double[rkdata.id2Name.size()];
-		this.crowdk = crowdk;
 	}
 	
 	@Override
 	void trainRankings() {
 		int[] poscnt = new int[scores.length];
 		int[] totcnt = new int[scores.length];
-		for (ArrayList<Integer> rankedList : rkdata.rankingLists) {
-			for (int k = 0; k < rankedList.size(); ++k) {
-				if (k < crowdk) ++poscnt[rankedList.get(k)];
-				++totcnt[rankedList.get(k)];
+		for (ArrayList<int[]> rankedList : rkdata.semiRankingLists) {
+			for (int k : rankedList.get(0)) ++poscnt[k];
+			for (int[] l : rankedList) {
+				for (int k : l) ++totcnt[k];
 			}
 		}
 		
@@ -53,10 +52,13 @@ public class NaiveLearner extends ScoreBasedRankingLearner {
 	}
 
 	static public void main(String[] args) throws Exception {
-		RankingDataSet rkdata = new RankingDataSet();
-		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
-		ScoreBasedRankingLearner learner = NaiveLearner.createNaiveLearner(rkdata, 2);
+//		RankingDataSet rkdata = new RankingDataSet();
+//		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
+		SemiRankingDataSet dataSet = new SemiRankingDataSet();
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
+		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
+		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth.txt");
 	}
 	
 }

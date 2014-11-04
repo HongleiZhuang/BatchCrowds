@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import util.MapSorter;
 import model.RankingDataSet;
+import model.SemiRankingDataSet;
 
 public class PlackettLuceMMLearner extends ScoreBasedRankingLearner {
 
@@ -72,14 +73,43 @@ public class PlackettLuceMMLearner extends ScoreBasedRankingLearner {
 			System.out.println();
 //			System.out.println("================");
 		}
+		
+		// ================Debug========================
+		normalizedByLInfinite(scores);
+		for (int i = 0; i < scores.length; ++i) {
+			name2Score.put(rkdata.id2Name.get(i), scores[i]);
+		}
+		ArrayList<Entry<String, Double>> sortedList = MapSorter.sortByValue(name2Score, false);
+		int top = 0;
+		for (Entry<String, Double> e: sortedList) {
+			System.out.println(e.getKey() + ":" + e.getValue() + "\t");
+			if (++top >= 20) break;
+		}
+		System.out.println();
+		// =============================================
+	}
+	
+	private double getLInfinite(double[] v) {
+		double max = Math.abs(v[0]);
+		for (int i = 1; i < v.length; ++i) max = max > Math.abs(v[i]) ? max : Math.abs(v[i]);
+		return max;
+	}
+	
+	private void normalizedByLInfinite(double[] v) {
+		double lInfinite = getLInfinite(v);
+		if (lInfinite > 0) for (int i = 0; i < v.length; ++i) v[i] /= lInfinite;
 	}
 	
 	
 	static public void main(String[] args) throws Exception {
-		RankingDataSet rkdata = new RankingDataSet();
-		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
-		ScoreBasedRankingLearner learner = PlackettLuceMMLearner.createPlackettLuceMMLearner(rkdata);
+//		RankingDataSet rkdata = new RankingDataSet();
+//		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
+		SemiRankingDataSet dataSet = new SemiRankingDataSet();
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
+		ScoreBasedRankingLearner learner = PlackettLuceMMLearner.createPlackettLuceMMLearner(dataSet.cloneAsRankingDataSet());
 		learner.trainRankings();
+		
+		
 	}
 
 }

@@ -61,10 +61,23 @@ public class SemiRankingDataSet {
 		br.close();
 	}
 	
+	public RankingDataSet cloneAsRankingDataSet() {
+		RankingDataSet ret =  new RankingDataSet();
+		ret.id2Name = (ArrayList<String>) this.id2Name.clone();
+		ret.name2Id = (HashMap<String, Integer>) this.name2Id.clone();
+		ret.rankingLists = new ArrayList<ArrayList<Integer>>();
+		for (ArrayList<int[]> semiRankedList : this.semiRankingLists) {
+			ArrayList<Integer> tempList = new ArrayList<Integer>();
+			for (int[] session : semiRankedList) 
+				for (int i : session) tempList.add(i);
+			ret.rankingLists.add(tempList);
+		}
+		return ret;
+	}
 	
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
 	}
 	
 }
