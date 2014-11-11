@@ -9,14 +9,15 @@ import model.SemiRankingDataSet;
 
 public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 
-	int maxIter = 200;        // Maximum iteration 
-	double epsilon = 1e-2;    // Stop criterion for convergence
+	int maxIter = 2000;        // Maximum iteration 
+	double epsilon = 1e-3;    // Stop criterion for convergence
 	double tempLambda;  // Probability that a worker guesses the answer
 	
 	
 	int curRow;
 	double[][] tempScores; 
 	ArrayList<ArrayList<ArrayList<int[]>>> permLists;
+	double[] likelihoods;
 	
 	
 	double betaDistAlpha = 2, betaDistBeta = 2;
@@ -30,6 +31,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 		this.tempScores = new double[2][rkdata.id2Name.size()];
 		this.curRow = 0;
 		this.scores = tempScores[curRow];
+		this.likelihoods = new double[rkdata.semiRankingLists.size()];
 	}
 	
 	@Override
@@ -60,6 +62,9 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 		
 		HashMap<String, Double> name2Score = new HashMap<String, Double>();
 		
+		
+		double oldL = -Double.MAX_VALUE;
+		int stopCnt = 0;
 		for (int iter = 0; iter < maxIter; ++iter) {
 			int nextRow = curRow ^ 1;
 			for (int i = 0; i < scores.length; ++i) tempScores[nextRow][i] = 0.0;
@@ -108,14 +113,18 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 				double A = tempScores[nextRow][i];
 				double B = -tempScores[nextRow][i] - w[i] - betaDistAlpha - betaDistBeta + 2;
 				double C = w[i] + betaDistAlpha - 1;
-//				System.out.println("i = " + i + ", A = " + A + ", B = " + B + ", C =" + C);
+				
 				if (A == 0) tempScores[nextRow][i] = -C / B;
-				else tempScores[nextRow][i] = (-B - Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+				else {
+					tempScores[nextRow][i] = (-B - Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+//					if (tempScores[nextRow][i] < 0) tempScores[nextRow][i] =  (-B + Math.sqrt(B * B - 4 * A * C)) / (2 * A);
+				}
+//				System.out.println("i = " + i + ", A = " + A + ", B = " + B + ", C =" + C + ", B^2-4AC=" + (B * B - 4 * A * C) + ", score=" + tempScores[nextRow][i]);
 //				tempScores[nextRow][i] = (double) w[i] / tempScores[nextRow][i];
 			}
 			curRow ^= 1;
 			scores = tempScores[curRow];
-//			normalizedByL1(scores);
+			
 			
 			
 			
@@ -133,7 +142,64 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 			}
 			System.out.println();
 //			System.out.println("================");
+			/**/
 			
+			
+			calcLogLikelihood();
+			double L = 0;
+			for (int i = 0; i < likelihoods.length; ++i) L += Math.log(likelihoods[i]);
+			
+			System.out.println("L = " + L);
+			if (L < oldL || Math.abs((L - oldL) / oldL) < epsilon) {
+				++stopCnt;
+				oldL = L;
+				if (stopCnt > 5) {
+					System.out.println("Converge");
+					break;
+				}
+			}
+			else {
+				stopCnt = 0;
+				oldL = L;
+			}
+		}
+		
+//		normalizedByLInfinite(scores);
+	}
+	
+	
+	public void calcLogLikelihood() {
+		calcLogLikelihood(this.scores);
+	}
+	
+	public void calcLogLikelihood(double[] scores) {
+		for (int recId = 0; recId <  rkdata.semiRankingLists.size(); ++recId) {
+			ArrayList<int[]> semiRankingList = rkdata.semiRankingLists.get(recId);
+			int cnt = 0;
+			for (int j = 0; j < semiRankingList.size(); ++j) cnt += semiRankingList.get(j).length;
+			int[] fullList = new int[cnt];
+			int k = semiRankingList.get(0).length;
+			for (int j = 1; j < semiRankingList.size(); ++j) 
+				for (int l = 0; l < semiRankingList.get(j).length; ++l) fullList[k++] = semiRankingList.get(j)[l];
+			likelihoods[recId] = 0.0;
+			if (permLists.get(recId).get(0).size() == 0) likelihoods[recId] = 1;
+			else {
+				for (int[] permList : permLists.get(recId).get(0)) {
+					for (int j = 0; j < permList.length; ++j) fullList[j] = permList[j];
+					double prob = 0.0;
+	//				for (int i : fullList) System.out.print(i + ",");
+	//				System.out.println();
+					for (int i = 0; i < permList.length; ++i) {
+						double sum = 0.0;
+						for (int j = i; j < fullList.length; ++j)
+							sum += scores[fullList[j]];
+	//					System.out.println("score=" + scores[fullList[i]] + ", sum=" + sum);
+						prob += Math.log(scores[fullList[i]]) - Math.log(sum);
+					}
+					likelihoods[recId] += Math.exp(prob);
+				}
+			}
+//			System.out.println(likelihoods[recId]);
 		}
 	}
 	
@@ -159,14 +225,17 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 		for (Entry<Integer, Double> e : endPointsMap.entrySet()) {
 			double tempAlpha = e.getValue();
 			System.out.println("when alpha = " + tempAlpha);
+			double[] tempScores = new double[scores.length];
+			for (int j = 0; j < scores.length; ++j) tempScores[j] = tempAlpha * scores[j];
+			this.calcLogLikelihood(tempScores);
 			double L = 0.0;
 			for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
 				double lambda = this.tempLambda;
 				ArrayList<int[]> semiRankedList = rkdata.semiRankingLists.get(j);
 				double u = semiRankedList.get(0).length == 0 ? 1.0 : getMin(getScoreVector(semiRankedList.get(0)));
-				double l = semiRankedList.get(1).length == 0 ? 1.0 : getLInfinite(getScoreVector(semiRankedList.get(1)));
-				double p = getRandomPickingProb(b, rho, semiRankedList.get(0).length, semiRankedList.get(0).length + semiRankedList.get(1).length);
-				if (0.5 >= l * tempAlpha && 0.5 < u * tempAlpha) p = p * (1 - lambda) + lambda;
+				double l = semiRankedList.get(1).length == 0 ? 0.0 : getLInfinite(getScoreVector(semiRankedList.get(1)));
+				double p = lambda * likelihoods[j] * getRandomPickingProb(b, rho, semiRankedList.get(0).length, semiRankedList.get(0).length + semiRankedList.get(1).length);
+				if (0.5 >= l * tempAlpha && 0.5 < u * tempAlpha) p += (1 - lambda);
 				L += Math.log(p);
 			}
 			System.out.println("L = " + L);
@@ -175,6 +244,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 				maxL = L;
 			}
 		}
+		System.out.println("bestAlpha = " + bestAlpha);
 		for (int i = 0; i < scores.length; ++i) scores[i] *= bestAlpha;
 		
 		// ================Debug========================
@@ -186,11 +256,24 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 		int top = 0;
 		for (Entry<String, Double> e: sortedList) {
 			System.out.println(e.getKey() + ":" + e.getValue() + "\t");
-//			if (++top >= 20) break;
+			if (++top >= 20) break;
 		}
 		System.out.println();
 		// =============================================
 	}
+	
+	public double getProb(int[] orderedList) {
+		double ret = 1.0;
+		for (int i = 0; i < orderedList.length; ++i) {
+			double sum = 0;
+			for (int j = i; j < orderedList.length; ++j)
+				sum += scores[orderedList[j]];
+			ret *= scores[orderedList[i]] / sum;
+		}
+		return ret;
+	}
+	
+	
 	
 	private double getRandomPickingProb(double b, double pho, int k, int n) {
 		//Assuming P(picking the k from [0,...,n]) = C(k + b)^(-pho) 
@@ -253,11 +336,15 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta2.txt");
+		System.out.println(dataSet.id2Name.size());
+		
 		PlackettLuceSemiMMLearner learner = new PlackettLuceSemiMMLearner(dataSet);
 		learner.trainRankings();
-		learner.rescaleScores(1, 1, 0.8);
-		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth.txt");
+//		learner.rescaleScores(1, 1, 0.6);
+		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
+		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
+		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score2.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\pl_score2.txt");
 	}
 	
 }

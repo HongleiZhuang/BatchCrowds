@@ -55,10 +55,12 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 //		RankingDataSet rkdata = new RankingDataSet();
 //		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");
+		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta_i.txt");
 		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
-		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth.txt");
+		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
+		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
+		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score_i.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\naive_score_i.txt");
 	}
 	
 }
