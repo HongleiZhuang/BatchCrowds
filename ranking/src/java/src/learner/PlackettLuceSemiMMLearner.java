@@ -20,7 +20,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	double[] likelihoods;
 	
 	
-	double betaDistAlpha = 2, betaDistBeta = 2;
+	double betaDistAlpha = 1.01, betaDistBeta = 1.16;
 	
 	static public ScoreBasedSemiRankingLearner createPlacketBasedSemiRankingLearner(SemiRankingDataSet rkdata) {
 		return new PlackettLuceSemiMMLearner(rkdata);
@@ -336,15 +336,18 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta2.txt");
+//		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta2.txt");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.srk");
 		System.out.println(dataSet.id2Name.size());
 		
 		PlackettLuceSemiMMLearner learner = new PlackettLuceSemiMMLearner(dataSet);
 		learner.trainRankings();
 //		learner.rescaleScores(1, 1, 0.6);
-		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
-		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
-		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score2.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\pl_score2.txt");
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+//		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
+//		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
+//		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score2.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\pl_score2.txt");
 	}
 	
 }

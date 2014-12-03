@@ -55,12 +55,18 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 //		RankingDataSet rkdata = new RankingDataSet();
 //		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta_i.txt");
+//		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta_i.txt");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.srk");
 		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
-		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
-		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
-		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score_i.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\naive_score_i.txt");
+//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
+//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+
+//		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
+//		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
+//		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score_i.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\naive_score_i.txt");
 	}
 	
 }
