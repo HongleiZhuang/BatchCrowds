@@ -30,7 +30,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 	}
 	
 	public void evaluate(String gtFileName) throws Exception {
-		HashMap<Integer, Integer> gtLabelMap = readGtLabel(gtFileName);
+		HashMap<Integer, Integer> gtLabelMap = rkdata.readGtLabel(gtFileName);
 		int p = 0;
 		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++p;
 		int tp = 0, fn = 0, fp = 0;
@@ -49,7 +49,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 	}
 	
 	public void evaluateByROC(String gtFileName) throws Exception {
-		HashMap<Integer, Integer> gtLabelMap = readGtLabel(gtFileName);
+		HashMap<Integer, Integer> gtLabelMap = rkdata.readGtLabel(gtFileName);
 		int p = 0;
 		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++p;
 		HashMap<Integer, Double> name2Score = new HashMap<Integer, Double>();
@@ -79,7 +79,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 		return gtSet;
 	}
 	
-
+/*
 	private HashMap<Integer, Integer> readGtLabel(String gtScoreFileName) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(gtScoreFileName)));
 		HashMap<Integer, Integer> ret = new HashMap<Integer, Integer>();
@@ -92,7 +92,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 		}
 		br.close();
 		return ret;
-	}
+	}*/
 	
 	private HashMap<Integer, Double> readGtScores(String gtScoreFileName) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(gtScoreFileName)));
@@ -129,4 +129,5 @@ public abstract class ScoreBasedSemiRankingLearner {
 		bw.flush();
 		bw.close();
 	}
+	
 }

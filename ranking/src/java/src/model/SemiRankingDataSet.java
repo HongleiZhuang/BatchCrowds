@@ -75,6 +75,20 @@ public class SemiRankingDataSet {
 		return ret;
 	}
 	
+	public HashMap<Integer, Integer> readGtLabel(String gtScoreFileName) throws Exception {
+		BufferedReader br = new BufferedReader(new FileReader(new File(gtScoreFileName)));
+		HashMap<Integer, Integer> ret = new HashMap<Integer, Integer>();
+		String s;
+		while ((s = br.readLine()) != null) {
+			s = s.trim();
+			if (s == "") continue;
+			String[] slist = s.split("\\s+");
+			ret.put(name2Id.get(slist[0]), Integer.parseInt(slist[1]));
+		}
+		br.close();
+		return ret;
+	}
+	
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
 		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta.txt");

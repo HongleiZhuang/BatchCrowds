@@ -46,7 +46,7 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 		for (Entry<String, Double> e: sortedList) {
 			System.out.println(e.getKey() + ":" + e.getValue() + "\t");
 //			System.out.print(e.getValue() + "\t");
-			if (++top >= 20) break;
+//			if (++top >= 20) break;
 		}
 		System.out.println();
 	}
@@ -56,13 +56,13 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 //		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
 //		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta_i.txt");
-		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.srk");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.test.srk");
 		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
 //		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
 //		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
-		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
-		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 
 //		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
 //		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
