@@ -1,0 +1,8 @@
+*.aux
+*.bbl
+*.blg
+*.log
+betamain.pdf
+betamain.ps
+betamain.dvi
+

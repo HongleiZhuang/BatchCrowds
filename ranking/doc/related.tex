@@ -1,0 +1,64 @@
+\section{Related Work}
+\label{sec:related}
+
+\vpara{Annotation bias.}
+A number of studies have been conducted on evaluating data quality collected from crowds, and modeling annotator behaviors to optimize the data quality.
+Snow~\etal~\cite{snow:emnlp2008} explored the performance with non-expert annotators in several NLP tasks.
+Raykar~\etal~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010}
+studied how to learn a model with noisy labeling. Specifically, they employ a logistic regression classifier, and insert hidden
+variables indicating whether an annotator tells the truth. %They utilize an EM algorithm to infer the real ground-truth while training the model.
+Whitehill~\etal~\cite{whitehill:nips2009} modeled the annotator ability, data item difficulty, and inferred the true label from the crowds in a unified model.
+Venanzi~\etal~\cite{venanzi:www2014} proposed a community-based label aggregation model to identify different types of workers, 
+and correct their labels correspondingly.  
+However, they do not study the case when data items are grouped into batches.
+Das~\etal~\cite{das:kdd2013} addressed the interactions of opinions between people connected by networks.
+Demeester~\etal~\cite{demeester:wsdm2014} discussed the disagreement between different users on assessment of web search results.
+Their studies also focus on understanding annotator behavior, but none of them consider the case when multiple data items are organized into a batch.
+
+Scholer~\etal~\cite{scholer:sigir2013,scholer:sigir2011} studied the annotation disagreements in 
+a relevance assessment data set.  
+%TREC data set, which is on relevance assessment tasks in information retrieval.  
+They discovered the correlation between annotations of similar data items.  %, and the estimated time between the two annotation.  
+They also explored ``threshold priming'' in annotation, 
+where the annotators tend to make similar judgments or apply similar standard on consecutive data items they review. 
+%tend to make similar judgments to consecutive data items.  
+However, their studies focus more on qualitative conclusions, without a quantitative model to characterize and measure the discovered factors.  
+Carterette~\etal~\cite{carterette:effect2010} provided several assessor models for the TREC data set.  
+Mozer~\etal~\cite{mozer:nips2010} studied the similar ``relativity of
+judgments'' phenomenon on sequential tasks instead of small batches.  
+Their focus is more on data items presented as a long sequence, while we focus more on data items presented in small batches.  
+%Also, they focused more on debiasing not active learning.  %but did not apply active learning based on the proposed models.   
+%p
+
+
+\hide{
+\vpara{Batch active learning.}
+Active learning has been extensively studied.
+Settles~\etal~\cite{settles:2010survey} summarized a number of active learning strategies.
+Batch active learning, in contrast to traditional active learning settings, aims to choose a set of data items to query, which proposes some unique challenges.
+Some strategies focus on optimizing the helpfulness of a data batch.
+Hoi~\etal~\cite{hoi:icml2006,hoi:www2006} utilized Fisher information matrix to choose the data items that are likely to change the classifier parameters most.
+Brinker~\etal~\cite{brinker:icml2003} studied batch active learning for SVM and aimed to maximize the diversity within the selected set of data samples.
+Guo~\etal~\cite{guo:nips2008} proposed discriminative active learning strategy by formulating the problem as an optimization problem.
+% Azimi~\etal~\cite{azimi:icml2012} propose a Monte-Carlo method to sequentially select the batch of samples to query.
+A number of strategies also aim at choosing the most representative data batch with regard to the unlabeled data set.
+Yu~\etal~\cite{yu:icml2006} proposed a transductive experimental design, which prioritizes the data samples that represent the hard-to-predict data.
+Chattopadhyay et al.~\cite{chattopadhyay:kdd2012} tried to choose the data batch to minimize Maximum Mean Discrepancy (MMD) to measure the difference in distribution between the labeled and unlabeled data.
+There are studies addressing both intuitions.
+Wang~\etal~\cite{wang:kdd2013} designed a framework to minimize the upper bound of empirical risk, which aims to find a batch of data items that are both discriminative and representative.
+However, all of the above studies assume reliable oracles---which never are in multiple-annotator scenarios such as crowdsourcing.
+
+\vpara{Active learning with crowds.}
+Crowdsourcing serves as a potentially ideal oracle for active learning.
+Two perspectives have been explored; 
+first is how to select data items to query when the oracles are noisy.
+Sheng~\etal~\cite{sheng:kdd2008} provided an empirical study on the performance of repeated labeling and developed an active learning strategy addressing both the ``label uncertainty'' and ``model uncertainty''.
+Second is how to select annotators for crowdsourcing.
+Donmez~\etal~\cite{donmez:kdd2009} studied this problem, by modeling the querying problem as a multi-armed bandit problem.  Each annotator is regarded as as a bandit, and a binary reward function is defined based on whether the oracle provides a correct label.  %However, the true label is unknown. They hence utilize majority voting to determine the ground truth.
+Yan~\etal~\cite{yan:icml2011} explore both the problem of selecting query samples and selecting oracles, in context of a logistic regression classifier.
+Kajino~\etal~\cite{kajino:aaai2012} proposed a convex optimization function for active learning in crowds.  
+% vijayanarasimhan~\etal~\cite{vijayanarasimhan:cvpr2011} applied crowdsourcing to actively learn the detector for p
+However, none of them leverages in-batch bias for active learning.
+}
+
+

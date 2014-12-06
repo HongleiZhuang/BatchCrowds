@@ -1,0 +1,99 @@
+\section{Preliminaries}
+\label{sec:prelim}
+
+We start by introducing the background of a crowdsourcing platform, CrowdFlower.
+Then we define the notations used in this paper and formalize the research problem we study.  
+
+\subsection{Crowdsourcing Platform}
+
+We briefly introduce the background of an online crowdsourcing platform, CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.  
+On CrowdFlower, users can design and submit a job to the online platform.
+The platform will automatically assign the job to global crowd workers (termed as ``contributors'' in CrowdFlower).  
+Each ``job'' submitted consists of a data set, an instruction of how the data set should be labeled 
+and the interface designed for workers to interact with the platform.
+A data set contains several ``units'', and each unit may be assigned to multiple workers to work on.  
+Each worker can generate a ``judgment'' for each unit.  
+Units are the minimum piece of work to be priced and assigned to workers.  
+However, for some tasks the minimum unit price (\ie~0.01 USD) might be too high,
+and it would be extremely inefficient for workers to judge only a data item in a unit, 
+especially when the judgment needs to be done based on some context that potentially may be shared by different data items.  
+For example, in the task of identifying whether a document is relevant to a certain query,
+if each unit is designed to be a pair of document and query, 
+a worker has to read both the query and the document to make a judgment;
+in contrast, if a unit is designed to be a query and a batch of documents, 
+the worker can read the query once, and make several judgments on multiple documents within a query.  
+Thereby workers can save time, 
+and users can lower their cost of data annotation.  
+
+
+For each job, the user can require all the workers to go through a certain number of ``test questions'' 
+before they actually start working on the job.  
+Test questions are units of which the correct judgment is already known.
+Therefore one can evaluate the accuracy of each worker.
+Usually workers with an accuracy lower than 70\% on test questions are not allowed to work on the job.  
+We believe that these test questions can be better utilized rather than simply calculating the overall accuracy.  
+Richer information about worker behavior might be hidden within the judgments of test questions.  
+Users can also insert some units with known answers intermingled with other units while workers work on the job,
+to monitor the real time accuracy of each worker.  
+Similarly, if the accuracy of a worker drops to lower than 70\%, she will be forbidden from working on the rest of the job.
+
+After the judgments from (multiple) workers toward a unit is obtained, 
+one can aggregate these judgments by a majority voting strategy to determine the final annotation of this unit.
+However, this strategy may not be the best strategy due to the possible annotation bias when each unit contains multiple data items. 
+We can also develop other aggregating strategies to apply on the judgments, 
+which (hopefully) better recovers the true labels of data items.  
+
+
+\subsection{Notation and Problem Definition}
+
+First we need to formalize several concepts.  
+Suppose we are given a set of data items $X = \{x_i\}$, where $i=1, \ldots, n$.  
+Each data item is associated with a label $y_i \in \mathcal{Y}$,
+where in a binary classification case, $\mathcal{Y} = \{0, 1\}$.  
+Suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.  
+We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$.  
+
+In a job submitting to a crowdsourcing platform, 
+we can assemble several data items into a batch (``unit'' in CrowdFlower terminology).  
+Denote all the batches as a set of batches $B = \{b_j\}$ where $j = 1, \ldots, m$.  
+Each batch $b_j$ can be represented by an ordered list of indices of data items in the batch, 
+denoted as $(b_{j1}, \ldots, b_{jk})$.  
+Thereby the batch $b_j$ consists of data items $(x_{b_{j1}}, \ldots, x_{b_{jk}})$.  
+We do allow data items to appear in multiple batches in $B$.  
+Notice that we are only concerned with the scenario when data items are formed into \emph{small batches}.  
+Depending on different format of data items, a small batch can have different scale of size.  
+For example, in inappropriate comments identification task, we basically confine $k \leq 5$.  
+Also, for the sake of fully utilize the workforce of crowds, 
+we only consider the scenario when all the batches in $B$ have the identical size $k$.  
+
+As we assemble data items into small batch, 
+each worker has to judge the entire batch as a single judgment.  
+Given a batch $b_j$, the judgment provided by a worker can be represented as $y_j' = (y_{j1}', \ldots, y_{jk}')$, 
+where $y_{j t}' \in \mathcal{Y}$ is the annotation of the $t$-th data item in $b_j$, given by the worker.  
+Noting that the worker annotation $y_{j t}'$ can be different from the true label $y_{b_{j t}}$.  
+We denote all the judgments as $Y'$.  
+In real world crowdsourcing platform, a batch can actually be judged by multiple workers.  
+We can simply regard them as judgments on multiple identical batches indexed differently, but with the same data items.  
+
+
+Now we formalize the research problem as below:
+
+\begin{problem} {Debiasing Annotation of Small Batches of Data.}
+Given a small training set of data items $X_L$ as well as their true labels $Y_L$.  
+Assemble these data items into batches $B_L$ and obtain the corresponding annotation from crowds $Y_L'$.  
+Then with a larger set of data items $X_U$ without knowing their true labels, 
+again assemble data items in $X_U$ into batches $B_U$, and obtain the corresponding annotation from crowds $Y'_U$.  
+The goal is, based on the data and annotation collected from training data set 
+and the noisy annotation for $X_U$ returned by the crowds, 
+infer the true labels $Y_U$ for data items in $X_U$.  
+\end{problem}
+
+
+In this version of definition, we assume identical worker behavior.  
+This assumption is not always true, 
+but considering the data sparsity in real world crowdsourcing scenario 
+(each worker usually answers only 10 test questions), 
+building an accurate enough worker model for each worker is not realistic.  
+
+
+

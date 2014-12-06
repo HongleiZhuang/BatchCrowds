@@ -1,0 +1,121 @@
+\section{Worker Annotation Model On Small Batch of Data}
+\label{sec:worker}
+
+In this section, we first describe our model for workers' annotation behavior on a small batch of data;
+then we introduce how to train the model based on a training data set.  
+%finally we presents the parameters of this model learned from a real world data set.  
+
+The basic idea is, when a worker judges a batch of data items, 
+she can either choose to judge data items independently as if they are presented alone,
+or to rank all the data items according to their relative relations 
+and annotate the top several items as positive, leaving the rest in the batch as negative.  
+
+
+\vpara{Plackett-Luce model.}
+Before we delve in our model, we first recap a probability model for generating rankings 
+based on scores associated with items, namely the Plackett-Luce model~\cite{luce:2005, plackett:1975}.  
+Without loss of generality, suppose we are given a set of items $x_1, \ldots, x_k$.
+Each item $x_i$ is associated with a certain score $s(x_i) > 0$.  
+A ranking of these items can be represented as a bijection $\pi : \{i\}_{i = 1}^k \mapsto \{x_i\}_{i = 1}^k$, 
+which maps the $i$-th position in the ranking to the item at this position.  
+The corresponding ranking list can be represented as 
+$\pi(1) \succ \cdots \succ \pi(k)$. 
+In Plackett-Luce model, the probability of generating a ranking $\pi$ is:
+\beal{
+P(\pi) = \prod_{i = 1}^k \frac{s(x_i)}{\sum_{r = i}^{k} s(x_r)}	
+}%
+It can be interpreted as the following process:
+Initially we have a pool $A$ of all the data items.  
+Each time one picks an item $x_i$ from a pool $A$ of data items with a probability proportional to its score, namely:
+\beal{
+P(\text{picking $x_i$ from $A$}) = \frac{s(x_i)}{\sum_{x_r \in A} s(x_r)} \nonumber
+}
+This item is then removed from the pool $A$ and placed at the next position in the ranking.  
+Repeat this operation until $A$ becomes empty.  
+The probability of generating a ranking list according to this process is equivalent to the probability described in the Plackett-Luce model.  
+
+
+\vpara{Worker model.}
+Now we introduce our worker model for annotating small batches of data items.  
+Again, without loss of generality, suppose we are given a batch $b_j$ of $(x_1, \ldots, x_k)$, namely $b_{ji} = i$.  
+Also, recall that for each data item $x_i$, we denote its predictive probability $P(y_i = 1 | x_i)$ as $\eta_i$.  
+Although this value is not explicitly known, 
+we assume the worker has the ability to estimate this value based on the features of data item.  
+
+When a worker starts to work on this batch of data items, 
+with a certain probability $0 < \lambda < 1$, 
+the worker chooses to judge each data item $x_i$ independently based on the $\eta_i$ value.  
+More concretely, the worker generates $y_i' = 1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.  
+With probability $(1 - \lambda)$, the worker chooses to first rank all the data items based on their probability of being positive, 
+then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.  
+To be precise, the worker generates a ranking $\pi$ for $k$ items in the batch according to the Plackett-Luce model, 
+with the scoring function defined as $s(x_i) = \eta_i$.  
+Then the worker draws an integer $0 \leq \tau \leq k$ from a certain distribution, 
+where $p_\tau$ denotes the probability of drawing the integer $\tau$.    
+For data items $x_i \in \{\pi^{-1}(1), \ldots, \pi^{-1}(p)\}$ (could be empty if $p = 0$), the worker annotates them as $y_i'=1$, 
+while other data items not within the top-$p$ of the ranking $\pi$ are annotated as $y_i' = 0$.
+
+The intuition of this model is to capture two behavior pattern of workers.  
+Sometimes workers use an absolute standard to judge data items from different batches, 
+and therefore remain consistent performance.  
+Nevertheless, sometimes workers might judge data items within a batch by comparison.  
+They have an expectation of data distribution, 
+which is reflected by the distribution of generating $p$, 
+as it characterizes the probability of having $p$ positives within $k$ data items.   
+They still have the ability to judge the relative relationships between data items in the same batch,
+which is captured by the Plackett-Luce model for generating the ranking, 
+but when they try to apply their expectation of data distribution on the batch, 
+bias might occur.  
+
+
+\vpara{Model learning.}
+Parameters need to be determined in this worker model is:
+the probability of making independent judgments $\lambda$, 
+and the distribution of the number of positive annotation when making relative judgments, 
+represented by $p_0, \ldots, p_k$, where $0 \leq p_{\tau} \leq 1$ and $\sum p_{\tau} = 1$.  
+
+Suppose we are given a set of $n_L$ items $X_L$ with their true labels $Y_L$ known.  
+Then we form them into $m_L$ batches $B_L$, send them to the crowds, 
+and obtain their annotation from workers, denoted as $Y_L'$.  
+
+
+For simplicity, we write $x_{b_{jt}}$ as $x_{jt}$, and similar to $y_{jt}$ and $\eta_{jt}$.
+For each batch $b_j \in B_L$, we denote the set of items annotated by workers as positive as $X_{j}^1 = \{x_{jt} | y_{jt}' = 1\}$, 
+and the set of items annotated as negative as $X_{j}^0 = \{x_{jt} | y_{jt}' = 0\}$.  
+
+
+We train the model by maximum likelihood estimation.  
+The likelihood of the obtained annotation can be written as:
+\beal{
+	L = \prod_{j=1}^{m_L} \biggl[ 
+		\lambda \prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})} 
+		%\prod_{x_{jt1} \in X_{j}^1} \eta_{jt1} \prod_{x_{jt0} \in X_{j}^0} (1 - \eta_{jt0}) \nonumber \\
+		+ (1 - \lambda) p_{\tau_j} P(X_{j}^1 \succ X_{j}^0)  
+	\biggr] 
+}%
+where $\tau_j = |X_{j}^1|$ is the number of positive annotation in batch $b_j$;
+$P(X_{j}^1 \succ X_{j}^0)$ denotes the probability of generating any rankings $\pi$
+that rank items in $X_{j}^1$ higher than any items in $X_{j}^0$, 
+namely:
+\beal{
+	P(X_{j}^1 \succ X_{j}^0) = \sum_{\pi \in R(X_{j}^1, X_{j}^0)} P(\pi) \nonumber 
+}%
+where $R(X_1, X_0) = \{ \pi |\pi^{-1}(x_{0}) > \pi^{-1}(x_{1}),  \forall x_{1} \in X_1, x_0 \in X_0 \}$;
+and $P(\pi)$ is defined by the Plackett-Luce model.  
+
+Applying an EM-algorithm, where at E-step, we can have 
+\beal{
+	\hat{\lambda}_j = \frac{\hat{\lambda} \prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}}
+	{\hat{\lambda} \prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})} + 
+	(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)} \nonumber 
+}
+
+And at M-step, we update the parameters $\hat{\lambda}$ and $\hat{p}_{\tau}$ by
+\beal{
+	\hat{\lambda} = \sum_{j=1}^{m_L} \hat{\lambda}_j, \hspace{0.2in}
+	\hat{p}_{\tau} = \frac{1}{\hat{Z}} \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j) \mathbf{1}_{\{ |X_{j}^1| = \tau\}} \nonumber 
+}%
+where $\hat{Z} = \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j)$.  
+
+
+
