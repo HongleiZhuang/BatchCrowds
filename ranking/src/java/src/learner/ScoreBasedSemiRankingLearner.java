@@ -94,19 +94,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 		return ret;
 	}*/
 	
-	private HashMap<Integer, Double> readGtScores(String gtScoreFileName) throws Exception {
-		BufferedReader br = new BufferedReader(new FileReader(new File(gtScoreFileName)));
-		HashMap<Integer, Double> ret = new HashMap<Integer, Double>();
-		String s;
-		while ((s = br.readLine()) != null) {
-			s = s.trim();
-			if (s == "") continue;
-			String[] slist = s.split("\\s+");
-			ret.put(rkdata.name2Id.get(slist[0]), Double.parseDouble(slist[1]));
-		}
-		br.close();
-		return ret;
-	}
+
 	
 	public void outputGtScoresAccordingToGivenOrder(String orderFileName, String outputFile) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(orderFileName)));

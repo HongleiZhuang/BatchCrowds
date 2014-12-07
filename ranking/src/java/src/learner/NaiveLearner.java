@@ -52,21 +52,22 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 	}
 
 	static public void main(String[] args) throws Exception {
-//		RankingDataSet rkdata = new RankingDataSet();
-//		rkdata.readRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_bin_200.txt");
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-//		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta_i.txt");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
+		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
+		learner.trainRankings();
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
+
+		
+		/*
+		SemiRankingDataSet dataSet = new SemiRankingDataSet();
 		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.test.srk");
 		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
-//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
-//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/test.uid.filtered");
 		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
-
-//		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
-//		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_i.txt");
-//		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score_i.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\naive_score_i.txt");
+		/**/
 	}
 	
 }

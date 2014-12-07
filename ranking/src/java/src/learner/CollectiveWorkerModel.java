@@ -1,25 +1,20 @@
 package learner;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import util.MapSorter;
 import model.SemiRankingDataSet;
+import util.MapSorter;
 
-public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
-	
+public class CollectiveWorkerModel extends ScoreBasedSemiRankingLearner {
+
 	int maxIter = 2000;        // Maximum iteration 
 	double epsilon = 1e-3;    // Stop criterion for convergence
 	double tempLambda;  // Probability that a worker guesses the answer
 	
 	int trainWorkerMaxIter = 100;
 	double deltaProb = 1e-2;  //A small probability prevent the learned parameters to be zero.
-	double deltaScore = 1e-3; //A small constant prevent the scores to be 0 or 1. 
 	
 	double dampingFactor = 0.5;
 	int curRow;
@@ -33,10 +28,10 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	
 	double betaDistAlpha = 1.5, betaDistBeta = 1.5;
 	
-	String logFileString = null;
 	
 	
-	private SimpleWorkerModelLearner(SemiRankingDataSet rkdata) {
+	
+	private CollectiveWorkerModel(SemiRankingDataSet rkdata) {
 		this.rkdata = rkdata;
 		this.tempScores = new double[2][rkdata.id2Name.size()];
 		this.curRow = 0;
@@ -45,154 +40,28 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	}
 	
 
-	void trainWorkerModelParams(SemiRankingDataSet trainRkdata, HashMap<Integer, Double> rawGroundTruthScores) throws IOException {
-		int maxLength = 0;
-		double[] correctFlag = new double[trainRkdata.semiRankingLists.size()];
-		double[] plProb = new double[trainRkdata.semiRankingLists.size()];
-		HashMap<Integer, Double> groundTruthScores = new HashMap<Integer, Double>();
-		for (Entry<Integer, Double> e : rawGroundTruthScores.entrySet()) {
-			groundTruthScores.put(e.getKey(), (e.getValue() + deltaScore) / (1 + 2 * deltaScore));
-		}
-		for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
-			ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
-			// Get maximum semi-ranking list length
-			int l = 0;
-			double sumScores = 0.0;
-			for (int[] sess : semiRankList) {
-				l += sess.length;
-				for (int id : sess) sumScores += groundTruthScores.get(id);
-			}
-			if (l > maxLength) maxLength = l;
-			// Initialize whether a semi-ranking list is exactly coherent with the ground truth
-			for (int id : semiRankList.get(0)) {
-				correctFlag[j] += Math.log(groundTruthScores.get(id));
-			}
-			for (int id : semiRankList.get(1)) {
-				correctFlag[j] += Math.log(1 - groundTruthScores.get(id));
-			}
-			
-			if (semiRankList.get(0).length == 0) plProb[j] = 1.0;
-			else {
-				ArrayList<int[]> perms = getPermutation(semiRankList.get(0));
-				for (int[] sess : perms) {
-					double lProb = 0.0;
-					double tempSumScores = sumScores;
-					for (int t = 0; t < sess.length; ++t) {
-						lProb += Math.log(groundTruthScores.get(sess[t])) - Math.log(tempSumScores);
-						tempSumScores -= groundTruthScores.get(sess[t]);
-					}
-					plProb[j] += Math.exp(lProb);
-				}
-			}
-		}
-		
-		// Initialize worker model parameters to learn
-		double[][] pickingProbHat = new double[2][maxLength + 1];
-		double[] correctProbHat = new double[2];
-		for (int i = 0; i < maxLength + 1; ++i) pickingProbHat[0][i] = Math.random();
-		normalizedByL1(pickingProbHat[0]);
-		correctProbHat[0] = 0.5;
-		int cur = 0;
-		this.correctProb = correctProbHat[cur];
-		this.pickingProb = pickingProbHat[cur];
-		
-		
-		BufferedWriter logWriter = null;
-		if (logFileString != null) {
-			logWriter = new BufferedWriter(new FileWriter(new File(logFileString)));
-		}
-		
-		for (int iter = 0; iter < trainWorkerMaxIter; ++iter) {
-			int next = cur ^ 1;
-			correctProbHat[next] = 0.0; // Temp variable for calculating next "correctProb"
-			for (int i = 0; i < maxLength + 1; ++i) pickingProbHat[next][i] = deltaProb; // Temp variable for calculating next "pickingProb"
-			for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
-				ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
-				double pZX = correctProb * Math.exp(correctFlag[j]) / (correctProb * Math.exp(correctFlag[j]) + (1 - correctProb) * plProb[j] * pickingProb[semiRankList.get(0).length]);
-				correctProbHat[next] += pZX;
-				pickingProbHat[next][semiRankList.get(0).length] += 1 - pZX;
-			}
-			correctProbHat[next] /= trainRkdata.semiRankingLists.size();
-			normalizedByL1(pickingProbHat[next]);
-			cur ^= 1;
-			this.correctProb = correctProbHat[cur];
-			this.pickingProb = pickingProbHat[cur];
-			System.out.println("lambda = " + correctProb);
-			System.out.println("picking prob = ");
-			for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
-			System.out.println();
-			
-			double L = 0.0;
-			for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
-				ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
-				L += Math.log(correctProb * Math.exp(correctFlag[j]) + (1 - correctProb) * plProb[j] * pickingProb[semiRankList.get(0).length]);
-			}
-			System.out.println("L = " + L);
-			if (logFileString != null) {
-				logWriter.write(L + "\n");
-				logWriter.flush();
-			}
-		}
-		
-		if (logFileString != null) logWriter.close();
-	}
-	
-	/*
-	void trainWorkerModelParams(SemiRankingDataSet trainRkdata, HashMap<Integer, Integer> groundTruth) {
-		int maxLength = 0;
-		double[] correctFlag = new double[trainRkdata.semiRankingLists.size()];
-		for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
-			ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
-			// Get maximum semi-ranking list length
-			int l = 0; 
-			for (int[] sess : semiRankList) l += sess.length;
-			if (l > maxLength) maxLength = l;
-			// Initialize whether a semi-ranking list is exactly coherent with the ground truth 
-			correctFlag[j] = 1.0;
-			for (int id : semiRankList.get(0)) if (groundTruth.get(id) == 0) correctFlag[j] = 0.0;
-			for (int id : semiRankList.get(1)) if (groundTruth.get(id) == 1) correctFlag[j] = 0.0;
-		}
-		
-		// Initialize worker model parameters to learn
-		double[][] pickingProbHat = new double[2][maxLength + 1];
-		double[] correctProbHat = new double[2];
-		for (int i = 0; i < maxLength + 1; ++i) pickingProbHat[0][i] = Math.random();
-		normalizedByL1(pickingProbHat[0]);
-		correctProbHat[0] = 0.5;
-		int cur = 0;
-		this.correctProb = correctProbHat[cur];
-		this.pickingProb = pickingProbHat[cur];
-		
-		for (int iter = 0; iter < trainWorkerMaxIter; ++iter) {
-			int next = cur ^ 1;
-			correctProbHat[next] = 0.0; // Temp variable for calculating next "correctProb"
-			for (int i = 0; i < maxLength + 1; ++i) pickingProbHat[next][i] = deltaProb; // Temp variable for calculating next "pickingProb"
-			for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
-				ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
-				// Notice that we are assuming the probability of generating a correct ranking here is 1.
-				// Because we do not actually know the eta value for ground-truth data.  
-				double pZX = correctProb * correctFlag[j] / (correctProb * correctFlag[j] + (1 - correctProb) * pickingProb[semiRankList.get(0).length]);
-				correctProbHat[next] += pZX;
-				pickingProbHat[next][semiRankList.get(0).length] += 1 - pZX;
-			}
-			correctProbHat[next] /= trainRkdata.semiRankingLists.size();
-			normalizedByL1(pickingProbHat[next]);
-			cur ^= 1;
-			this.correctProb = correctProbHat[cur];
-			this.pickingProb = pickingProbHat[cur];
-			System.out.println("lambda = " + correctProb);
-			System.out.println("picking prob = ");
-			for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
-			System.out.println();
-		}
-	}
-	/**/
-
 	
 	@Override
 	void trainRankings() {
 
 		for (int i = 0; i < tempScores[curRow].length; ++i) tempScores[curRow][i] = 0.1;
+		int maxLength = 0;
+		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
+			ArrayList<int[]> semiRankList = rkdata.semiRankingLists.get(j);
+			// Get maximum semi-ranking list length
+			int l = 0; 
+			for (int[] sess : semiRankList) l += sess.length;
+			if (l > maxLength) maxLength = l;
+		}
+
+		double[][] pickingProbHat = new double[2][maxLength + 1];
+		double[] correctProbHat = new double[2];
+		for (int i = 0; i < maxLength + 1; ++i) pickingProbHat[curRow][i] = Math.random();
+		normalizedByL1(pickingProbHat[curRow]);
+		correctProbHat[curRow] = 0.5;
+		this.correctProb = correctProbHat[curRow];
+		this.pickingProb = pickingProbHat[curRow];
+
 		
 		permLists = new ArrayList<ArrayList<ArrayList<int[]>>>();
 		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
@@ -237,6 +106,9 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 				
 //				double pZX = (correctProb * correctFlag) / (correctProb * correctFlag + (1 - correctProb) * piProbs[j] * pickingProb[semiRankedList.get(0).length]);
 				double pZX = (correctProb * Math.exp(correctFlag)) / (correctProb * Math.exp(correctFlag) + (1 - correctProb) * piProbs[j] * pickingProb[semiRankedList.get(0).length]);
+				correctProbHat[nextRow] += pZX;
+				pickingProbHat[nextRow][semiRankedList.get(0).length] += 1 - pZX;
+
 				
 				for (int s = 0; s < semiRankedList.size() - 1; ++s) {
 //					for (int k : semiRankedList.get(s)) w[k] += 1 - pZX;
@@ -280,7 +152,9 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 				
  			}
 
-			
+			correctProbHat[nextRow] /= rkdata.semiRankingLists.size();
+			normalizedByL1(pickingProbHat[nextRow]);
+
 			for (int i = 0; i < scores.length; ++i) {
 				
 				double A = tempScores[nextRow][i];
@@ -298,8 +172,11 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
  				/**/ 
 				//tempScores[nextRow][i] = (double) w[i] / tempScores[nextRow][i];
 			}
+			
 			curRow ^= 1;
 			scores = tempScores[curRow];
+			this.correctProb = correctProbHat[curRow];
+			this.pickingProb = pickingProbHat[curRow];
 			
 			
 			
@@ -320,6 +197,11 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 //			System.out.println("================");
 			/**/
 			
+			System.out.println("lambda = " + correctProb);
+			System.out.println("picking prob = ");
+			for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
+			System.out.println();
+
 			
 //			calcLogLikelihood();
 			double L = calcLogLikelihood();
@@ -457,50 +339,28 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 
 	static public void main(String[] args) throws Exception {
-		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
-		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.train.srk");
-		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/fullres.out.train.filtered");
-		System.out.println(trainDataSet.id2Name.size());
-		
-		
-		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
-		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.test.srk");
-		System.out.println(testDataSet.id2Name.size());
-
-		
-		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet);
-		learner.logFileString = "/Users/hzhuang/Work/beta/ranking/exp/lnkd/loglikelihood.txt";
-		learner.trainWorkerModelParams(trainDataSet, trainScores);
-//		learner.trainRankings();
-		
-//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
-//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
-		
-		
 		/*
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 //		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.train.srk");
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
-
 		System.out.println(trainDataSet.id2Name.size());
 //		HashMap<Integer, Integer> trainLabels = trainDataSet.readGtLabel("/Users/hzhuang/Work/beta/ranking/data/fullres.out.train.filtered");
-//		HashMap<Integer, Integer> trainLabels = trainDataSet.readGtLabel("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
-		HashMap<Integer, Double> trainScores  = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_score.txt");
-
-
-		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(trainDataSet);
+		HashMap<Integer, Integer> trainLabels = trainDataSet.readGtLabel("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
+		/**/
 		
-		learner.logFileString = "/Users/hzhuang/Work/beta/ranking/exp/synthetic/loglikelihood.txt";
-		learner.trainWorkerModelParams(trainDataSet, trainScores);
+		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.test.srk");
+		System.out.println(testDataSet.id2Name.size());
+		/**/
+		
+		
+//		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet);
+		CollectiveWorkerModel learner = new CollectiveWorkerModel(testDataSet);
 		
 //		learner.trainWorkerModelParams(trainDataSet, trainLabels);
-//		learner.trainRankings();
-//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
-//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
-		
-
-		/**/
+		learner.trainRankings();
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 	}
-	
-	
+
 }
