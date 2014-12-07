@@ -1,2 +1,85 @@
 \section{Debiasing Annotation}
 \label{sec:debias}
+
+In this section, we introduce given the trained worker model, 
+how to debias annotation collected for small batches of data.  
+More precisely, given a set of $n_U$ unlabeled data items $X_U$,
+assemble them into $m_U$ batches represented by $B_U$,  
+as well as their annotation obtained from the crowds $Y_U'$,
+how to infer their true labels $Y_U$.  
+
+The basic idea is, based on the given worker model,
+try to infer $\eta_i$ for each $x_i \in X_U$,
+then we simply apply the Bayes classifier to determine the inferred label, 
+which yields $\hat{y}_i = 1$ if $\eta_i > 0.5$, or $\hat{y}_i = 0$ if $\eta_i \leq 0.5$.  
+
+We again adopt a maximum likelihood estimate.  
+The log-likelihood of the obtained annotation is:
+\beal{
+	\log L (\eta) = \sum_{j=1}^{m_U} 
+	\log \biggl[ 
+		&\hat{\lambda} %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})} 
+		\prod_{x_{jt1} \in X_{j}^1} \eta_{jt1} \prod_{x_{jt0} \in X_{j}^0} (1 - \eta_{jt0}) \nonumber \\
+		+ &(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)  
+	\biggr] 
+}%
+
+Notice that $\hat{\lambda}$ and $\hat{p}_{\tau_j}$ are parameters learned from Section~\ref{sec:worker},
+and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.  
+Similarly, we apply an EM-algorithm here, 
+by first calculating $\hat{\lambda}_j$ for each batch at E-step according to~\eqref{eq:e_step}.  
+Then we can have
+\beal{\label{eq:em_debiasing}
+	\log L(\eta) &\geq \sum_{j=1}^{m_U} 
+		\hat{\lambda}_j \biggl[ 
+			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0}) 
+		\biggr] \nonumber \\
+		& + \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \bigl[\log \hat{p}_{\tau_j}  + \log P(X_{j}^1 \succ X_{j}^0) \bigr] 
+}%
+where the second term includes $\log P(X_{j}^1 \succ X_{j}^0)$, which is hard to optimize.  
+We further utilzie Jensen's inequality to bound this term from bottom by
+\beal{\label{eq:semi_ranking_to_sum_of_ranking}
+	\log P(X_1 \succ X_0) &= %\log \sum_{\substack{\pi: \forall x_{1} \in X_1, x_0 \in X_0, \\ \pi^{-1}(x_{0}) > \pi^{-1}(x_{1}) }} P(\pi)
+	\log \sum_{\pi \in R_j} P(\pi) \nonumber \\
+	&\geq \frac{1}{|R_j|} \sum_{\pi \in R_j}  \log P(\pi)
+}%
+where we use notation $R_j$ to represent $R(X_{j}^1, X_{j}^0)$.  
+
+Furthermore, according to the minorization-maximizaion algorithm used in~\cite{hunter:aos2004}, 
+we can obtain the lower bound for $\log P(\pi)$, which is defined by the Plackett-Luce model, by:
+\beal{\label{eq:mm_algorithm}
+	\log P(\pi) &= \sum_{t=1}^{k-1} \biggl[ 
+		\log \eta_{\pi^{-1}(t)} - \log \sum_{s=t}^{k} \eta_{\pi^{-1}(s)}
+	\biggr] \nonumber \\
+	&\geq \sum_{t=1}^{k-1} \biggl[ 
+		\log \eta_{\pi^{-1}(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi^{-1}(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi^{-1}(s)}}
+	\biggr]
+}%
+where $\hat{\eta}_i$ is the estimated parameter of last iteration.  
+
+By combining \eqref{eq:em_debiasing},~\eqref{eq:semi_ranking_to_sum_of_ranking} and \eqref{eq:mm_algorithm}, 
+we can obtain the objective function to optimize as:
+\beal{\label{eq:objective_function}
+	Q(\eta) &= \sum_{j=1}^{m_U} 
+		\hat{\lambda}_j \biggl[ 
+			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0}) 
+		\biggr] \nonumber \\
+		&+ \sum_{j=1}^{m_U} \frac{(1 - \hat{\lambda}_j) }{|R_j|} \sum_{\pi \in R_j}  
+		\sum_{t=1}^{k-1} \biggl[ 
+			\log \eta_{\pi^{-1}(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi^{-1}(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi^{-1}(s)}}
+		\biggr]  
+}%
+
+Take the derivative, we can obtain
+\beal{\label{eq:derivative_of_objective_function}
+	\frac{\partial Q(\eta)}{\partial \eta_i} &= 
+		\sum_{j \in M_1(i)}\frac{1}{\eta_i}
+		+ \sum_{j' \in M_0(i)} \frac{ \hat{\lambda}_{j'}}{1 - \eta_i} \nonumber \\
+		%&+ \sum_{j \in M_1(i)} \frac{1 - \hat{\lambda}_j}{\eta_i}
+		&+ \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \sum_{\pi \in R_j} \sum_{t=1}^{|X_j^1|} \mathbf{1}_{\{ \pi^{-1}(i) \geq t \}} 
+}%
+where $M_1(i)$ and $M_0(i)$ are defined as $M_y(i) = \{j:x_i \in X_j^y\}$ for $y \in \{0, 1\}$.  
+The updating rule can be obtained by solving $\partial Q(\eta) / \partial \eta_i = 0$.  
+
+
+

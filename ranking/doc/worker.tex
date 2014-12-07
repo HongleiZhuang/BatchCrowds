@@ -104,10 +104,10 @@ where $R(X_1, X_0) = \{ \pi |\pi^{-1}(x_{0}) > \pi^{-1}(x_{1}),  \forall x_{1} \
 and $P(\pi)$ is defined by the Plackett-Luce model.  
 
 Applying an EM-algorithm, where at E-step, we can have 
-\beal{
+\beal{ \label{eq:e_step}
 	\hat{\lambda}_j = \frac{\hat{\lambda} \prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}}
 	{\hat{\lambda} \prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})} + 
-	(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)} \nonumber 
+	(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)} 
 }
 
 And at M-step, we update the parameters $\hat{\lambda}$ and $\hat{p}_{\tau}$ by
