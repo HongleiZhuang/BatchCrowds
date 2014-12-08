@@ -1,6 +1,18 @@
 \begin{abstract}
 
 Data annotation bias is prevalent in crowd annotated data.  
+Although annotation bias of individual data items and sequential data items has been explored, 
+little research has been done on small batches of data items.  
+Grouping data items in batches can facilitate crowdsourced data annotation of a great number of tasks
+(\eg~clustering, outlier detection~\etc).  
+We study a specific type of data annotation bias when data items are presented as batches 
+to be judged by workers simultaneously.  
+We propose a novel worker model to characterize the annotating behavior on small data batches, 
+and present how to train the worker model on annotation data sets.  
+We also present a debiasing technique to remove the effect of such annotation bias 
+from hurting the accuracy of labels obtained.  
+Our experimental results on both synthetic data and real-world data 
+show the effectiveness of our proposed method.  
 
 \hide{
 Data annotation bias is found in many situations.  Often it can be ignored

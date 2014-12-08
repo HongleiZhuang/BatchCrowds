@@ -1,2 +1,30 @@
 \section{Conclusion}
 \label{sec:conclusion}
+
+In this work we study a specific type of annotation bias in crowdsourcing, 
+which occurs when data items are grouped into small batches 
+and submitted to workers to be judged simultaneously.  
+We propose a novel worker model designed to capture this type of bias, 
+and show how to train the worker model on annotation data.  
+We also show how to debias the label obtained from crowds given a trained worker model.  
+We conduct experiments on both synthetic data and real world data to verify the effectiveness of our methods.  
+
+The observation of small-batch annotation bias might exist in many scenarios other than crowdsourcing, 
+and therefore the debiasing strategy can trigger a broad range of applications. 
+For example, the conference paper review system where each reviewer is assigned a batch of papers 
+can also be regarded as a small-batch annotation.  
+
+\vpara{Future work.}
+There are several different ways of extending this work.  
+\begin{enumerate}
+  \item \emph{Individual workers.}
+        We have not yet considered to learn the model for each individual worker.  
+        One may argue that differences between individual workers can affect the performance, 
+        when we assume all the workers follow the same model.  
+        It is not hard to implement a version which treats each individual worker differently.  
+        However, it might be challenging as training data for each individual worker can be extremely sparse.  
+  \item \emph{Active learning.}
+        Although active learning in this setting has been preliminarily explored in~\cite{zhuang:wsdm2015}, 
+        it is still worth exploring active learning which aims to reduce label errors instead of improving classifier performance.  
+        Active data annotation is probably a more accurate term.  
+\end{enumerate} 
