@@ -52,13 +52,14 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 	}
 
 	static public void main(String[] args) throws Exception {
+		
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
-		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists_test.txt");
 		ScoreBasedSemiRankingLearner learner = NaiveLearner.createNaiveLearner(dataSet);
 		learner.trainRankings();
-		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
-		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label.txt");
-
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		/**/
 		
 		/*
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();

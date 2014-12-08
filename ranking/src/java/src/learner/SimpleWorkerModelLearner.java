@@ -19,9 +19,9 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	
 	int trainWorkerMaxIter = 100;
 	double deltaProb = 1e-2;  //A small probability prevent the learned parameters to be zero.
-	double deltaScore = 1e-3; //A small constant prevent the scores to be 0 or 1. 
+	double deltaScore = 1e-5; //A small constant prevent the scores to be 0 or 1. 
 	
-	double dampingFactor = 0.5;
+	double dampingFactor = 0;
 	int curRow;
 	double[][] tempScores; 
 	ArrayList<ArrayList<ArrayList<int[]>>> permLists;
@@ -31,7 +31,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	double   correctProb;
 	
 	
-	double betaDistAlpha = 1.5, betaDistBeta = 1.5;
+	double betaDistAlpha = 2, betaDistBeta = 2;
 	
 	String logFileString = null;
 	
@@ -457,6 +457,28 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 
 	static public void main(String[] args) throws Exception {
+		/* SYNTHETIC data set
+		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
+		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
+		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_score.txt");
+		System.out.println(trainDataSet.id2Name.size());
+		
+		
+		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists_test.txt");
+		System.out.println(testDataSet.id2Name.size());
+
+		
+		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet);
+		learner.trainWorkerModelParams(trainDataSet, trainScores);
+		
+//		learner.trainRankings();
+		
+//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		/**/
+		
+		/* LNKD data set
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.train.srk");
 		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/fullres.out.train.filtered");
@@ -469,13 +491,14 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 		
 		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet);
-		learner.logFileString = "/Users/hzhuang/Work/beta/ranking/exp/lnkd/loglikelihood.txt";
+//		learner.logFileString = "/Users/hzhuang/Work/beta/ranking/exp/lnkd/loglikelihood.txt";
 		learner.trainWorkerModelParams(trainDataSet, trainScores);
-//		learner.trainRankings();
 		
-//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
-//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		learner.trainRankings();
 		
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		/**/
 		
 		/*
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();

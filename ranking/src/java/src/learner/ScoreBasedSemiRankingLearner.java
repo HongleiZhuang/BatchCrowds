@@ -31,18 +31,21 @@ public abstract class ScoreBasedSemiRankingLearner {
 	
 	public void evaluate(String gtFileName) throws Exception {
 		HashMap<Integer, Integer> gtLabelMap = rkdata.readGtLabel(gtFileName);
-		int p = 0;
-		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++p;
-		int tp = 0, fn = 0, fp = 0;
+		int pos = 0, neg = 0;
+		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++pos; else ++neg;
+		int tp = 0, fn = 0, fp = 0, tn = 0;
 		ArrayList<Integer> inferredList = getInferredPositiveIdList(); 
 		for (int id : inferredList) 
 			if (gtLabelMap.get(id) == 1) ++tp;
 			else ++fp;
-		fn = p - tp;
+		fn = pos - tp;
+		tn = neg - fp;
 		double precision = (double) tp / (tp + fp);
 		double recall    = (double) tp / (tp + fn);
 		double f1        = 2 * precision * recall / (precision + recall);
+		double accuracy = (double) ( tp + tn) / (pos + neg);
 		System.out.println("TP = " + tp + ", FP = " + fp + ", FN = " + fn);
+		System.out.println("Accuracy  = " + accuracy);
 		System.out.println("Precision = " + precision);
 		System.out.println("Recall    = " + recall);
 		System.out.println("F1-score  = " + f1);

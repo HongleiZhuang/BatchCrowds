@@ -20,7 +20,7 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	double[] likelihoods;
 	
 	
-	double betaDistAlpha = 1.01, betaDistBeta = 1.16;
+	double betaDistAlpha = 2, betaDistBeta = 2;
 	
 	static public ScoreBasedSemiRankingLearner createPlacketBasedSemiRankingLearner(SemiRankingDataSet rkdata) {
 		return new PlackettLuceSemiMMLearner(rkdata);
@@ -337,14 +337,21 @@ public class PlackettLuceSemiMMLearner extends ScoreBasedSemiRankingLearner {
 	static public void main(String[] args) throws Exception {
 		SemiRankingDataSet dataSet = new SemiRankingDataSet();
 //		dataSet.readSemiRankingLists("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\rankedlists_beta2.txt");
-		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.srk");
+//		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.test.srk");
+		dataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists_test.txt");
 		System.out.println(dataSet.id2Name.size());
 		
 		PlackettLuceSemiMMLearner learner = new PlackettLuceSemiMMLearner(dataSet);
 		learner.trainRankings();
 //		learner.rescaleScores(1, 1, 0.6);
-		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
-		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.filtered");
+//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		
+		
+		
+		
 //		learner.evaluate("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
 //		learner.evaluateByROC("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth2.txt");
 //		learner.outputGtScoresAccordingToGivenOrder("C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\ground_truth_score2.txt", "C:\\Coursework\\CS598Aditya\\project\\crowdsource\\exp\\1013_try\\pl_score2.txt");
