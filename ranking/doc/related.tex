@@ -1,20 +1,26 @@
 \section{Related Work}
 \label{sec:related}
 
-\vpara{Annotation bias.}
-A number of studies have been conducted on evaluating data quality collected from crowds, and modeling annotator behaviors to optimize the data quality.
+\vpara{Annotation bias in independent judgements}
+A number of studies have been conducted on evaluating data quality collected from crowds, and modeling annotator behaviors to optimize the data quality.  
+However, these studies mainly consider the scenario when data items are judged independently.  
 Snow~\etal~\cite{snow:emnlp2008} explored the performance with non-expert annotators in several NLP tasks.
 Raykar~\etal~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010}
 studied how to learn a model with noisy labeling. Specifically, they employ a logistic regression classifier, and insert hidden
 variables indicating whether an annotator tells the truth. %They utilize an EM algorithm to infer the real ground-truth while training the model.
 Whitehill~\etal~\cite{whitehill:nips2009} modeled the annotator ability, data item difficulty, and inferred the true label from the crowds in a unified model.
+Demeester~\etal~\cite{demeester:wsdm2014} discussed the disagreement between different users on assessment of web search results.
+However, they do not study the case when data items are grouped into batches.
+
 Venanzi~\etal~\cite{venanzi:www2014} proposed a community-based label aggregation model to identify different types of workers, 
 and correct their labels correspondingly.  
-However, they do not study the case when data items are grouped into batches.
 Das~\etal~\cite{das:kdd2013} addressed the interactions of opinions between people connected by networks.
-Demeester~\etal~\cite{demeester:wsdm2014} discussed the disagreement between different users on assessment of web search results.
-Their studies also focus on understanding annotator behavior, but none of them consider the case when multiple data items are organized into a batch.
+Their studies focus on another aspect of dependencies, 
+which is the dependencies between workers, 
+while in our studies, we are more concerned about dependencies between data items and their judgments.  
 
+
+\vpara{Annotation bias in sequential and batch judgments.}
 Scholer~\etal~\cite{scholer:sigir2013,scholer:sigir2011} studied the annotation disagreements in 
 a relevance assessment data set.  
 %TREC data set, which is on relevance assessment tasks in information retrieval.  
@@ -22,13 +28,26 @@ They discovered the correlation between annotations of similar data items.  %, a
 They also explored ``threshold priming'' in annotation, 
 where the annotators tend to make similar judgments or apply similar standard on consecutive data items they review. 
 %tend to make similar judgments to consecutive data items.  
-However, their studies focus more on qualitative conclusions, without a quantitative model to characterize and measure the discovered factors.  
+However, their studies focus on the scenario when data items are organized in a long sequence.  
+It confines the dependencies to exist only between consecutive data items.  
+Also, their studies focus more on qualitative conclusions, without a quantitative model to characterize and measure the discovered factors.  
 Carterette~\etal~\cite{carterette:effect2010} provided several assessor models for the TREC data set.  
 Mozer~\etal~\cite{mozer:nips2010} studied the similar ``relativity of
 judgments'' phenomenon on sequential tasks instead of small batches.  
-Their focus is more on data items presented as a long sequence, while we focus more on data items presented in small batches.  
+Again, their focus is more on data items presented as a long sequence, while we focus more on data items presented in small batches.  
 %Also, they focused more on debiasing not active learning.  %but did not apply active learning based on the proposed models.   
 %p
+
+Our recent work~\cite{zhuang:wsdm2015} also considered the similar setting when data items are organized in small batches.  
+We verified the existence of annotation bias caused by batching data items.  
+We also designed an active learning algorithm to smartly assemble batches, 
+aiming to improve the performance of classifier trained on this annotation batches.  
+However, we did not focus on improving the quality of labels collected, 
+and we still used majority voting to obtain labels for data items.  
+In this paper, we elaborate this work by debiasing the obtained labels per se, 
+and expecting the higher label quality can benefit tasks including training and/or evaluating classifier, 
+which potentially can have a broader application.  
+
 
 
 \hide{
