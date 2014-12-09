@@ -60,12 +60,32 @@ Sometimes workers use an absolute standard to judge data items from different ba
 and therefore remain consistent performance.  
 Nevertheless, sometimes workers might judge data items within a batch by comparison.  
 They have an expectation of data distribution, 
-which is reflected by the distribution of generating $p$, 
-as it characterizes the probability of having $p$ positives within $k$ data items.   
+which is reflected by the distribution of generating $\tau$, 
+as it characterizes the probability of having $\tau$ positives within $k$ data items.   
 They still have the ability to judge the relative relationships between data items in the same batch,
 which is captured by the Plackett-Luce model for generating the ranking, 
 but when they try to apply their expectation of data distribution on the batch, 
 bias might occur.  
+
+We summarize the process of generating annotation for a batch of data items in our proposed model as below:
+\begin{enumerate}
+  \item \label{step:tosscoin}
+        Toss a coin $Z \sim Bernoulli(\lambda)$.  \\
+        If $Z=1$, go to Step~\ref{step:ind};
+        otherwise go to Step~\ref{step:rnk}.
+  \item \label{step:ind}
+        For each $x_i$, generate $y_i' \sim Bernoulli(\eta_i)$. \\
+        Output the results and exit.  
+  \item \label{step:rnk}
+        Generate a ranking $\pi$ based on Plackett-Luce model for data items $x_i$ in the batch.
+  \item \label{step:draw}
+        Draw $\tau \sim Mult(p_{\tau})$.
+  \item \label{step:annotate}
+        For the top-$\tau$ items in ranking $\pi$, generate $y_i' = 1$; \\
+        otherwise generate $y_i' = 0$.  \\
+        Output the results and exit.  
+\end{enumerate}
+
 
 
 \vpara{Model learning.}
@@ -74,7 +94,7 @@ the probability of making independent judgments $\lambda$,
 and the distribution of the number of positive annotation when making relative judgments, 
 represented by $p_0, \ldots, p_k$, where $0 \leq p_{\tau} \leq 1$ and $\sum p_{\tau} = 1$.  
 
-Suppose we are given a set of $n_L$ items $X_L$ with their true labels $Y_L$ known.  
+Suppose we are given a set of $n_L$ items $X_L$ with their predictive distribution $\eta_i$ known %true labels $Y_L$ known.  
 Then we form them into $m_L$ batches $B_L$, send them to the crowds, 
 and obtain their annotation from workers, denoted as $Y_L'$.  
 
@@ -116,6 +136,20 @@ And at M-step, we update the parameters $\hat{\lambda}$ and $\hat{p}_{\tau}$ by
 	\hat{p}_{\tau} = \frac{1}{\hat{Z}} \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j) \mathbf{1}_{\{ |X_{j}^1| = \tau\}} \nonumber 
 }%
 where $\hat{Z} = \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j)$.  
+
+
+However, in real data sets, we do not always know $\eta_i$ for each data item $x_i$, 
+but only know their binary true labels $Y_L$.  
+We can still learn the worker model based on this situation 
+by substituting their labels $y_i \in \{0, 1\}$ into $\eta_i$.  
+Directly substituting the value of 0 or 1 into $\eta_i$ may cause numerical problem in calculating $\lambda_j$.  
+Therefore we regularize the score by using: 
+\beal{
+	\eta_i = \frac{y_i + \epsilon}{1 + 2 \epsilon} \nonumber
+}%
+where $\epsilon$ is a small constant which is set to $10^{-3}$ in our experiments.  
+
+
 
 
 

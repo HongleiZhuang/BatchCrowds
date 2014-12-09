@@ -26,8 +26,9 @@ The log-likelihood of the obtained annotation is:
 
 Notice that $\hat{\lambda}$ and $\hat{p}_{\tau_j}$ are parameters learned from Section~\ref{sec:worker},
 and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.  
-Similarly, we apply an EM-algorithm here, 
-by first calculating $\hat{\lambda}_j$ for each batch at E-step according to~\eqref{eq:e_step}.  
+Similarly, we apply an EM-algorithm here 
+by first calculating $\hat{\lambda}_j$ for each batch at E-step basically according to~\eqref{eq:e_step} 
+but replacing $\lambda$ and $p_{\tau}$ by the value we learned during the training step.  
 Then we can have
 \beal{\label{eq:em_debiasing}
 	\log L(\eta) &\geq \sum_{j=1}^{m_U} 

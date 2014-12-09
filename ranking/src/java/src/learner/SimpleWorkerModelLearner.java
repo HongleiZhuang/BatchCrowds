@@ -44,7 +44,16 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 		this.piProbs = new double[rkdata.semiRankingLists.size()];
 	}
 	
-
+	public void saveModel(String modelFileString) throws Exception {
+		BufferedWriter bw = new BufferedWriter(new FileWriter(new File(modelFileString)));
+		bw.write(this.correctProb + "\n");
+		bw.write(this.pickingProb.length + "\n");
+		for (double ptau : this.pickingProb) bw.write(ptau + "\n");
+		bw.flush();
+		bw.close();
+	}
+	
+	
 	void trainWorkerModelParams(SemiRankingDataSet trainRkdata, HashMap<Integer, Double> rawGroundTruthScores) throws IOException {
 		int maxLength = 0;
 		double[] correctFlag = new double[trainRkdata.semiRankingLists.size()];
@@ -117,22 +126,28 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 			cur ^= 1;
 			this.correctProb = correctProbHat[cur];
 			this.pickingProb = pickingProbHat[cur];
-			System.out.println("lambda = " + correctProb);
-			System.out.println("picking prob = ");
-			for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
-			System.out.println();
-			
+//			System.out.println("lambda = " + correctProb);
+//			System.out.println("picking prob = ");
+//			for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
+//			System.out.println();
+//			
 			double L = 0.0;
 			for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
 				ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
 				L += Math.log(correctProb * Math.exp(correctFlag[j]) + (1 - correctProb) * plProb[j] * pickingProb[semiRankList.get(0).length]);
 			}
-			System.out.println("L = " + L);
-			if (logFileString != null) {
-				logWriter.write(L + "\n");
-				logWriter.flush();
-			}
+//			System.out.println("L = " + L);
+//			if (logFileString != null) {
+//				logWriter.write(L + "\n");
+//				logWriter.flush();
+//			}
 		}
+		
+		System.out.println("lambda = " + correctProb);
+		System.out.println("picking prob = ");
+		for (int i = 0; i < maxLength + 1; ++i) System.out.print(pickingProb[i] + "\t");
+		System.out.println();
+		
 		
 		if (logFileString != null) logWriter.close();
 	}
@@ -457,7 +472,60 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 
 	static public void main(String[] args) throws Exception {
-		/* SYNTHETIC data set
+		// ptau testing
+		for (String rho : new String[]{"1", "1.5", "2", "2.5", "3"}) {
+			SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
+			trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/rkdata_0.5_" + rho + ".txt");
+			HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/gtscore_0.5_" + rho + ".txt");
+			System.out.println(trainDataSet.id2Name.size());
+			
+			
+	//		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+	//		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic_param/rankedlists_test.txt");
+	//		System.out.println(testDataSet.id2Name.size());
+	
+			
+			SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(trainDataSet);
+			learner.trainWorkerModelParams(trainDataSet, trainScores);
+			
+			learner.saveModel("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/learnedmodel_0.5_" + rho + ".txt");
+			
+//			learner.trainRankings();
+			
+//			learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+//			learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		}
+		/**/
+		
+		/*  //lambda testing
+		for (int i = 1; i < 10; ++i) {
+			SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
+			trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/rkdata_0." + i + "_2.txt");
+			HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/gtscore_0." + i + "_2.txt");
+			System.out.println(trainDataSet.id2Name.size());
+			
+			
+	//		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+	//		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic_param/rankedlists_test.txt");
+	//		System.out.println(testDataSet.id2Name.size());
+	
+			
+			SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(trainDataSet);
+			learner.trainWorkerModelParams(trainDataSet, trainScores);
+			
+			learner.saveModel("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/learnedmodel_0." + i + "_2.txt");
+			
+//			learner.trainRankings();
+			
+//			learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+//			learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		}
+		/**/
+
+
+		
+		/*
+		// SYNTHETIC data set
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
 		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_score.txt");
