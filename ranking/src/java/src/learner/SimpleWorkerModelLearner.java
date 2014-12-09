@@ -277,19 +277,36 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 					double sessionSum = 0.0;
 					double[] suffixSubsessionSum = new double[semiRankedList.get(s).length];
 					int cnt = permLists.get(j).get(s).size();
-					if (cnt == 0) continue;					
-					for (int[] perm : permLists.get(j).get(s)) {
-						
+					if (cnt == 0) continue;
+					
+					
+					double[] conditional = new double[permLists.get(j).get(s).size()];
+					for (int permId = 0; permId < permLists.get(j).get(s).size(); ++permId) {
+						int[] perm = permLists.get(j).get(s).get(permId);
 						suffixSubsessionSum[suffixSubsessionSum.length - 1] = tempScores[curRow][perm[perm.length - 1]];
-						for (int k = suffixSubsessionSum.length - 2; k >= 0; --k) suffixSubsessionSum[k] = suffixSubsessionSum[k + 1] + tempScores[curRow][perm[k]];
-						
+						for (int k = suffixSubsessionSum.length - 2; k >= 0; --k) 	suffixSubsessionSum[k] = suffixSubsessionSum[k + 1] + tempScores[curRow][perm[k]];
+						for (int k = 0; k < perm.length; ++k) conditional[permId] -= Math.log(suffixSubsessionSum[k] + suffixSessionSum[s + 1]);
+						conditional[permId] = Math.exp(conditional[permId]);
+					}	
+					normalizedByL1(conditional);
+					
+					
+					for (int permId = 0; permId < permLists.get(j).get(s).size(); ++permId) {
+						int[] perm = permLists.get(j).get(s).get(permId);
+						suffixSubsessionSum[suffixSubsessionSum.length - 1] = tempScores[curRow][perm[perm.length - 1]];
+						for (int k = suffixSubsessionSum.length - 2; k >= 0; --k) 	suffixSubsessionSum[k] = suffixSubsessionSum[k + 1] + tempScores[curRow][perm[k]];
+
 						double permPrefixSum = 0.0;
 						for (int k = 0; k < perm.length; ++k) {
 							permPrefixSum += (double) 1.0 / (suffixSubsessionSum[k] + suffixSessionSum[s + 1]);
-							tempScores[nextRow][perm[k]] += (1 - pZX)  * (double) permPrefixSum / cnt;
+//							tempScores[nextRow][perm[k]] += (1 - pZX)  * (double) permPrefixSum / cnt;
+							tempScores[nextRow][perm[k]] += (1 - pZX)  * (double) permPrefixSum * conditional[permId];
 						}
-						sessionSum += (double)  permPrefixSum / cnt;
+//						sessionSum += (double)  permPrefixSum / cnt;
+						sessionSum += (double)  permPrefixSum * conditional[permId];
 					}
+					
+					
 					prefixSum += sessionSum;
 				}
 				
@@ -473,6 +490,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 	static public void main(String[] args) throws Exception {
 		// ptau testing
+		/*
 		for (String rho : new String[]{"1", "1.5", "2", "2.5", "3"}) {
 			SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 			trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/synthetic_params/rkdata_0.5_" + rho + ".txt");
@@ -524,7 +542,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 
 		
-		/*
+		
 		// SYNTHETIC data set
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
@@ -540,13 +558,15 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet);
 		learner.trainWorkerModelParams(trainDataSet, trainScores);
 		
-//		learner.trainRankings();
+		learner.trainRankings();
 		
-//		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
-//		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
 		/**/
 		
-		/* LNKD data set
+		
+		/*
+		// LNKD data set
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/job_509470.json.train.srk");
 		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/fullres.out.train.filtered");
