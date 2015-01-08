@@ -18,10 +18,22 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 		return new NaiveLearner(rkdata);
 	}
 	
+	static public ScoreBasedSemiRankingLearner createNaiveLearnerWithThresholdTraining(SemiRankingDataSet rkdata, 
+			SemiRankingDataSet trainRkdata, HashMap<Integer, Double> trainGtScores) {
+		return new NaiveLearner(rkdata, trainRkdata, trainGtScores);
+	}
+	
+	
 	private NaiveLearner(SemiRankingDataSet rkdata) {
 		this.rkdata = rkdata;
 		this.scores = new double[rkdata.id2Name.size()];
 		this.threshold = 0.5;
+	}
+	
+	private NaiveLearner(SemiRankingDataSet rkdata, SemiRankingDataSet trainRkdata, HashMap<Integer, Double> trainGtScores) {
+		this.rkdata = rkdata;
+		this.scores = new double[rkdata.id2Name.size()];
+		trainModel(trainRkdata, trainGtScores);
 	}
 	
 	@Override
@@ -32,7 +44,8 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 		return ret;
 	}
 	
-	void trainWorkerModelParams(SemiRankingDataSet trainRkdata, HashMap<Integer, Double> rawGroundTruthScores) {
+	
+	void trainModel(SemiRankingDataSet trainRkdata, HashMap<Integer, Double> rawGroundTruthScores) {
 		HashMap<Integer, Integer> pos = new HashMap<Integer, Integer>(), tot = new HashMap<Integer, Integer>();
 		for (int j = 0; j < trainRkdata.semiRankingLists.size(); ++j) {
 			ArrayList<int[]> semiRankList = trainRkdata.semiRankingLists.get(j);
@@ -136,7 +149,7 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 
 		
 		NaiveLearner learner = new NaiveLearner(testDataSet);
-		learner.trainWorkerModelParams(trainDataSet, trainScores);
+		learner.trainModel(trainDataSet, trainScores);
 		System.out.println("Threshold = " + learner.threshold);
 		
 		learner.trainRankings();

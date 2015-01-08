@@ -35,13 +35,17 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	
 	String logFileString = null;
 	
+	static public ScoreBasedSemiRankingLearner createSimpleWorkerModelLearner(SemiRankingDataSet rkdata, SemiRankingDataSet trainRkdata, HashMap<Integer, Double> trainGtScores) throws IOException {
+		return new SimpleWorkerModelLearner(rkdata, trainRkdata, trainGtScores);
+	}
 	
-	private SimpleWorkerModelLearner(SemiRankingDataSet rkdata) {
+	private SimpleWorkerModelLearner(SemiRankingDataSet rkdata, SemiRankingDataSet trainRkdata, HashMap<Integer, Double> trainGtScores) throws IOException {
 		this.rkdata = rkdata;
 		this.tempScores = new double[2][rkdata.id2Name.size()];
 		this.curRow = 0;
 		this.scores = tempScores[curRow];
 		this.piProbs = new double[rkdata.semiRankingLists.size()];
+		this.trainWorkerModelParams(trainRkdata, trainGtScores);
 	}
 	
 	public void saveModel(String modelFileString) throws Exception {
@@ -542,7 +546,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 
 
 		
-		
+		/*
 		// SYNTHETIC data set
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");

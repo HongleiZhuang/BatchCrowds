@@ -22,6 +22,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 	
 	abstract void trainRankings();
 	
+	
 	public ArrayList<Integer> getInferredPositiveIdList() {
 		ArrayList<Integer> ret = new ArrayList<Integer>();
 		for (int i = 0; i < scores.length; ++i) 
@@ -29,7 +30,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 		return ret;
 	}
 	
-	public void evaluate(String gtFileName) throws Exception {
+	public double[] evaluate(String gtFileName) throws Exception {
 		HashMap<Integer, Integer> gtLabelMap = rkdata.readGtLabel(gtFileName);
 		int pos = 0, neg = 0;
 		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++pos; else ++neg;
@@ -49,9 +50,15 @@ public abstract class ScoreBasedSemiRankingLearner {
 		System.out.println("Precision = " + precision);
 		System.out.println("Recall    = " + recall);
 		System.out.println("F1-score  = " + f1);
+		double[] ret = new double[4];
+		ret[0] = accuracy;
+		ret[1] = precision;
+		ret[2] = recall;
+		ret[3] = f1;
+		return ret;
 	}
 	
-	public void evaluateByROC(String gtFileName) throws Exception {
+	public double[] evaluateByROC(String gtFileName) throws Exception {
 		HashMap<Integer, Integer> gtLabelMap = rkdata.readGtLabel(gtFileName);
 		int p = 0;
 		for (Entry<Integer, Integer> entry : gtLabelMap.entrySet()) if (entry.getValue() == 1) ++p;
@@ -67,8 +74,12 @@ public abstract class ScoreBasedSemiRankingLearner {
 			else AUC += (double) tp / (p * (sortedList.size() - p)) ;
 		}
 		System.out.println("AUC = " + AUC);
+		double[] ret = new double[1];
+		ret[0] = AUC;
+		return ret;
 	}
 	
+	/*
 	private HashSet<Integer> readPositiveSet(String gtFileName) throws Exception {
 		BufferedReader br = new BufferedReader(new FileReader(new File(gtFileName)));
 		HashSet<Integer> gtSet = new HashSet<Integer>();
@@ -81,6 +92,7 @@ public abstract class ScoreBasedSemiRankingLearner {
 		br.close();
 		return gtSet;
 	}
+	*/
 	
 /*
 	private HashMap<Integer, Integer> readGtLabel(String gtScoreFileName) throws Exception {
