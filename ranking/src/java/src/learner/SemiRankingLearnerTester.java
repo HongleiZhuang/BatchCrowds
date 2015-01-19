@@ -79,12 +79,20 @@ public class SemiRankingLearnerTester {
 		
 		if (eval > 0) {
 			double[] result = null;
+			double[] result1 = learner.evaluate(this.testGtFileName);
+			double[] result2 = learner.evaluateByROC(this.testGtFileName);
+			if (result1 != null && result2 != null) {
+				result = new double[result1.length + result2.length];
+				for (int i = 0; i < result1.length; ++i) result[i] = result1[i];
+				for (int i = 0; i < result2.length; ++i) result[i + result1.length] = result2[i];
+			}
+			/*
 			if (eval == PRF) {
 				result = learner.evaluate(this.testGtFileName);
 			}
 			else if (eval == AUC) {
 				result = learner.evaluateByROC(this.testGtFileName);				
-			}
+			}*/
 			BufferedWriter resBw = new BufferedWriter(new FileWriter(new File(this.resultsFileName)));
 			if (result == null) {
 				System.out.println("No results to output!");
