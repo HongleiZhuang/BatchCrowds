@@ -1,13 +1,20 @@
 \section{Related Work}
 \label{sec:related}
 
-\vpara{Annotation bias in independent judgements}
-A number of studies have been conducted on evaluating data quality collected from crowds, and modeling annotator behaviors to optimize the data quality.  
+\vpara{Annotation bias in independent judgments.}
+A number of studies have been conducted on evaluating data quality collected from crowds, 
+and modeling worker behaviors to optimize the data quality.  
+
 However, these studies mainly consider the scenario when data items are judged independently.  
-Snow~\etal~\cite{snow:emnlp2008} explored the performance with non-expert annotators in several NLP tasks.
+Snow~\etal~\cite{snow:emnlp2008} explored the performance with non-expert workers in several NLP tasks.
 Raykar~\etal~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010}
-studied how to learn a model with noisy labeling. Specifically, they employ a logistic regression classifier, and insert hidden
-variables indicating whether an annotator tells the truth. %They utilize an EM algorithm to infer the real ground-truth while training the model.
+studied how to learn a model with noisy labeling. 
+Specifically, they employ a logistic regression classifier, 
+and insert hidden variables indicating whether a worker tells the truth. 
+%They utilize an EM algorithm to infer the real ground-truth while training the model.
+Karger~\etal~\cite{karger:nips2011} proposed an iterative algorithm to infer workers' reliability 
+and aggregating their answers.  
+
 Whitehill~\etal~\cite{whitehill:nips2009} modeled the annotator ability, data item difficulty, and inferred the true label from the crowds in a unified model.
 Demeester~\etal~\cite{demeester:wsdm2014} discussed the disagreement between different users on assessment of web search results.
 However, they do not study the case when data items are grouped into batches.
@@ -18,6 +25,34 @@ Das~\etal~\cite{das:kdd2013} addressed the interactions of opinions between peop
 Their studies focus on another aspect of dependencies, 
 which is the dependencies between workers, 
 while in our studies, we are more concerned about dependencies between data items and their judgments.  
+
+
+\vpara{Crowdsourced ranking and rating.}
+There is related research on leveraging crowds' power to obtain ranking of data items.  
+Chen~\etal~\cite{chen:wsdm2013} studied aggregating crowdsourced annotation on pairwise comparison to obtain a ranking on data items. 
+They employed the simplified version of Plackett-Luce model for pairwise comparison, Bradley-Terry model~\cite{bradley:1952}, 
+and extended the model to adapt the crowdsourcing settings.  
+Similar problem is also studied by Volkovs~\etal~\cite{volkovs:www2012}, 
+while they proposed a multinomial preference model for partial ranking of data items.  
+%and apply the model on aggregating crowdsourced comparison on data item pairs into a ranking.  
+However, their objective is just to obtain a ranking, 
+while we further need to determine the labels for data items.  
+Furthermore, our model can deal with not only pairwise comparisons, 
+but also the situation with more than two data items in a batch.  
+
+The technique for aggregating different rankings into a unified ranking has also been studied 
+in context of information retrieval~\cite{klementiev:icml2008,liu:www2007,qin:nips2010}.  
+A summary of early work can be found in~\cite{dwork:www2001}.
+However, most of them do not explicitly address the crowdsourcing settings and might not be directly applicable. 
+
+
+Several studies also focus on crowdsourced rating.  
+Parameswaran~\etal~\cite{parameswaran:vldb2014} focused on crowdsourced rating on items, 
+and applied their system on a peer evaluation data set of a MOOC course.  
+Crowdsourcing has also been utilized for rating multimedia content quality~\cite{chen:mm2009} and relevance assessment~\cite{alonso:2008}.  
+However, their techniques do not provide a straightforward solution to determine a threshold 
+when the objective is to obtain labels.  
+
 
 
 \vpara{Annotation bias in sequential and batch judgments.}

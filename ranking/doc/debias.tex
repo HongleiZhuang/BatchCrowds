@@ -128,3 +128,33 @@ is supposed to yield the best expected performance.
 
 
 
+\incmargin{1em}
+\begin{algorithm}[!t]
+       \caption{Debiasing crowdsourced annotation on batches of data items.}\label{alg:debias}
+\small
+       \KwIn{Data batches $B_U = \{b_j\}$, crowdsourced annotation $Y_U'=\{y_j'\}$; 
+             training data batches $B_L$, crowdsourced annotation $Y_L'$, true labels $Y_L$.} 
+       \KwOut{Inferred labels $Y_U$.}
+
+       \BlankLine
+       \tcp{Training work model;}
+       $\hat{\lambda}_j \leftarrow 0.5$; 
+       Initialize $\hat{p}_{\tau}$ by random values; \\
+       \Repeat{$L$ converged}
+       {
+           Update $\hat{\lambda}_j$ bfor $\forall 1 \leq j \leq m_L$ y~\eqref{eq:e_step}; \\
+           Update $\hat{\lambda}$ and $\hat{p}_{\tau}$ by~\eqref{eq:m_step}
+       }
+
+       \tcp{Calculate debiased labels;} 
+       \Repeat{$Q(\eta)$ converged}
+       {
+           Update $\eta_i$ for $\forall 1 \leq i \leq n_U$ by~\eqref{eq:derivative_of_objective_function}
+       }
+       $y_i \leftarrow \mathbf{1}_{\{eta_i > 0.5\}}$ for $\forall 1 \leq i \leq n_U$; \\
+       Output $Y_U$.
+\end{algorithm}
+\normalsize
+\decmargin{1em}
+
+

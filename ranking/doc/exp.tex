@@ -284,9 +284,13 @@ Majority voting with tuned threshold (MVT)
 is able to achieve comparable results to our proposed method 
 when $m/n$ are large enough (\eg~$m/n=20$).
 However, when $m/n$ is relatively small, 
-our proposed method can achieve much better results than all the baselines.  
+our proposed method can achieve much better results than most of other baselines.  
 When $m/n=2$, it achieves an accuracy approximately $9\%$ higher than MVT, 
 and an $F_1$-score around $5\%$ more than MVT.  
+An exception is the na\"{i}ve majority voting strategy achieves the best accuracy when $m/n=2$.  
+This is due to the skewed distribution of data labels, 
+and by simply labeling all the data items as negative can get an accuracy of approximately $80\%$.  
+In comparison, the $F_1$-score of MV is only around $30\%$.  
 
 Another observation is in Figure~\ref{subfig:mnratio_f1}
 where the performance of majority voting drops as $m/n$ increases. 
@@ -326,18 +330,39 @@ it does not help increasing the quantity of labels collected.
   }
 \end{figure}
 
+\begin{figure}[!t]
+  \centering
+  \subfigure[Accuracy with different sizes of training data set]{
+    \label{subfig:trainratio_acc}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_acc_lnkd}
+  }
+  \subfigure[$F_1$-score with different sizes of training data set]{
+    \label{subfig:trainratio_f1}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_f1_lnkd}
+  }
+  \caption{\label{fig:trainratio_lnkd}
+  Performance of debiasing strategies on comments data set 
+  where the training data set is randomly sampled from the original training set with different size of $m_L$, 
+  while the testing data set remains the same.  
+  }
+\end{figure}
+
 \vpara{Size of training data set.}
 As our method requires a small set of training data, 
 there might be concern about how large a training data set is sufficient.  
 We test the performance of two methods that rely on training data sets - MVT and our proposed method - 
-on synthetic data sets.  
-We keep the size of test data set as $n_U=5,000$ and $m_U=50,000$, 
+on synthetic data sets and comments data set.  
+For synthetic data set, we keep the size of test data set as $n_U=5,000$ and $m_U=50,000$, 
 and vary the size of training data set by setting $n_L$ as $10$, $20$, $50$, $100$, $200$, $500$, and $1,000$, 
 and setting $m_L$ as $10 n_L$.  
 For each configuration, we generate synthetic data sets for 10 times 
 and utilize the average performance on these 10 data sets to evaluate the debiasing performance.  
+For comments data set, we randomly sample $m_L$ batches from the training data set, 
+where $m_L$ is set to $100, 200, \ldots, 1000$.  
+Again, for each configuration of training data size, 
+we repeat the random sampling for 10 times and report the average performance.  
 
-The results are shown in Figure~\ref{fig:trainratio}.  
+The results of synthetic data set are shown in Figure~\ref{fig:trainratio}.  
 As observed, when training data set is extremely small (\eg~$n_L=10$), 
 the performance of MVT drops in terms of both accuracy and $F_1$-score (73\% and 56\% respectively).  
 As the size of training data set increases, 
@@ -347,6 +372,14 @@ even when there are only 10 items and 100 batches as training data,
 which is as $1/500$ large as the data set used for testing.  
 The results imply our proposed method can obtain very high performance 
 with a small cost of labeling ground-truth data for collecting training data.  
+
+The results for comments data set are shown in Figure~\ref{fig:trainratio_lnkd}.  
+Again, when training data size is extremely small (\eg~$m_L=100$), 
+the performance of MVT drops substantially (89\% in accuracy and 75\% in $F_1$-score), 
+while its performance gets more and more comparable to our method as the training data size increases.  
+In contrast, our proposed method remains a fairly stable performance for different size of training data set. 
+This verifies again the ability of our proposed method to yield high-quality results 
+with a sufficiently small training data set.  
 
 
 %

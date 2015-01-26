@@ -131,9 +131,9 @@ Applying an EM-algorithm, where at E-step, we can have
 }
 
 And at M-step, we update the parameters $\hat{\lambda}$ and $\hat{p}_{\tau}$ by
-\beal{
+\beal{ \label{eq:m_step}
 	\hat{\lambda} = \sum_{j=1}^{m_L} \hat{\lambda}_j, \hspace{0.2in}
-	\hat{p}_{\tau} = \frac{1}{\hat{Z}} \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j) \mathbf{1}_{\{ |X_{j}^1| = \tau\}} \nonumber 
+	\hat{p}_{\tau} = \frac{1}{\hat{Z}} \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j) \mathbf{1}_{\{ |X_{j}^1| = \tau\}} 
 }%
 where $\hat{Z} = \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j)$.  
 
