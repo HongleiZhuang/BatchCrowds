@@ -14,6 +14,15 @@ and therefore the debiasing strategy can trigger a broad range of applications.
 For example, the conference paper review system where each reviewer is assigned a batch of papers 
 can also be regarded as a small-batch annotation.  
 
+There are several interesting directions to extend this work.  
+For example, one can extend the model to further incorporate the different behavior of each individual worker  
+and adjust the debiasing strategy accordingly.  
+Also, it would be interesting to see if it is possible to improve the efficiency of debiasing 
+by actively assemble a batch of data items to collect the desired labels, 
+instead of sending randomly formed batches to the crowds.  
+
+
+\hide{
 \vpara{Future work.}
 There are several different ways of further strengthen and extending this work.  
 \begin{enumerate}
@@ -32,3 +41,4 @@ There are several different ways of further strengthen and extending this work.
         it is still worth exploring active learning which aims to reduce label errors instead of improving classifier performance.  
         Active data annotation is probably a more accurate term.  
 \end{enumerate} 
+}

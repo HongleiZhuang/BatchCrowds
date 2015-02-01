@@ -1,11 +1,17 @@
 \begin{abstract}
 
-Data annotation bias is prevalent in crowd annotated data.  
+Crowdsourcing has been prevalently adopted for gathering cheap annotated data. 
+%Data annotation bias is prevalent in crowd annotated data.  
+In practices, questions or data items are often grouped into batches to be presented and annotated by workers together, 
+expecting to save the time and cost caused by overhead instructions or background.  
+Although independence is usually assumed between annotation on data items within the same batch, 
+in most cases, a worker's judgment on a data item can still be affected by other data items.  
+This might introduce additional errors in collected labels.  
 Although annotation bias of individual data items and sequential data items has been explored, 
-little research has been done on small batches of data items.  
-Grouping data items in batches can facilitate crowdsourced data annotation of a great number of tasks
-(\eg~clustering, outlier detection~\etc).  
-We study a specific type of data annotation bias when data items are presented as batches 
+little research has been done on batches of data items.  
+%Grouping data items in batches can facilitate crowdsourced data annotation of a great number of tasks
+% (\eg~clustering, outlier detection~\etc).  
+We study the data annotation bias when data items are presented as batches 
 to be judged by workers simultaneously.  
 We propose a novel worker model to characterize the annotating behavior on small data batches, 
 and present how to train the worker model on annotation data sets.  

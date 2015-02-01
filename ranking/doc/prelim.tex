@@ -41,7 +41,7 @@ After the judgments from (multiple) workers toward a unit is obtained,
 one can aggregate these judgments by a majority voting strategy to determine the final annotation of this unit.
 However, this strategy may not be the best strategy due to the possible annotation bias when each unit contains multiple data items. 
 We can also develop other aggregating strategies to apply on the judgments, 
-which (hopefully) better recovers the true labels of data items.  
+which better recovers the true labels of data items.  
 
 
 \subsection{Notation and Problem Definition}
@@ -53,16 +53,17 @@ where in a binary classification case, $\mathcal{Y} = \{0, 1\}$.
 Suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.  
 We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$.  
 
-In a job submitting to a crowdsourcing platform, 
+In a job submitted to a crowdsourcing platform, 
 we can assemble several data items into a batch (``unit'' in CrowdFlower terminology).  
 Denote all the batches as a set of batches $B = \{b_j\}$ where $j = 1, \ldots, m$.  
 Each batch $b_j$ can be represented by an ordered list of indices of data items in the batch, 
 denoted as $(b_{j1}, \ldots, b_{jk})$.  
 Thereby the batch $b_j$ consists of data items $(x_{b_{j1}}, \ldots, x_{b_{jk}})$.  
 We do allow data items to appear in multiple batches in $B$.  
+\hide{
 Notice that we are only concerned with the scenario when data items are formed into \emph{small batches}.  
 Depending on different format of data items, a small batch can have different scale of size.  
-For example, in inappropriate comments identification task, we basically confine $k \leq 5$.  
+For example, in inappropriate comments identification task, we basically confine $k \leq 5$.   }
 Also, for the sake of fully utilize the workforce of crowds, 
 we only consider the scenario when all the batches in $B$ have the identical size $k$.  
 
