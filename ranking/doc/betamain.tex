@@ -7,18 +7,26 @@
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{color}
-%\usepackage{times}
+%\usepackage{times}p
 \usepackage{multirow}
 \usepackage{balance}
 \usepackage{url}
 \usepackage{eurosym}
+
+% from JK
+\usepackage{caption2}
+\usepackage{pgfplots}
+\usepackage{url}
+\usepackage{tikz}
+
+
 \makeatletter
 \newif\if@restonecol
 \makeatother
 \let\algorithm\relax
 \let\endalgorithm\relax
 \usepackage[vlined, boxed,linesnumbered]{algorithm2e}
-
+%p
 
 \newcommand{\tabincell}[2]{\begin{tabular}{@{}#1@{}}#2\end{tabular}}
 \newcommand{\tc}[1]{\multicolumn{1}{c}{#1}}
@@ -45,7 +53,11 @@
 \newcommand{\etc}{{\sl etc.}}
 \newcommand{\etal}{{\sl et al.}}
 \newcommand{\wrt}{{\sl w.r.t.}}
-\newcommand{\omitmark}{{... \sl[Omitted]}}
+%\newcommand{\omitmark}{{... \sl[Omitted]}}
+
+\def\bb{{\mathbf{b}}}
+\def\bx{{\mathbf{x}}}
+\def\by{{\mathbf{y}}}
 
 
 \hide{
@@ -62,14 +74,23 @@
 
 %\newcommand{\eeq}[1]{\end{equation}\normalsize}
 
-\newdef{definition}{Definition}
-\newdef{problem}{Problem}
+\newtheorem{definition}{Definition}
+\newtheorem{problem}{Problem}
+\makeatletter
+\renewcommand*{\@opargbegintheorem}[3]{\trivlist
+  \item[\hspace{2mm} \hskip \labelsep{\scshape #1\ #2}] \hspace{1mm} \textsc{(#3).}\ \itshape}
+\makeatother
+
 \newdef{theorem}{Theorem}
 \newtheorem{hypothesis}{Hypothesis}
 \newtheorem{assumption}{Assumption}
 
 
+
 \newcommand{\bm}[1]{\textcolor{blue}{#1}}
+
+
+
 
 
 \begin{document}
@@ -124,7 +145,7 @@ Debiasing Crowdsourced Batches % Annotation \\ on Batches of Data Items
 \input{related.tex}
 \input{conclusion.tex}
 
-\balance
+% \balance
 %\clearpage
 
 \bibliographystyle{abbrv}

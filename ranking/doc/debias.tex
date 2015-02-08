@@ -1,58 +1,58 @@
 \section{Debiasing Annotation}
 \label{sec:debias}
 
-In this section, we introduce given the trained worker model, 
-how to debias annotation collected for small batches of data.  
+In this section, we introduce given the trained worker model,
+how to debias annotation collected for small batches of data.
 More precisely, given a set of $n_U$ unlabeled data items $X_U$,
-assemble them into $m_U$ batches represented by $B_U$,  
+assemble them into $m_U$ batches represented by $B_U$,
 as well as their annotation obtained from the crowds $Y_U'$,
-how to infer their true labels $Y_U$.  
+how to infer their true labels $Y_U$.
 
 The basic idea is, based on the given worker model,
 try to infer $\eta_i$ for each $x_i \in X_U$,
-then we simply apply the Bayes classifier to determine the inferred label, 
-which yields $\hat{y}_i = 1$ if $\eta_i > 0.5$, or $\hat{y}_i = 0$ if $\eta_i \leq 0.5$.  
+then we simply apply the Bayes classifier to determine the inferred label,
+which yields $\hat{y}_i = 1$ if $\eta_i > 0.5$, or $\hat{y}_i = 0$ if $\eta_i \leq 0.5$.
 
-We again adopt a maximum likelihood estimate.  
+We again adopt a maximum likelihood estimate.
 The log-likelihood of the obtained annotation is:
 \beal{
-	\log L (\eta) = \sum_{j=1}^{m_U} 
-	\log \biggl[ 
-		&\hat{\lambda} %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})} 
+	\log L (\eta) = \sum_{j=1}^{m_U}
+	\log \biggl[
+		&\hat{\lambda} %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}
 		\prod_{x_{jt1} \in X_{j}^1} \eta_{jt1} \prod_{x_{jt0} \in X_{j}^0} (1 - \eta_{jt0}) \nonumber \\
-		+ &(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)  
-	\biggr] 
+		+ &(1 - \hat{\lambda}) \hat{p}_{\tau_j} P(X_{j}^1 \succ X_{j}^0)
+	\biggr]
 }%
 
 Notice that $\hat{\lambda}$ and $\hat{p}_{\tau_j}$ are parameters learned from Section~\ref{sec:worker},
-and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.  
-Similarly, we apply an EM-algorithm here 
-by first calculating $\hat{\lambda}_j$ for each batch at E-step basically according to~\eqref{eq:e_step} 
-but replacing $\lambda$ and $p_{\tau}$ by the value we learned during the training step.  
+and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.
+Similarly, we apply an EM-algorithm here
+by first calculating $\hat{\lambda}_j$ for each batch at E-step basically according to~\eqref{eq:e_step}
+but replacing $\lambda$ and $p_{\tau}$ by the value we learned during the training step.
 Then we can have
 \beal{\label{eq:em_debiasing}
-	\log L(\eta) &\geq \sum_{j=1}^{m_U} 
-		\hat{\lambda}_j \biggl[ 
-			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0}) 
+	\log L(\eta) &\geq \sum_{j=1}^{m_U}
+		\hat{\lambda}_j \biggl[
+			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0})
 		\biggr] \nonumber \\
-		& + \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \bigl[\log \hat{p}_{\tau_j}  + \log P(X_{j}^1 \succ X_{j}^0) \bigr] 
+		& + \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \bigl[\log \hat{p}_{\tau_j}  + \log P(X_{j}^1 \succ X_{j}^0) \bigr]
 }%
-where the second term includes $\log P(X_{j}^1 \succ X_{j}^0)$, which is hard to optimize.  
-We apply the idea of EM-algorithm again here.  
-We use notation $R_j$ to represent $R(X_{j}^1, X_{j}^0)$.  
+where the second term includes $\log P(X_{j}^1 \succ X_{j}^0)$, which is hard to optimize.
+We apply the idea of EM-algorithm again here.
+We use notation $R_j$ to represent $R(X_{j}^1, X_{j}^0)$.
 For each $\pi \in R_j$, we can calculate its conditional probability given $X_{j}^1 \succ X_{j}^0$, denoted as $\hat{q}_{\pi}$ by:
 \beal{
-	\hat{q}_{\pi} = P(\pi | X_{j}^1 \succ X_{j}^0; \hat{\eta}) = \frac{P(\pi; \hat{\eta})}{\sum_{\pi \in R_j}P(\pi; \hat{\eta})} 
+	\hat{q}_{\pi} = P(\pi | X_{j}^1 \succ X_{j}^0; \hat{\eta}) = \frac{P(\pi; \hat{\eta})}{\sum_{\pi \in R_j}P(\pi; \hat{\eta})}
 }%
-which is the E-step.  
+which is the E-step.
 According to Jensen's inequality we have:
 \beal{\label{eq:semi_ranking_to_sum_of_ranking}
 	\log P(X_1 \succ X_0) &= %\log \sum_{\substack{\pi: \forall x_{1} \in X_1, x_0 \in X_0, \\ \pi^{-1}(x_{0}) > \pi^{-1}(x_{1}) }} P(\pi)
 	\log \sum_{\pi \in R_j} P(\pi) \nonumber \\
 	&\geq \sum_{\pi \in R_j} \hat{q}_{\pi} \log P(\pi)
 }%
-where the last inequality yields the objective function we want to optimize.  
-The correctness of EM-algorithm guarantees the convergence of optimizing this function.  
+where the last inequality yields the objective function we want to optimize.
+The correctness of EM-algorithm guarantees the convergence of optimizing this function.
 
 
 \hide{
@@ -62,47 +62,47 @@ We further utilzie Jensen's inequality to bound this term from bottom by
 	\log \sum_{\pi \in R_j} P(\pi) \nonumber \\
 	&\geq \frac{1}{|R_j|} \sum_{\pi \in R_j}  \log P(\pi)
 }%
-where 
+where
 }
 
 
-Furthermore, according to the minorization-maximizaion algorithm used in~\cite{hunter:aos2004}, 
+Furthermore, according to the minorization-maximizaion algorithm used in~\cite{hunter:aos2004},
 we can obtain the lower bound for $\log P(\pi)$, which is defined by the Plackett-Luce model, by:
 \beal{\label{eq:mm_algorithm}
-	\log P(\pi) &= \sum_{t=1}^{k-1} \biggl[ 
+	\log P(\pi) &= \sum_{t=1}^{k-1} \biggl[
 		\log \eta_{\pi^{-1}(t)} - \log \sum_{s=t}^{k} \eta_{\pi^{-1}(s)}
 	\biggr] \nonumber \\
-	&\geq \sum_{t=1}^{k-1} \biggl[ 
+	&\geq \sum_{t=1}^{k-1} \biggl[
 		\log \eta_{\pi^{-1}(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi^{-1}(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi^{-1}(s)}}
 	\biggr]
 }%
-where $\hat{\eta}_i$ is the estimated parameter of last iteration.  
+where $\hat{\eta}_i$ is the estimated parameter of last iteration.
 
 
 
-By combining \eqref{eq:em_debiasing},~\eqref{eq:semi_ranking_to_sum_of_ranking} and \eqref{eq:mm_algorithm}, 
+By combining \eqref{eq:em_debiasing},~\eqref{eq:semi_ranking_to_sum_of_ranking} and \eqref{eq:mm_algorithm},
 we can obtain the objective function to optimize as:
 \beal{\label{eq:objective_function}
-	Q(\eta) &= \sum_{j=1}^{m_U} 
-		\hat{\lambda}_j \biggl[ 
-			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0}) 
+	Q(\eta) &= \sum_{j=1}^{m_U}
+		\hat{\lambda}_j \biggl[
+			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0})
 		\biggr] \nonumber \\
 		&+ \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j)  \sum_{\pi \in R_j}  \hat{q}_{\pi}
-		\sum_{t=1}^{k-1} \biggl[ 
+		\sum_{t=1}^{k-1} \biggl[
 			\log \eta_{\pi^{-1}(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi^{-1}(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi^{-1}(s)}}
-		\biggr]  
+		\biggr]
 }%
-Notice that $Q(\eta)$ is actually a lowerbound of the original log-likelihood function.  
-Moreover, for two EM-step and one MM-step we apply in deriving $Q$-function, 
-it is provent that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$, 
-we can achieve no less improvement on the loglikelihood.  
-Therefore optimizing $Q(\eta)$ can also optimizes the loglikelihood.  
+Notice that $Q(\eta)$ is actually a lowerbound of the original log-likelihood function.
+Moreover, for two EM-step and one MM-step we apply in deriving $Q$-function,
+it is provent that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$,
+we can achieve no less improvement on the loglikelihood.
+Therefore optimizing $Q(\eta)$ can also optimizes the loglikelihood.
 
 
 
 Take the derivative, we can obtain
 \beal{\label{eq:derivative_of_objective_function}
-    \frac{\partial Q(\eta)}{\partial \eta_i} &= 
+    \frac{\partial Q(\eta)}{\partial \eta_i} &=
         \sum_{j \in M_1(i)}\frac{1}{\eta_i}
         - \sum_{j' \in M_0(i)} \frac{ \hat{\lambda}_{j'}}{1 - \eta_i} \nonumber \\
         %&+ \sum_{j \in M_1(i)} \frac{1 - \hat{\lambda}_j}{\eta_i}
@@ -112,7 +112,7 @@ Take the derivative, we can obtain
             }
         \biggr]
 }%
-where $M_1(i)$ and $M_0(i)$ are defined as $M_y(i) = \{j:x_i \in X_j^y\}$ for $y \in \{0, 1\}$.  
+where $M_1(i)$ and $M_0(i)$ are defined as $M_y(i) = \{j:x_i \in X_j^y\}$ for $y \in \{0, 1\}$.
 The updating rule can be obtained by solving $\partial Q(\eta) / \partial \eta_i = 0$, namely
 \beal{\label{eq:updating_rule_of_eta}
 	\hat{\eta}_i = \frac{T_1 + T_2 + T_3 - \sqrt{(T_1 + T_2 + T_3)^2 - 4 T_1 T_3}}{2 T_3} \nonumber
@@ -127,15 +127,15 @@ where
             \biggr]
 }
 
-By iteratively updating the scores to optimize the likelihood of the annotation on test data, 
-we can obtain the inferred predictive distribution of each item.  
-Based on which, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$, 
-or $y_i'=0$ otherwise.  
-Notice that we do not further tune the threshold in this step, 
-as the scores we learned here are expected to be a reasonable estimate of the true $\eta_i$'s. 
-Therefore, if the predictive distribution are known, 
-learning theory guarantees that by using Bayes classifier (namely to take 0.5 as threshold) 
-is supposed to yield the best expected performance.  
+By iteratively updating the scores to optimize the likelihood of the annotation on test data,
+we can obtain the inferred predictive distribution of each item.
+Based on which, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$,
+or $y_i'=0$ otherwise.
+Notice that we do not further tune the threshold in this step,
+as the scores we learned here are expected to be a reasonable estimate of the true $\eta_i$'s.
+Therefore, if the predictive distribution are known,
+learning theory guarantees that by using Bayes classifier (namely to take 0.5 as threshold)
+is supposed to yield the best expected performance.
 
 
 
@@ -144,21 +144,21 @@ is supposed to yield the best expected performance.
 \begin{algorithm}[!t]
        \caption{Debiasing crowdsourced annotation on batches of data items.}\label{alg:debias}
 \small
-       \KwIn{Data batches $B_U = \{b_j\}$, crowdsourced annotation $Y_U'=\{y_j'\}$; 
-             training data batches $B_L$, crowdsourced annotation $Y_L'$, true labels $Y_L$.} 
+       \KwIn{Data batches $B_U = \{b_j\}$, crowdsourced annotation $Y_U'=\{y_j'\}$;
+             training data batches $B_L$, crowdsourced annotation $Y_L'$, true labels $Y_L$.}
        \KwOut{Inferred labels $Y_U$.}
 
        \BlankLine
        \tcp{Training work model;}
-       $\hat{\lambda}_j \leftarrow 0.5$; 
+       $\hat{\lambda}_j \leftarrow 0.5$;
        Initialize $\hat{p}_{\tau}$ by random values; \\
        \Repeat{$L$ converged}
        {
-           Update $\hat{\lambda}_j$ bfor $\forall 1 \leq j \leq m_L$ y~\eqref{eq:e_step}; \\
+           Update $\hat{\lambda}_j$ bfor $\forall 1 \leq j \leq m_L$ by~\eqref{eq:e_step}; \\
            Update $\hat{\lambda}$ and $\hat{p}_{\tau}$ by~\eqref{eq:m_step}
        }
        \BlankLine
-       \tcp{Calculate debiased labels;} 
+       \tcp{Calculate debiased labels;}
        \Repeat{$Q(\eta)$ converged}
        {
            Update $\eta_i$ for $\forall 1 \leq i \leq n_U$ by~\eqref{eq:updating_rule_of_eta}

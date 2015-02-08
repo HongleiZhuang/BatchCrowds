@@ -52,60 +52,187 @@ which better recovers the true labels of data items.
 %
 
 In this section, we formally define the concepts and notations we use in this paper;
-we then give a formalize the problem of debiasing crowdsourced batches.  
+we then give a formalize the problem of debiasing crowdsourced batches.
 
 
 \subsection{Notation Definition}
 
 First we need to formalize several basic concepts in a crowdsourcing platform.
 Suppose we are given a set of data items $X = \{x_i\}$, where $i=1, \ldots, n$.
-Each data item is associated with a label $y_i \in \mathcal{Y}$,
-where in a binary classification case, $\mathcal{Y} = \{0, 1\}$.
-Suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.
-We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$.
+Each data item is associated with a label $y_i \in \mathcal{Y}$, where $Y = \{y_i\}_{i=1}^n$
+In following discussion, we focus on a binary classification task, 
+where $\mathcal{Y} = \{0, 1\}$, 
+but our framework generalizes to multi-class or rating cases seamlessly.  
+According to a standard formalization in learning theory for binary classification, 
+we suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.
+We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$. 
 
 In a job submitted to a crowdsourcing platform,
-we can assemble several data items into a batch (``unit'' in CrowdFlower terminology).
-Denote all the batches as a set of batches $B = \{b_j\}$ where $j = 1, \ldots, m$.
-Each batch $b_j$ can be represented by an ordered list of indices of data items in the batch,
-denoted as $(b_{j1}, \ldots, b_{jk})$.
-Thereby the batch $b_j$ consists of data items $(x_{b_{j1}}, \ldots, x_{b_{jk}})$.
-We do allow data items to appear in multiple batches in $B$.
+we can assemble several data items into a batch. %  (``unit'' in CrowdFlower terminology).p
+Each batch $\bb_j$ is represented by a set of indices of data items in the batch,
+denoted as $\{b_{j1}, \ldots, b_{jk}\}$, 
+where $k$ is the size of a batch. 
+To be strict, data items in the batch should be represented by $\bx_j = \{x_{b_{j1}}, \ldots, x_{b_{jk}}\}$.  
+However, for simplicity, we denote data items in the batch specified by $\bb_j$ as $\{x_{j1}, \ldots, x_{jk}\}$.  
+Similarly, we define $\by_j = \{y_{j1}, \ldots, y_{jk}\}$ to be true labels associated with data items in $\bx_j$, 
+where $y_{jl}$ is the true label of $x_{jl}$ according to $Y$ for $\forall 1 \leq l \leq k$.  
+In CrowdFlower language, 
+a batch corresponds to a single ``unit'', 
+% several data items are assembled into a single ``unit'',pp
+where a worker has to judge the entire unit at the same time.
+Usually, data items in the same batch might share the same context, background, or the same instruction, 
+in order to reduce the overhead.  
+For example, if one is asked to judge whether a review about a restaurant is positive or negative, 
+it might save the time for workers if reviews of the same restaurant are grouped into the same batch, 
+as they only need to read the description of the restaurant for once before they can make multiple judgments.  
+
 \hide{
-Notice that we are only concerned with the scenario when data items are formed into \emph{small batches}.
-Depending on different format of data items, a small batch can have different scale of size.
-For example, in inappropriate comments identification task, we basically confine $k \leq 5$.   }
-Also, for the sake of fully utilize the workforce of crowds,
+    Notice that we are only concerned with the scenario when data items are formed into \emph{small batches}.
+    Depending on different format of data items, a small batch can have different scale of size.
+    For example, in inappropriate comments identification task, we basically confine $k \leq 5$.
+}
+
+%
+
+As we assemble data items into batches, 
+each worker has to judge the entire batch as a single judgment.  
+Given a batch $\bb_j$, the judgment provided by a worker can be represented as $\by_j' = (y_{j1}', \ldots, y_{jk}')$, 
+where $y_{jl}' \in \mathcal{Y}$ is the annotation of data item in $x_{jl}$, given by the worker.
+Noting that the worker annotation $\by_j'$ can be different from the true label $\by_j$.  
+We refer to worker annotation as ``annotation'', while the ground-truth label as ``label''.  
+
+In CrowdFlower, as a judgment can only be made based on a unit,
+workers are not allowed to submit partial results on a batch.
+However, one can always add an ``unknown'' option for every data items,
+so that the workers can provide partial results on a batch.
+Our model can also be easily adapted to the scenario with partial judgment on a batch.
+We do not allow users to provide partial feedback as it complicates the pricing system.  
+
+
+Thereby, we can first give a formalized definition of a batch of data items:
+\begin{definition}
+[Batch]
+Given a data set $(X, Y)$,
+a batch of data items with size $k$ extracted from the given data set can be represented as $(\bb_j, \bx_j, \by_j, \by_j')$, 
+where $\bb_j = (b_{j1}, \ldots, b_{jk})$ is a set of indices for $X$ and $Y$; 
+$\bx_j = \{x_{j1}, \ldots, x_{jk}\}$ is a set of all the data items, indexed by $\bb_j$ (\ie~$x_{jl} = x_{b_{jl}}$); 
+$\by_j = \{y_{j1}, \ldots, y_{jk}\}$ consists of the corresponding true labels of data items in $\bx_j$, also indexed by $\bb_j$; 
+$\by_j' = \{y_{j1}', \ldots, y_{jk}'\}$ is the worker annotation on the set of the batch.  
+\end{definition}
+
+%p
+Thereby we can denote the a set of batches:
+\begin{definition}
+Given a data set $(X, Y)$, 
+a set of batches extracted from the given data set is denoted as $A = (B, X_B, Y_B, Y_B')$, 
+where $B=\{\bb_j\}_{j=1}^m$ consists of the indices of each batch; 
+$X_B=\{\bx_j\}_{j=1}^m$ is the set of data item batches, 
+with their corresponding true labels $Y_B=\{\by_j\}_{j=1}^m$ 
+and worker annotations $Y_B'=\{\by_j'\}_{j=1}^m$.  
+\end{definition}
+
+\vpara{Remark.} 
+1) Notice that a data item $x_i \in X$ might appear in multiple batches in $A$.  
+If data items in two different batches share the same index as indicated by corresponding item in $\bb_j$, 
+they refer to the same data item in $X$;  
+2) For the sake of fully utilizing the workforce of crowds, 
+without loss of generality, we focus on the scenario when all batches have the identical size $k$.  
+However, our model generalizes to the case when batches have different sizes;    
+3) In real world crowdsourcing platform, a batch can actually be judged by multiple workers,
+which means there could be multiple $\by_j'$'s associated to a single $(\bb_j, \bx_j, \by_j)$.  
+However, for the purpose of debiasing, 
+it is equivalent to regard a single batch as multiple identical batches,
+and assign each batch with a unique judgment made by different workers. 
+
+%This does not affect our proposed model.  pp
+
+
+\hide{
+Denote all the batches as a set of batches $B = \{b_j\}$ where $j = 1, \ldots, m$.
+Notice that a data item can appear in multiple batches in $B$.
+For the sake of fully utilize the workforce of crowds,
+without loss of generality,
 we only consider the scenario when all the batches in $B$ have the identical size $k$.
 
-As we assemble data items into small batch,
-each worker has to judge the entire batch as a single judgment.
-Given a batch $b_j$, the judgment provided by a worker can be represented as $y_j' = (y_{j1}', \ldots, y_{jk}')$,
-where $y_{j t}' \in \mathcal{Y}$ is the annotation of the $t$-th data item in $b_j$, given by the worker.
-Noting that the worker annotation $y_{j t}'$ can be different from the true label $y_{b_{j t}}$.
-We denote all the judgments as $Y'$.
-In real world crowdsourcing platform, a batch can actually be judged by multiple workers.
-We can simply regard them as judgments on multiple identical batches indexed differently, but with the same data items.
+We denote all the judgments on a batch set $B$ as $Y'$.
+In real world crowdsourcing platform, a batch can actually be judged by multiple workers, 
+which means there could be multiply $y_j'$'s associated to a single batch $b_j$.  
+However, this is equivalent to regard a single batch $b_j$ as multiple identical batches with different indices, 
+and assign each batch with a unique judgment made by different workers.  
+This does not affect the effectiveness of our proposed model.  
+}
 
 
-Now we formalize the research problem as below:
+\hide{
+Now we formalize the definition of a data set:
+\begin{definition}
+[Data Set of Batches]
+A data set of batches consists of $(X_B, Y_B)$,
+where $B = \{b_j\}_{j=1}^m$ is a set of batches with each $b_j = \{b_{j1}, \ldots, b_{jk}\}$ indicating a set of indices;
+each batch $x_j \in X_B$ is a set of data items $\{x_{j1}, \ldots, x_{jk}\}$ indexed by $b_j$,
+and each batch $y_j \in Y_B$ indicates the corresponding labels $\{y_{j1}, \ldots, y_{jk}\}$.
+\end{definition}
+}
 
-\begin{problem} {Debiasing Annotation of Small Batches of Data.}
-Given a small training set of data items $X_L$ as well as their true labels $Y_L$.
-Assemble these data items into batches $B_L$ and obtain the corresponding annotation from crowds $Y_L'$.
-Then with a larger set of data items $X_U$ without knowing their true labels,
-again assemble data items in $X_U$ into batches $B_U$, and obtain the corresponding annotation from crowds $Y'_U$.
-The goal is, based on the data and annotation collected from training data set
-and the noisy annotation for $X_U$ returned by the crowds,
-infer the true labels $Y_U$ for data items in $X_U$.
+
+%We can simply regard them as judgments on multiple identical batches indexed differently, but with the same data items.
+
+\subsection{Problem Definition}
+
+Based on the notations, 
+now we formalize the research problem of debiasing crowdsourced batches as:
+
+\begin{problem} [Debiasing Crowdsourced Batches]
+Suppose we have a labeled data set $(X_L, Y_L)$ with $Y_L$ known, 
+as well as its extracted batches and their crowdsourced annotation $(B_L, X_{B_L}, Y_{B_L}, Y_{B_L}')$.  
+If we are then given another unlabeled data set $X_U$, 
+as well as its extracted batches and crowdsourced annotation $(B_U, X_{B_U}, Y_{B_U}')$, 
+the objective is to infer the true labels $Y_U$ associated with $X_U$ from the crowdsourced annotation.  
 \end{problem}
 
+In application, the labeled data for training can be collected from the ``test questions'' with ground-truth labels, 
+inserted into the crowdsourcing platform for the purpose of quality control and monitor.  
+The usage of ``test questions'' are prevalent in crowdsourcing application.  
+As an example, in CrowdFlower, all workers have to go through a certain number of ``test questions'' with correct labels 
+and achieve an accuracy over a certain threshold (\eg~70\%) 
+before they can proceed to work on the regular task.  
+Also, additional hidden data items with known labels can be inserted into the regular tasks 
+to monitor the accuracy of workers.  
+We believe worker behaviors on these labeled data items can be further utilized for our training purpose.  
 
-In this version of definition, we assume identical worker behavior.
-This assumption is not always true,
-but considering the data sparsity in real world crowdsourcing scenario
-(each worker usually answers only 10 test questions),
+In this version of definition, we assume identical worker behavior, 
+but it is straightforward to extend our model for different individual worker behavior.  
+
+
+\hide{
+If we do want to model the worker behavior 
+This assumption is not always true, 
+but in order to reduce the 
+but considering the data sparsity in real world crowdsourcing scenario 
+(each worker usually answers only 10 batches test questions),
 building an accurate enough worker model for each worker is not realistic.
+}
+%ppp
 
 
 
+\begin{table}[!t]
+\centering
+ {\caption{Notation description.}\label{tab:notation}}
+{
+  \begin{tabular}{@{}c@{}||p{6.8cm}}
+  \hline    
+  Notation & Description \\ \hline \hline
+  $X$      & Set of all the data items $\{x_i\}_{i=1}^n$  \\ \hline
+  $Y$      & Set of all true labels associated with data items in $X$ \\ \hline
+  $\bb_j$    & A set of data item indices $\{b_{jl}\}_{l=1}^{k}$ \\ \hline
+  $\bx_j$    & A data item batch $\{x_{jl}\}_{l=1}^{k}$ where $x_{jl}$ is extracted from the data item in $X$ with index specified by $b_{jl}$ \\ \hline
+  $\by_j$    & A label batch consists of true labels $\{y_{jl}\}_{l=1}^{k}$ associated with data items in $\bx_j$ \\ \hline
+  $\by_j'$   & Worker annotation collected from a crowdsourcing platform for data items in $\bx_j$ \\ \hline
+  $B$      & Set of all the batches $\{\bb_j\}_{i=1}^m$ \\ \hline
+  $X_B$    & Set of all the data item batches \\ \hline
+  $Y_B$    & Set of all the true labels associated with data item batches in $X_B$ \\ \hline
+  $Y_B'$   & Set of all the worker annotation from crowds on data item batches in $X_B$ \\ \hline
+  \end{tabular}
+}
+\end{table}
