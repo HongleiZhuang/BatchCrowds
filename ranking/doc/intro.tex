@@ -24,6 +24,42 @@ And also, once they start on a batch,
 they no longer have to ``fight'' for other high paying or attractive tasks.  
 %
 
+
+\begin{figure*}[!t]
+  \centering
+  %\begin{subfigure}[b]{0.62\columnwidth}
+  \subfigure[Data items judged independently]{
+    \label{subfig:example_ind}
+   % \centering
+    \begin{tabular}{@{}cc@{}}
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_ind1} &
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_ind2} \\
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_ind3} &
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_ind4}
+    \end{tabular}
+  }
+   % \caption{Data items judged independently}
+  %\end{subfigure}
+  %\begin{subfigure}[b][0.31\columnwidth]
+  \subfigure[Data items judged in a batch]{
+    \label{subfig:example_batch}
+    %\centering
+    \begin{tabular}{@{}c@{}}
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_grp1} \\
+    \includegraphics[width=0.30\textwidth]{figures/example_movie_grp2}
+    \end{tabular}
+  }
+    %\caption{Data items judged in a batch}
+  %\end{subfigure}
+  \caption{\label{fig:example}
+  Example of correlation between annotations on data items in the same batch.
+  Workers are asked to annotate relevant comments with respect to a given document.
+  Assign each comment-document pair to workers separately can be costly,
+  while assigning a batch of comments to a document to workers might affect workers' judgments.
+  }
+\end{figure*}
+
+\hide{
 \begin{figure}[!t]
   \centering
   \subfigure[Data items judged independently]{
@@ -42,7 +78,7 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
   while assigning a batch of comments to a document to workers might affect workers' judgments.
   }
 \end{figure}
-
+}
 
 
 However, there could be correlations between annotations made by workers on data items within the same batch.
