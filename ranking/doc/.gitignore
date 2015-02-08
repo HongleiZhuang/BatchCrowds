@@ -4,6 +4,7 @@
 *.log
 *.bak
 *.gz
+*.sav
 betamain.pdf
 betamain.ps
 betamain.dvi

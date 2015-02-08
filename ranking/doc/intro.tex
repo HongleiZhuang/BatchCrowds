@@ -6,7 +6,7 @@ by employing a massive workforce from global Internet users.
 Popular online crowdsourcing platform include
 Amazon Mechanical Turk\footnote{\url{https://www.mturk.com/}} and CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.
 However, in contrast to expert annotated data,
-crowdsourced annotation usually suffers from relatively higher level of errors. 
+crowdsourced annotation usually suffers from relatively higher level of errors.
 %which limits the adoption of crowdsourcing as a regular method of annotated data collection.
 
 
@@ -19,9 +19,9 @@ Consider an example where the worker has to judge whether a comment is relevant 
 where making a judgment on each comment requires reading through the entire document.
 Moreover, from the workers' point of view,
 it is also more attractive to label batches of data items
-as they can save time on switching between different tasks. 
-And also, once they start on a batch, 
-they no longer have to ``fight'' for other high paying or attractive tasks.  
+as they can save time on switching between different tasks.
+And also, once they start on a batch,
+they no longer have to ``fight'' for other high paying or attractive tasks.
 %
 
 
@@ -73,28 +73,31 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
   }
   \caption{\label{fig:example}
   Example of correlation between annotations on data items in the same batch.
-  Workers are asked to annotate relevant comments with respect to a given document.
-  Assign each comment-document pair to workers separately can be costly,
-  while assigning a batch of comments to a document to workers might affect workers' judgments.
+  Workers are asked to label whether a review on the movie ``The Imitation Game'' crawled from IMDb is positive.  
+  Assign each review-movie pair to workers separately can be costly,
+  while assigning a batch of reviews together with a movie to workers might affect workers' judgments. 
   }
 \end{figure}
 }
 
 
 However, there could be correlations between annotations made by workers on data items within the same batch.
-For example, we have a task of annotating whether a comment is relevant or not to a document.
-As illustrated in Figure~\ref{subfig:example_ind}, if we only show one comment for each document,
-every workers have to read through the entire document before they can make a single judgment on a comment.
+For example, we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.  
+As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review in each crowdsourcing unit, 
+every workers may have to spend some time on reading the instructions and the background movie before they can make a single judgment on a review.
 Although judgments are likely to be independent, this way of work assignment is too costly.
-Instead, if we assemble multiple comments of the same document into the same batch, as shown in Figure~\ref{subfig:example_batch},
-workers can make multiple judgments after they read each document.
-However, since the two comments seem like a conversation,
-the workers might judge the comment ``Indeed.'' as a relevant comment.
+Instead, if we assemble multiple reviews of the same movie into a batch, as shown in Figure~\ref{subfig:example_batch},
+workers can make multiple judgments after they read each instruction.
+Nevertheless, in this case, the annotation of different reviews might interfere with each other.  
+For example, when the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}), 
+when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).  
+Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),  
+it does not look as positive as a strong admiring review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.  
 This might be undesired and misleading as it is inconsistent with the case when workers make independent judgments.
 Therefore it is challenging to ascertain true labels of data items in batches.
 
 
-
+%p
 \hide{
 Data annotation bias has been studiend in multiple settings.
 Modeling workers' annotating bias on single data items has been studied in a number of studies~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010,whitehill:nips2009}.
