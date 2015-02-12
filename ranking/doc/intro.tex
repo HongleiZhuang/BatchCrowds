@@ -53,11 +53,12 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
   %\end{subfigure}
   \caption{\label{fig:example}
   Example of correlation between annotations on data items in the same batch.
-  Workers are asked to annotate relevant comments with respect to a given document.
-  Assign each comment-document pair to workers separately can be costly,
-  while assigning a batch of comments to a document to workers might affect workers' judgments.
+  Workers are asked to label whether a review on the movie ``The Imitation Game'' crawled from IMDb is positive.
+  Assign each review-movie pair to workers separately can be costly,
+  while assigning a batch of reviews together with a movie to workers might affect workers' judgments.
   }
 \end{figure*}
+
 
 \hide{
 \begin{figure}[!t]
@@ -72,27 +73,24 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
     \includegraphics[width=0.30\columnwidth]{figures/example_batch}
   }
   \caption{\label{fig:example}
-  Example of correlation between annotations on data items in the same batch.
-  Workers are asked to label whether a review on the movie ``The Imitation Game'' crawled from IMDb is positive.  
-  Assign each review-movie pair to workers separately can be costly,
-  while assigning a batch of reviews together with a movie to workers might affect workers' judgments. 
+
   }
 \end{figure}
 }
 
 
 However, there could be correlations between annotations made by workers on data items within the same batch.
-For example, we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.  
-As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review in each crowdsourcing unit, 
+For example, we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.
+As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review in each crowdsourcing unit,
 every workers may have to spend some time on reading the instructions and the background movie before they can make a single judgment on a review.
 Although judgments are likely to be independent, this way of work assignment is too costly.
 Instead, if we assemble multiple reviews of the same movie into a batch, as shown in Figure~\ref{subfig:example_batch},
 workers can make multiple judgments after they read each instruction.
-Nevertheless, in this case, the annotation of different reviews might interfere with each other.  
-For example, when the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}), 
-when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).  
-Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),  
-it does not look as positive as a strong admiring review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.  
+Nevertheless, in this case, the annotation of different reviews might interfere with each other.
+For example, when the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}),
+when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).
+Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),
+it does not look as positive as a strong admiring review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.
 This might be undesired and misleading as it is inconsistent with the case when workers make independent judgments.
 Therefore it is challenging to ascertain true labels of data items in batches.
 
@@ -137,19 +135,19 @@ When the batch becomes too large, the scenario might be reduced to the case when
 
 The practice of crowdsourcing so far
 rarely pay attention to possible annotation error that might be introduced by grouping data items into batches.
-Although batching data items has been adopted in may crowdsourced tasks such as
+Although batching data items has been adopted in many crowdsourced tasks such as
 %This judging-in-batch setting has been noticed and adopted in crowdsourcing practices of
 sorting~\cite{marcus:vldb2011}, object recognition~\cite{su:aaai2012} or clustering~\cite{gomes:nips2011}.
 The assumption is that the annotations are collected independently, which is not the case.
 While there is limited work on judging data items in sequences~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
-it is not directly applicable to our setting where a batch of data items are presented an annotated in parallel.
+it is not directly applicable to our setting where a batch of data items are presented and annotated in parallel.
 Our previous research~\cite{zhuang:wsdm2015} also noticed this specific type of annotation bias,
 but instead of focusing on debiasing,
 we exploited the bias to develop an active learning algorithm aiming to improve a certain classifier performance.
 We defer the detailed discussion of the related work in Section~\ref{sec:related}.
 
 %which facilitates some tasks requiring workers to judge data items based on comparison,
-%also benefits other tasks on efficiency and cost.
+%also benefits other tasks on efficiency and cost.p
 %However, little research has explicitly addressed this setting and studied the annotation bias.
 
 

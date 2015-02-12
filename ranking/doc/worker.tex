@@ -6,10 +6,10 @@ In this section, we first describe our model for workers' annotation behavior on
 then we introduce how to train the model based on a training data set.
 %finally we presents the parameters of this model learned from a real world data set.
 
-Our key intonation is the follows:
+Our key intuition is the follows:
 when a worker judges a batch of data items,
-she can either: 
-1) choose to judge data items independently as if they are presented alone; or 
+she can either:
+1) choose to judge data items independently as if they are presented alone; or
 2) to rank all the data items according to their relative inherent values
 and annotate the top several items as positive, leaving the rest in the batch as negative.
 
@@ -20,7 +20,7 @@ Before we delve in our model, we first recap a probability model for generating 
 based on scores associated with items, namely the Plackett-Luce model~\cite{luce:2005, plackett:1975} introduced in the 70s.
 Without loss of generality, suppose we are given a set of items $x_1, \ldots, x_k$.
 Each item $x_i$ is associated with a certain score $s(x_i) > 0$.  %\reminder{example needed here.}
-Here the score $s(x_i)$ models the tendency of ranking $x_i$ higher in a randomly generated ranking.  
+Here the score $s(x_i)$ models the tendency of ranking $x_i$ higher in a randomly generated ranking.
 A ranking of these items can be represented as a bijection $\pi : \{i\}_{i = 1}^k \mapsto \{x_i\}_{i = 1}^k$,
 which maps the $i$-th position in the ranking to the item at this position.
 The corresponding ranking list can be represented as
@@ -43,40 +43,40 @@ The probability of generating a ranking list according to this process is equiva
 
 \vpara{Worker model.}
 Now we introduce our worker model for annotating small batches of data items.
-Again, without loss of generality, suppose we are given a batch $\bx_j$ where $x_{jl} = x_l$, 
-namely the given data item batch can be denoted as $\bx_j=\{x_1, \ldots, x_k\}$.  
+Again, without loss of generality, suppose we are given a batch $\bx_j$ where $x_{jl} = x_l$,
+namely the given data item batch can be denoted as $\bx_j=\{x_1, \ldots, x_k\}$.
  %of $(x_1, \ldots, x_k)$, namely $b_{ji} = i$.pp
-Also, recall that for each data item $x_i$, we denote its predictive probability $P(y_i = 1 | x_i)$ as $\eta_i$, 
-which is not explicitly known.  
+Also, recall that for each data item $x_i$, we denote its predictive probability $P(y_i = 1 | x_i)$ as $\eta_i$,
+which is not explicitly known.
 %Although this value is not explicitly known,
 %we assume the worker has the ability to estimate this value based on the features of data item.
 
-When a worker starts to work on a certain batch of data items, 
+When a worker starts to work on a certain batch of data items,
 two different strategies might be taken:
 \begin{itemize}
-  \item \emph{Independent judging.}  
-  If the worker has the ability to obtain an estimate of the absolute value $\eta_i$ for each data item, 
-  we suppose the worker judges each data item $x_i \in \bx_j$ independently 
-  by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.  
+  \item \emph{Independent judging.}
+  If the worker has the ability to obtain an estimate of the absolute value $\eta_i$ for each data item,
+  we suppose the worker judges each data item $x_i \in \bx_j$ independently
+  by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
   \item \emph{Relative judging.}
-  If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item, 
-  without knowing absolute value of $\eta_i$, 
+  If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item,
+  without knowing absolute value of $\eta_i$,
   we suppose the worker chooses to first rank all the data items based on their probability of being positive,
   then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.
   To be precise, the worker generates a ranking $\pi$ for $k$ items in the batch according to the Plackett-Luce model,
   with the scoring function defined as $s(x_i) = \eta_i$.
   Then the worker draws an integer $0 \leq \tau \leq k$ from a certain distribution,
   where $p_\tau$ denotes the probability of drawing the integer $\tau$.
-  For data items ranked as top-$p$ in the ranking, 
-  denoted as $x_i \in \{\pi^{-1}(1), \ldots, \pi^{-1}(p)\}$ (could be empty if $p = 0$), 
+  For data items ranked as top-$\tau$ in the ranking,
+  denoted as $x_i \in \{\pi^{-1}(1), \ldots, \pi^{-1}(p)\}$ (could be empty if $p = 0$),
   the worker annotates them as $y_i'=1$,
-  while other data items not within the top-$p$ of the ranking $\pi$ are annotated as $y_i' = 0$.
+  while other data items not within the top-$\tau$ of the ranking $\pi$ are annotated as $y_i' = 0$.
 \end{itemize}
-To combine these two different scenarios, 
-we suppose the worker is able to judge independently with a certain probability $0 < \lambda < 1$, 
-while with probability $(1-\lambda)$ the worker can only make relative judgments.  
+To combine these two different scenarios,
+we suppose the worker is able to judge independently with a certain probability $0 < \lambda < 1$,
+while with probability $(1-\lambda)$ the worker can only make relative judgments.
 
-\hide{p
+\hide{
 the worker chooses to judge each data item $x_i$ independently based on the $\eta_i$ value.
 More concretely, the worker generates $y_i' = 1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
 With probability $(1 - \lambda)$, the worker chooses to first rank all the data items based on their probability of being positive,
@@ -90,20 +90,20 @@ while other data items not within the top-$p$ of the ranking $\pi$ are annotated
 }
 
 The intuition of this model is to capture two behavior pattern of workers.
-In the independent judging scenario, 
-workers can remain independent in judging different data items in the same batch, 
-with respect to the property of each data item $x_i$ characterized by $\eta_i$.  
+In the independent judging scenario,
+workers can remain independent in judging different data items in the same batch,
+with respect to the property of each data item $x_i$ characterized by $\eta_i$.
 %use an absolute standard to judge data items from different batches,p
 %and therefore remain consistent performance.
-Nevertheless, sometimes workers might judge data items within a batch by comparison. 
-In the relative judging scenario, 
+Nevertheless, sometimes workers might judge data items within a batch by comparison.
+In the relative judging scenario,
 workers still have the ability to judge the relative relationships between data items in the same batch,
-which is captured by the Plackett-Luce model for generating the ranking.  
-In order to determine the labels of data items, 
+which is captured by the Plackett-Luce model for generating the ranking.
+In order to determine the labels of data items,
 they have an expectation of label distribution,
 which is reflected by the distribution of generating $\tau$,
 as it characterizes the probability of having $\tau$ positives within $k$ data items.
-However, this distribution does not necessarily reflect the correct label distribution.  
+However, this distribution does not necessarily reflect the correct label distribution.
 When they try to apply their expectation of label distribution on the batch, bias might occur.
 
 We summarize the process of generating annotation for a batch of data items in our proposed model as below:
@@ -132,8 +132,8 @@ Parameters need to be determined in this worker model is:
 the probability of making independent judgments $\lambda$,
 and the distribution of the number of positive annotation when making relative judgments,
 represented by $p_0, \ldots, p_k$, where $0 \leq p_{\tau} \leq 1$ and $\sum p_{\tau} = 1$.
-We assume these two parameters are fixed, 
-independent of the data items in question.  
+We assume these two parameters are fixed,
+independent of the data items in question.
 %p
 
 Suppose we are given a set of $n_L$ items $X_L$ with their predictive distribution $\eta_i$ known. %true labels $Y_L$ known.p
