@@ -94,16 +94,19 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 			}
 		}
 		
+		
+		
 		for (int i = 0; i < scores.length; ++i) {
 			scores[i] = (double) poscnt[i] / totcnt[i];
-			System.out.println(poscnt[i] + "/" + totcnt[i]);
+//			System.out.println(poscnt[i] + "/" + totcnt[i]);
 		}
 		
-		
+		/*
 		HashMap<String, Double> name2Score = new HashMap<String, Double>();
 		for (int i = 0; i < scores.length; ++i) {
 			name2Score.put(rkdata.id2Name.get(i), scores[i]);
 		}
+		
 		ArrayList<Entry<String, Double>> sortedList = MapSorter.sortByValue(name2Score, false);
 		int top = 0;
 		for (Entry<String, Double> e: sortedList) {
@@ -112,6 +115,7 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 //			if (++top >= 20) break;
 		}
 		System.out.println();
+		/**/
 	}
 
 	static public void main(String[] args) throws Exception {
@@ -136,7 +140,7 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 		/**/
 		
-		
+		/*
 		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
 		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/data/synthetic/rankedlists.txt");
 		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_score.txt");
@@ -175,6 +179,28 @@ public class NaiveLearner extends ScoreBasedSemiRankingLearner {
 		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/fullres.out.test.filtered");
 		/**/
+		
+		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
+		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/rkdata.txt");
+		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtscore.txt");
+		System.out.println(trainDataSet.id2Name.size());
+		
+		
+		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/rkdata.test.txt");
+		System.out.println(testDataSet.id2Name.size());
+
+		
+		NaiveLearner learner = new NaiveLearner(testDataSet);
+		learner.trainModel(trainDataSet, trainScores);
+		System.out.println("Threshold = " + learner.threshold);
+		
+		learner.trainRankings();
+		
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtlabel.test.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtlabel.test.txt");
+		
+		
 	}
 	
 }

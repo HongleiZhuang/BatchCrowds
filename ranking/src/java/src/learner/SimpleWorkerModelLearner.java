@@ -339,7 +339,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 			
 			
 			
-			
+			/*
 			// ================Debug========================
 			System.out.println("==================Iter = " + iter + "====================");
 			for (int i = 0; i < scores.length; ++i) {
@@ -365,7 +365,7 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 			if (L < oldL || Math.abs((L - oldL) / oldL) < epsilon) {
 				++stopCnt;
 				oldL = L;
-				if (stopCnt > 5) {
+				if (stopCnt > 3) {
 					System.out.println("Converge");
 					break;
 				}
@@ -386,10 +386,11 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
 			ArrayList<int[]> semiRankedList = rkdata.semiRankingLists.get(j);
 			double correctFlag = 1.0;
-			for (int id : semiRankedList.get(0)) if (tempScores[curRow][id] < 0.5) correctFlag = 0.0;
-			for (int id : semiRankedList.get(1)) if (tempScores[curRow][id] >= 0.5) correctFlag = 0.0;
-			double prob = (1 - correctProb) * piProbs[j] * pickingProb[semiRankedList.get(0).length];
-			if (correctFlag == 1.0) prob += correctFlag;
+			double prob = 0.0;
+			for (int id : semiRankedList.get(0)) prob += Math.log(scores[id]);
+			for (int id : semiRankedList.get(1)) prob += Math.log(1 - scores[id]);
+			prob += Math.log(correctProb);
+			prob = (1 - correctProb) * piProbs[j] * pickingProb[semiRankedList.get(0).length] + Math.exp(prob);
 			L += Math.log(prob);
 		}
 		return L;
@@ -567,6 +568,28 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 		learner.evaluate("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
 		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/data/synthetic/ground_truth_label_test.txt");
 		/**/
+
+		// SYNTHETIC2 data set
+		SemiRankingDataSet trainDataSet = new SemiRankingDataSet();
+		trainDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/rkdata.txt");
+		HashMap<Integer, Double> trainScores = trainDataSet.readGtScores("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtscore.txt");
+		System.out.println(trainDataSet.id2Name.size());
+		
+		
+		SemiRankingDataSet testDataSet = new SemiRankingDataSet();
+		testDataSet.readSemiRankingLists("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/rkdata.test.txt");
+		System.out.println(testDataSet.id2Name.size());
+
+		
+		SimpleWorkerModelLearner learner = new SimpleWorkerModelLearner(testDataSet, trainDataSet, trainScores);
+//		learner.trainWorkerModelParams(trainDataSet, trainScores);
+		
+		learner.trainRankings();
+		
+		learner.evaluate("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtlabel.test.txt");
+		learner.evaluateByROC("/Users/hzhuang/Work/beta/ranking/exp/0216_synthetic/temp/gtlabel.test.txt");
+		/**/
+		
 		
 		
 		/*
