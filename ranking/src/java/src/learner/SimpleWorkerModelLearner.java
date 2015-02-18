@@ -14,7 +14,7 @@ import model.SemiRankingDataSet;
 public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 	
 	int maxIter = 2000;        // Maximum iteration 
-	double epsilon = 1e-3;    // Stop criterion for convergence
+	double epsilon = 1e-5;    // Stop criterion for convergence
 	double tempLambda;  // Probability that a worker guesses the answer
 	
 	int trainWorkerMaxIter = 100;
@@ -385,7 +385,6 @@ public class SimpleWorkerModelLearner extends ScoreBasedSemiRankingLearner {
 		calcPiProbs(tempScores[curRow]);
 		for (int j = 0; j < rkdata.semiRankingLists.size(); ++j) {
 			ArrayList<int[]> semiRankedList = rkdata.semiRankingLists.get(j);
-			double correctFlag = 1.0;
 			double prob = 0.0;
 			for (int id : semiRankedList.get(0)) prob += Math.log(scores[id]);
 			for (int id : semiRankedList.get(1)) prob += Math.log(1 - scores[id]);

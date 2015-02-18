@@ -1,23 +1,24 @@
 \section{Introduction}
 \label{sec:intro}
 
-Crowdsourcing provides an inexpensive and efficient method to annotate data for various machine learning tasks
+Crowdsourcing provides an inexpensive and efficient method to annotate data on a large scale for various machine learning tasks
 by employing a massive workforce from global Internet users.
 Popular online crowdsourcing platform include
 Amazon Mechanical Turk\footnote{\url{https://www.mturk.com/}} and CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.
 However, in contrast to expert annotated data,
-crowdsourced annotation usually suffers from relatively higher level of errors.
+crowdsourced annotation usually suffers from a relatively higher level of errors, 
+due to crowd workers' lack of expertise or experience.  
 %which limits the adoption of crowdsourcing as a regular method of annotated data collection.
 
 
-Typically in practice, multiple questions or data items are grouped into batches
+Typically, in practice, multiple questions or data items are grouped into batches
 to be sent to workers on crowdsourcing platforms.
-Firstly, sending batches of data items can save cost,
-as the necessary instructions or background for completing the tasks can be provided only once,
-which can prevent the overhead when the workers have to read elaborate instructions or background before labeling each data item.
-Consider an example where the worker has to judge whether a comment is relevant to a certain document,
-where making a judgment on each comment requires reading through the entire document.
-Moreover, from the workers' point of view,
+First, sending batches of data items can save cost,
+as the necessary instructions or background for completing the tasks needs to be provided only once,
+limiting the overhead when the workers have to read elaborate instructions or necessary background before labeling each data item.
+Consider an example where a worker has to judge whether a comment is relevant to a certain document.  
+Here making a judgment on each comment requires reading through the entire document.
+In fact, from the workers' point of view,
 it is also more attractive to label batches of data items
 as they can save time on switching between different tasks.
 And also, once they start on a batch,
@@ -79,20 +80,22 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
 }
 
 
-However, there could be correlations between annotations made by workers on data items within the same batch.
-For example, we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.
+However, even though batching is an attractive option in practice, 
+due to its cost and time savings, having workers annotate batches can lead to severe correlation between annotations within batches.  
+%there could be correlations between annotations made by workers on data items within the same batch.
+For example, say we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.
 As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review in each crowdsourcing unit,
 every workers may have to spend some time on reading the instructions and the background movie before they can make a single judgment on a review.
-Although judgments are likely to be independent, this way of work assignment is too costly.
+Although judgments are likely to be independent, this way of work assignment is too costly to be practical.
 Instead, if we assemble multiple reviews of the same movie into a batch, as shown in Figure~\ref{subfig:example_batch},
-workers can make multiple judgments after they read each instruction.
+workers can make multiple judgments after they read the instructions.  
 Nevertheless, in this case, the annotation of different reviews might interfere with each other.
 For example, when the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}),
 when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).
 Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),
-it does not look as positive as a strong admiring review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.
-This might be undesired and misleading as it is inconsistent with the case when workers make independent judgments.
-Therefore it is challenging to ascertain true labels of data items in batches.
+it does not look as positive as a strongly effusive review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.
+Thus, overall these might be undesirable and misleading as it is inconsistent with the case when workers make independent judgments.
+Therefore, it is challenging to ascertain true labels of data items in batches.
 
 
 %p
@@ -109,46 +112,19 @@ This setting could be referred to as \emph{sequential judgments}.
 }
 
 
-\hide{
-In this paper, we study another interesting scenario when data items are organized into (small) a batch
-and presented to a worker to be judged together.
-We refer to this setting as \emph{batch judgments}.
-We present a graphical model example of these three different scenarios, as shown in Figure~\ref{fig:worker_mode}.
-Circles represent random variables $y_i'$, which models the annotation given by workers on the $i$-th data item,
-while black boxes represent certain kinds of dependencies.
-Figure~\ref{subfig:mode_ind} shows the scenario when workers make judgments on each data item independently.
-This usually applies when data items are presented to workers separately,
-or when there are rarely correlations between data items.
-Figure~\ref{subfig:mode_seq} as an example of sequential judgments,
-illustrates that there might be dependencies between judgments made on two consecutive data items.
-This case often happens when data items are presented to workers in a sequence,
-and there are some certain correlations between consecutive data items.
-For example, judging the relevance of a list of documents to a fixed query.
-Figure~\ref{subfig:mode_batch} shows the scenario we study in this paper,
-namely when judgments are made simultaneously to a batch of data items.
-This scenario usually happens when workers are required to make judgments to several data items at the same time,
-or the data items in the same batch are strongly connected.
-Notice that the size of batch is usually relatively small (\eg~$\leq 5$)
-because a worker usually cannot pay attention to more data items at the same time.
-When the batch becomes too large, the scenario might be reduced to the case when workers make sequential judgments.
-}
-
 The practice of crowdsourcing so far
-rarely pay attention to possible annotation error that might be introduced by grouping data items into batches.
+rarely pays attention to possible annotation error that might be introduced by grouping data items into batches.
 Although batching data items has been adopted in many crowdsourced tasks such as
 %This judging-in-batch setting has been noticed and adopted in crowdsourcing practices of
-sorting~\cite{marcus:vldb2011}, object recognition~\cite{su:aaai2012} or clustering~\cite{gomes:nips2011}.
+sorting~\cite{marcus:vldb2011}, object recognition~\cite{su:aaai2012} or clustering~\cite{gomes:nips2011}, 
+and anecdotally very widely used in practice.  
 The assumption is that the annotations are collected independently, which is not the case.
-While there is limited work on judging data items in sequences~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
+While there is limited work on judging data items in sequence~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
 it is not directly applicable to our setting where a batch of data items are presented and annotated in parallel.
 Our previous research~\cite{zhuang:wsdm2015} also noticed this specific type of annotation bias,
 but instead of focusing on debiasing,
 we exploited the bias to develop an active learning algorithm aiming to improve a certain classifier performance.
-We defer the detailed discussion of the related work in Section~\ref{sec:related}.
-
-%which facilitates some tasks requiring workers to judge data items based on comparison,
-%also benefits other tasks on efficiency and cost.p
-%However, little research has explicitly addressed this setting and studied the annotation bias.
+We defer the detailed discussion of the related work to Section~\ref{sec:related}.
 
 
 \hide{
@@ -182,10 +158,10 @@ We defer the detailed discussion of the related work in Section~\ref{sec:related
 There are several research challenges in studying this problem.
 First, how do we model workers' behavior when they make judgments in batches?
 Second, how do we leverage the model to debias the crowdsourced annotation of data batches?
-The following contributions are made regarding these questions:
+We make the following contributions in answering these questions:
 \begin{enumerate}
   \item \emph{Proposing an interpretable worker annotation model on small batches of data.}
-        We propose a novel worker model for binary annotating behavior with data items organized in small batches.
+        We propose a novel worker model for binary annotation behavior with data items presented as batches.
         The model incorporates independent judgments and batch judgments based on ranking.
         Different from the factor graph model in our previous work~\cite{zhuang:wsdm2015},
         we focus on obtaining the true labels of data items instead of improving classifier performance.
@@ -203,8 +179,8 @@ The rest of this paper is organized as follows:
 Section~\ref{sec:prelim} introduces the background of crowdsourcing, and formalizes the research problem;
 Section~\ref{sec:worker} proposes the worker model for annotating small batches of data;
 Section~\ref{sec:debias} presents a strategy to debias batch annotations;
-Section~\ref{sec:exp} illustrates experimental results;
-Section~\ref{sec:related} introduces related work and Section~\ref{sec:conclusion} concludes.
+Section~\ref{sec:exp} describes experimental results;
+Section~\ref{sec:related} presents related work and Section~\ref{sec:conclusion} concludes.
 
 
 

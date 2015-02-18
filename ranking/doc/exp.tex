@@ -4,49 +4,49 @@
 In this section, we conduct experiments on a synthetic data set and a real data set 
 to verify the effectiveness of our proposed worker model and debiasing technique.  
 
-\subsection{Data sets}
+\subsection{Experimental Data Sets}
 We first introduce the data sets we used in this experiments.  
 A summary of the data sets we used in our experiments are given in Table~\ref{tab:dataset}.  
 
-\vpara{Synthetic.}
+\vpara{Synthetic data set.}
 We construct synthetic data sets following the worker annotation model we proposed in Section~\ref{sec:worker}.
 Suppose we have $n$ items in $X$, 
 we first generate their predictive probability $\eta_i$ for each $x_i \in X$ 
 from a Beta distribution $Beta(\alpha, \beta)$, 
 then generate the true labels $Y$ by drawing $y_i$ from a Bernoulli distribution parameterized by $\eta_i$ for each $i$.  
-In our synthetic data set, we set $\alpha = 2$ and $\beta = 4$ to simulate the case when negative data items overwhelm.
+In our synthetic data set, we set $\alpha = 2$ and $\beta = 4$ to simulate the case when negative data items overwhelm positive data items.
 
-Then we generate $m$ batches of size $k$ by sampling without replacement for each batch.  
-Notice that by ``without replacement'' we mean there are no identical data items within the same batch, 
+Then, we generate $m$ batches of size $k$ by sampling without replacement for each batch.  
+Notice that by the phrase ``without replacement'' we mean there are no identical data items within the same batch, 
 while the same item can still appear in multiple batches 
 as we do replace the items back into the pool after a batch is generated.  
 Thereby we obtain the set of batches $B$.  
-For each $b_j$ in $B$, we generate the workers' annotation $y_j'$ from our proposed batch annotation model.  
-The probability of making independent judgments $\lambda$ is given.
+For each $\bb_j$ in $B$, we generate the workers' annotation $\by_j'$ from our proposed batch annotation model.  
+The probability of making independent judgments $\lambda$ is set as $0.5$.
 The distribution of determining number of positive annotations $p_{\tau}$ is also assigned to be:
 \beal{
 	p_{\tau} \propto (\tau + 1)^{- \rho} \nonumber
 }%
-where $\rho$ is positive constant.  
-In our synthetic data set, we set $\lambda = 0.5$ and $\rho = 2$.  
+where $\rho$ is positive constant, set as $2$ in our experiments.  
+%In our synthetic data set, we set $\lambda = 0.5$ and $\rho = 2$.  
 
-\vpara{Comments.}
-We utilize a real world crowdsourcing data set.  
-The original crowdsourced task is to identify inappropriate comments on LinkedIn posts published by companies or LinkedIn influencers.  
+\vpara{Comments data set.}
+We utilize a real world crowdsourcing data set for annotating comments.  
+The original crowdsourcing task was to identify inappropriate comments on LinkedIn posts published by companies or LinkedIn influencers.  
 Inappropriate comments are defined as comments containing promotional, profane, blatant soliciting, random greeting comments, 
 as well as comments with \emph{only} web links and contact information.  
 In order to collect annotation of comments, 
 for each post, $k$ comments are sampled and sent to CrowdFlower as a batch (unit).  
 Workers are also provided with a codebook (instruction) explaining how to annotate the data.  
 Each comment is regarded as a data item and can be annotated as positive (inappropriate comment) or negative (acceptable comment).  
-Each batch is annotated by more than 5 workers.  
+Each batch is annotated by 5 or more workers.  
 
 In order to provide test questions and track the performance of each worker, 
 some of the batches are annotated by 9 trained LinkedIn employees (experts) with the same codebook and interface as used for crowd workers.  
 The average Cohen's kappa for all expert pairs is 0.7881.  
 For this experiments, we only adopt the batches with all of their data items annotated by both crowds and experts 
 as we can use the experts' annotation as ground truth (aggregated by majority voting).  
-Among which, 1,099 batches that are annotated before a worker actually works on the job 
+Out of these batches, 1,099 batches that are annotated before a worker actually starts on the job 
 are utilized as training data set $B_L$.  
 while the other 5,267 batches are utilized as test data set $B_U$ to infer the 651 data items they covered.  
 
@@ -67,13 +67,13 @@ while the other 5,267 batches are utilized as test data set $B_U$ to infer the 6
 
 \subsection{Experimental Setup}
 
-\vpara{Comparing method.}
+\vpara{Methods evaluated.}
 We compare the performance of our proposed method with several baselines:
 \begin{itemize}
   \item \emph{Majority Voting (MV)}.
         For each data item in the test data set, 
         simply determine its inferred label by the way it is annotated by the majority of workers.  
-        This aggregation strategy is adopted by many crowdsourcing service.  
+        This aggregation strategy is often used in practice~\cite{sheng:kdd2008}.  %adopted by many crowdsourcing service.  
   \item \emph{Majority Voting with Tuned Threshold (MVT)}.
         Instead of simply applying majority voting, 
         we calculate the ratio of positive annotation on each item as a score, 
@@ -89,17 +89,16 @@ We compare the performance of our proposed method with several baselines:
         The debiasing strategy proposed in Section~\ref{sec:worker} and~\ref{sec:debias}.
 \end{itemize}
 
-\vpara{Evaluation.}
+\vpara{Evaluation methodology.}
 For baselines without training, we directly apply them on the test data set; 
-for our proposed method, we first train the worker model on the training data set, 
+for our proposed method as well as MVT, we first train the worker model on the training data set, 
 then apply the debiasing strategy based on the trained worker model on the test data set.  
 We compare the inferred labels to the ground-truth and evaluate the performance in terms of accuracy, precision, recall and $F_1$-score.  
 As all the methods generate scores for each data item 
 (for MV we take the proportion of workers who annotated a data item as positive as the inferred score),
 we also evaluate the performance in terms of the area of ROC curves.  
 
-
-\vpara{Experimental setup.}
+\vpara{Trials and setup.}
 For our proposed model, 
 in training phase, we initialize $\lambda$ to be 0.5 and $p_{\tau}$ to be a random value between 0 and 1;
 in debiasing phase, we initialize the all the inferred scores as $0.1$. 
@@ -117,7 +116,7 @@ On synthetic data set, the ``true'' value of probability of making independent j
 We learn the model from the synthetic training data and obtain the inferred $\hat{\lambda}$ as 0.4998, 
 which reasonably recovers the original value.  
 We also compare the original model parameters $p_{\tau}$'s to the inferred parameters in Figure~\ref{subfig:p_tau_synthetic}.  
-The black dash line represents the original parameters used for generating synthetic annotation data, 
+The black dashed line represents the original parameters used for generating synthetic annotation data, 
 while the red solid line shows the inferred parameters of worker model, 
 which seems as a precise fit of the original parameter.  
 We also show the curve of log-likelihood of the training data set,
@@ -135,8 +134,8 @@ It can be observed that the error is reasonable small, basically within 0.1.
 Figure~\ref{subfig:ptau_esterr} shows the $\ell_2$ norm of the difference between the estimated distribution $\hat{p}_{\tau}$
 and the ``true'' distribution $p_{\tau}$, 
 when $p_{\tau}$ is generated with respect to different $\rho$ varying from 1 to 3.  
-In most of the settings, the error is below $2 \times 10^{-3}$.  
-The error is basically tolerable.  
+In most of the settings, the error is below $2 \times 10^{-3}$, 
+which is fairly low.  
 Although we only instantiate $p_{\tau}$'s by power-law distribution, 
 as the learning method does not confine the learned distribution to be parametric, 
 it can be directly applied to any other type of distributions.  
@@ -218,7 +217,7 @@ can it achieve a reasonable $F_1$-score of 71\%.
 %Although in practices one can usually achieve a better performance by adjusting the threshold of assigning a positive label, 
 %the determination of the threshold is usually empirical without a clear guideline.  
 PL-model, in contrast, achieves a relatively low precision of 52\%.  
-Our proposed method is proven to achieve the best overall performance in terms of $F_1$-score and accuracy, 
+Our proposed method is able to achieve the best overall performance in terms of $F_1$-score and accuracy, 
 and the precision and recall achieved by our method are also relatively balanced.  
 Notice that we do not directly apply any threshold tuning for our method and simply takes the threshold as 0.5.  
 
@@ -232,7 +231,7 @@ and therefore beat all the other baselines in terms of $F_1$-score (90\%).
 
 It is worth noting that in both data sets, the AUC of all the methods are comparable.  
 This implies the quality of ranking recovered by all the methods are similar.  
-However, to obtain reliable annotations, it is non-trivial and critical problem to accurately infer the scales of scores 
+However, to obtain reliable annotations, it is a non-trivial and critical problem to accurately infer the scales of scores 
 or to pick a reasonable threshold.  
 
 % The strategy of determining the threshold for differentiating positive and negative data items makes the difference.  
@@ -268,12 +267,12 @@ or to pick a reasonable threshold.
 \vpara{Batch number $m$ vs. item number $n$.}
 An interesting question to study is, 
 for a certain number of items, by labeling how many (random) batches of data items can one obtain an aggregated result accurate enough.
-We study this question by generate synthetic data sets 
-with different settings of $m_L$ and $m_U$ while $n_L$ and $n_U$ are fixed.  
+We study this question by generating synthetic data sets 
+with different settings of number of batches $m_L$ and $m_U$ while number of data items $n_L$ and $n_U$ are fixed.  
 In this experiments, we set $n_L=1,000$ and $n_U=5,000$, 
 and generate synthetic data sets with $m_L/n_L=m_U/n_U=2$, $5$, $10$, and $20$.  
 We then apply all the strategies on these data sets.  
-To avoid randomness, for each setting we repeat the data generation and application of debiasing strategies for $10$ times, 
+To minimize randomness, for each setting we repeat the data generation and application of debiasing strategies for $10$ times, 
 then report the average performance.  
 
 Results are shown in Figure~\ref{fig:mnratio}.  
@@ -355,7 +354,7 @@ on synthetic data sets and comments data set.
 For synthetic data set, we keep the size of test data set as $n_U=5,000$ and $m_U=50,000$, 
 and vary the size of training data set by setting $n_L$ as $10$, $20$, $50$, $100$, $200$, $500$, and $1,000$, 
 and setting $m_L$ as $10 n_L$.  
-For each configuration, we generate synthetic data sets for 10 times 
+For each configuration, we generate synthetic data sets 10 times 
 and utilize the average performance on these 10 data sets to evaluate the debiasing performance.  
 For comments data set, we randomly sample $m_L$ batches from the training data set, 
 where $m_L$ is set to $100, 200, \ldots, 1000$.  
