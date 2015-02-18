@@ -1,0 +1,60 @@
+\section{Extensions}
+\label{sec:ext}
+
+In this section, we discuss two straightforward extensions of our proposed worker model and debiasing strategies, 
+with respect to two useful applications other than binary classification: 
+multi-class classification, and rating estimation.  
+
+\vpara{Rating estimation.}
+In a rating estimation,~\ie~a regression problem, 
+each data item $x_i$ is no longer associated with a discrete label, 
+but instead, a real value $y_i \in \RR$.  
+For unrated data set, the true value of rating is unknown.  
+Workers on crowdsourcing platform are usually asked to rate a data item.  
+A naive way to aggregate their ratings on the same item 
+is to take the average value of their ratings as the estimated rating.  
+However, when multiple data items are grouped into batches, 
+there can still be similar bias as we introduced in this paper.  
+
+Although we do not explicitly formalize our problem for a rating task, 
+with some straightforward modification, 
+our strategy can still be applied.  
+Without loss of generality, we can assume $0 < y_i < \infty$.  
+If the actual rating can be negative, 
+we can always apply a certain sigmoid function to normalize the scores to be positive values.  
+For indepdent judging, we can design a well-regularized distribution with expectation of $y_i$ 
+for a worker to draw rating,~\eg~Gaussian distribution centered at $y_i$.  
+For relative judging, we can still assume the worker to generate a ranking from Plackett-Luce model with parameters $y_i$'s, 
+and introduce distributions for generating rating of data items at different position in the ranking, 
+which are to be learned from the training data.  
+For example, workers may tend to generate a rating from Gaussian distribution centered at $\mu_1=5.0$ for a top-ranked data item $\pi(1)$, 
+but generate a rating from another Gaussian distribution centered at $\mu_5=1.0$ for a data item ranked as the fifth $\pi(5)$.  
+If the training data is sparse and rating can be any real values, 
+it is probably preferred to employ some parametric distributions.    
+Once the design of model is accomplished, 
+it is straightforward to apply the same technique described in this paper 
+to derive the debiasing strategy by maximizing the likelihood of observed annotations 
+to estimate the underlying ratings for unrated data items.  
+
+
+\vpara{Multi-class classification.}
+In a multi-class classification problem, 
+the label set $\cY$ may contain more than $2$ possible labels.  
+Workers are usually requested to assign data items with different labels.  
+This is a natural extension from binary classification problem.  
+
+If the labels in $\cY$ have an order, 
+for example, judging whether a review is ``very helpful'', ``helpful'' or ``not helpful'', 
+the problem reduces to a rating estimation problem, 
+where the possible value of rating are discrete values.  
+We can simply apply the extended strategy described above.  
+
+If the labels in $\cY$ do not have an order, 
+%but the task does allow each data item to be assigned multiple labels, 
+the problem can be reduces to several binary classification problems, 
+which is straightforward to apply our strategy for debiasing workers' annotations.  
+
+% If the labels in $\cY$ do not have an order, 
+% and it is required that each data item can only be assigned one label, 
+% we can still apply multiple binary classification framework, but 
+

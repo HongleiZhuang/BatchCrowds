@@ -94,9 +94,9 @@ For baselines without training, we directly apply them on the test data set;
 for our proposed method as well as MVT, we first train the worker model on the training data set, 
 then apply the debiasing strategy based on the trained worker model on the test data set.  
 We compare the inferred labels to the ground-truth and evaluate the performance in terms of accuracy, precision, recall and $F_1$-score.  
-As all the methods generate scores for each data item 
-(for MV we take the proportion of workers who annotated a data item as positive as the inferred score),
-we also evaluate the performance in terms of the area of ROC curves.  
+%As all the methods generate scores for each data item 
+%(for MV we take the proportion of workers who annotated a data item as positive as the inferred score),
+%we also evaluate the performance in terms of the area of ROC curves.  
 
 \vpara{Trials and setup.}
 For our proposed model, 
@@ -108,7 +108,13 @@ For debiasing, we calculate the log-likelihood of the model and stop when the re
 
 
 \subsection{Experimental Results}
-
+Now we present the experimental results.  
+We first verify the learning algorithm of our model on the synthetic data set, 
+then present the learned model parameters on a real data set; 
+we also evaluate the effectiveness of our debiasing strategy on both synthetic data set and real data set, 
+which shows an improvement in terms of $F_1$-score; 
+finally we conduct a study on different configurations of experiments 
+as a guideline for setting up a batched crowdsourcing task.  
 
 \vpara{Worker model learning.}
 We first verify the effectiveness of learning our proposed worker model.  
@@ -228,11 +234,12 @@ but fail to achieve a high precision.
 Our proposed method achieves a comparable precision of 93\% and a higher recall of 87\%, 
 and therefore beat all the other baselines in terms of $F_1$-score (90\%).  
 
-
+\hide{
 It is worth noting that in both data sets, the AUC of all the methods are comparable.  
 This implies the quality of ranking recovered by all the methods are similar.  
 However, to obtain reliable annotations, it is a non-trivial and critical problem to accurately infer the scales of scores 
 or to pick a reasonable threshold.  
+}
 
 % The strategy of determining the threshold for differentiating positive and negative data items makes the difference.  
 
@@ -243,19 +250,19 @@ or to pick a reasonable threshold.
  All results are shown as percents.}\label{tab:performance}}
 {
 
-  \begin{tabular}{@{}c@{}|@{}c@{}||c|c|c|c|c@{}}
+  \begin{tabular}{c|c||c|c|c|c}%|c@{}}
     \hline
-        Data set & Method    & Acc.           & Prc.           & Rcl.           & $F_1$          & AUC \\ \hline \hline
+        Data set & Method    & Acc.           & Prc.           & Rcl.           & $F_1$          \\ \hline \hline %& AUC \\ \hline \hline
         \multirow{4}{*}{Synthetic}
-                 & MV        & 83.04          & \textbf{98.91} & 00.10          & 17.67          & 93.84          \\ \cline{2-7}
-                 & MVT       & 88.06          & 64.69          & 80.06          & 71.56          & 93.84          \\ \cline{2-7}
-                 & PL        & 82.74          & 52.25          & \textbf{92.75} & 66.85          & 94.46          \\ \cline{2-7}
-                 & BAM       & \textbf{89.88} & 70.93          & 78.04          & \textbf{74.31} & \textbf{94.95} \\ \hline
+                 & MV        & 83.04          & \textbf{98.91} & 00.10          & 17.67          \\ \cline{2-6} %& 93.84          \\ \cline{2-7}
+                 & MVT       & 88.06          & 64.69          & 80.06          & 71.56          \\ \cline{2-6} %& 93.84          \\ \cline{2-7}
+                 & PL        & 82.74          & 52.25          & \textbf{92.75} & 66.85          \\ \cline{2-6} %& 94.46          \\ \cline{2-7}
+                 & BAM       & \textbf{89.88} & 70.93          & 78.04          & \textbf{74.31} \\ \hline      %& \textbf{94.95} \\ \hline
         \multirow{4}{*}{Comments}
-                 & MV        & 95.55          & \textbf{93.75} & 79.65          & 86.12          & 99.05          \\ \cline{2-7}
-                 & MVT       & 96.16          & 92.31          & 84.96          & 88.48          & 99.05          \\ \cline{2-7}
-                 & PL        & 94.62          & 85.45          & 83.19          & 84.30          & 96.40          \\ \cline{2-7}
-                 & BAM       & \textbf{96.77} & 93.40          & \textbf{87.61} & \textbf{90.41} & \textbf{99.06} \\ \hline
+                 & MV        & 95.55          & \textbf{93.75} & 79.65          & 86.12          \\ \cline{2-6} %& 99.05          \\ \cline{2-7}
+                 & MVT       & 96.16          & 92.31          & 84.96          & 88.48          \\ \cline{2-6} %& 99.05          \\ \cline{2-7}
+                 & PL        & 94.62          & 85.45          & 83.19          & 84.30          \\ \cline{2-6} %& 96.40          \\ \cline{2-7}
+                 & BAM       & \textbf{96.77} & 93.40          & \textbf{87.61} & \textbf{90.41} \\ \hline      %& \textbf{99.06} \\ \hline
   \end{tabular}
 }
 \end{table}

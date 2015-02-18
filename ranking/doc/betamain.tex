@@ -7,7 +7,7 @@
 \usepackage{mathtools}
 \usepackage{amsmath}
 \usepackage{color}
-%\usepackage{times}p
+\usepackage{times}
 \usepackage{multirow}
 \usepackage{balance}
 \usepackage{url}
@@ -58,6 +58,8 @@
 \def\bb{{\mathbf{b}}}
 \def\bx{{\mathbf{x}}}
 \def\by{{\mathbf{y}}}
+\def\cY{{\mathcal{Y}}}
+\def\RR{{\mathbb{R}}}
 
 
 \hide{
@@ -100,18 +102,20 @@ Debiasing Crowdsourced Batches % Annotation \\ on Batches of Data Items
 }
 
 
-\hide{
+
 \numberofauthors{1}
 \author{
-\alignauthor Honglei Zhuang \\
+\alignauthor Honglei Zhuang, Aditya Parameswaran, Dan Roth and Jiawei Han \\
+\affaddr{Department of Computer Science}  \\
 \affaddr{University of Illinois at Urbana-Champaign}  \\
-\email{ hzhuang3@illinois.edu}
+\email{\{hzhuang3, adityagp, danr, hanj\}@illinois.edu}
+}
 % \alignauthor Jiawei Han \\
 % \affaddr{University of Illinois at Urbana-Champaign}  \\
 % \email{ hanj@illinois.edu}
-}
 
-}
+
+
 %
 % Put no more than the first THREE authors in the \author commandpp
 
@@ -135,6 +139,8 @@ Debiasing Crowdsourced Batches % Annotation \\ on Batches of Data Items
 
 \keywords{Crowdsourcing; annotation bias; worker model}
 
+
+
 \sloppy
 
 \input{intro.tex}
@@ -142,10 +148,12 @@ Debiasing Crowdsourced Batches % Annotation \\ on Batches of Data Items
 \input{worker.tex}
 \input{debias.tex}
 \input{exp.tex}
+\input{discussion.tex}
 \input{related.tex}
 \input{conclusion.tex}
 
-% \balance
+
+ \balance
 %\clearpage
 
 \bibliographystyle{abbrv}

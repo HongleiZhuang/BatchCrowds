@@ -114,8 +114,8 @@ Take the derivative, we can obtain
 }%
 where $M_1(i)$ and $M_0(i)$ are defined as $M_y(i) = \{j:x_i \in X_j^y\}$ for $y \in \{0, 1\}$.
 The updating rule can be obtained by solving $\partial Q(\eta) / \partial \eta_i = 0$, namely
-\beal{\label{eq:updating_rule_of_eta}
-	\hat{\eta}_i = \frac{T_1 + T_2 + T_3 - \sqrt{(T_1 + T_2 + T_3)^2 - 4 T_1 T_3}}{2 T_3} \nonumber
+\beal{\label{eq:update_eta}
+	\hat{\eta}_i = \frac{T_1 + T_2 + T_3 - \sqrt{(T_1 + T_2 + T_3)^2 - 4 T_1 T_3}}{2 T_3} 
 }
 where
 \beal{
@@ -161,7 +161,7 @@ is supposed to yield the best expected performance.
        \tcp{Calculate debiased labels;}
        \Repeat{$Q(\eta)$ converged}
        {
-           Update $\eta_i$ for $\forall 1 \leq i \leq n_U$ by~\eqref{eq:updating_rule_of_eta}
+           Update $\eta_i$ for $\forall 1 \leq i \leq n_U$ by~\eqref{eq:update_eta};
        }
        $y_i \leftarrow \mathbf{1}_{\{\eta_i > 0.5\}}$ for $\forall 1 \leq i \leq n_U$; \\
        Output $Y_U$.
