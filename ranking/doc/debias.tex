@@ -1,19 +1,23 @@
+%!TEX root=betamain.tex
+
 \section{Debiasing Annotation}
 \label{sec:debias}
 
-In this section, we introduce given the trained worker model,
-how to debias annotation collected for small batches of data.
+In this section, we introduce our method that debiases
+annotations collected for small batches of
+data given  the trained worker model.
 More precisely, given a set of $n_U$ unlabeled data items $X_U$,
-assemble them into $m_U$ batches represented by $B_U$,
-as well as their annotation obtained from the crowds $Y_U'$,
-how to infer their true labels $Y_U$.
+assembled into $m_U$ batches represented by $B_U$,
+as well as their annotations obtained from the crowds $Y_U'$,
+how do we infer their true labels $Y_U$?
 
 The basic idea is, based on the given worker model,
-try to infer $\eta_i$ for each $x_i \in X_U$,
-then we simply apply the Bayes classifier to determine the inferred label,
+we infer $\eta_i$ for each $x_i \in X_U$.
+Then, we 
+ simply apply the Bayes classifier to determine the inferred label,
 which yields $\hat{y}_i = 1$ if $\eta_i > 0.5$, or $\hat{y}_i = 0$ if $\eta_i \leq 0.5$.
 
-We again adopt a maximum likelihood estimate.
+We again adopt a maximum likelihood estimation techique.
 The log-likelihood of the obtained annotation is:
 \beal{
 	\log L (\eta) = \sum_{j=1}^{m_U}
@@ -26,10 +30,11 @@ The log-likelihood of the obtained annotation is:
 
 Notice that $\hat{\lambda}$ and $\hat{p}_{\tau_j}$ are parameters learned from Section~\ref{sec:worker},
 and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.
-Similarly, we apply an EM-algorithm here
-by first calculating $\hat{\lambda}_j$ for each batch at E-step basically according to~\eqref{eq:e_step}
+Similarly, \agp{similar to the previous section?} we apply an EM-algorithm here
+by first calculating $\hat{\lambda}_j$ for each batch at the E-step 
+according to~\eqref{eq:e_step}
 but replacing $\lambda$ and $p_{\tau}$ by the value we learned during the training step.
-Then we can have
+Then we have:
 \beal{\label{eq:em_debiasing}
 	\log L(\eta) &\geq \sum_{j=1}^{m_U}
 		\hat{\lambda}_j \biggl[
@@ -38,7 +43,7 @@ Then we can have
 		& + \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \bigl[\log \hat{p}_{\tau_j}  + \log P(X_{j}^1 \succ X_{j}^0) \bigr]
 }%
 where the second term includes $\log P(X_{j}^1 \succ X_{j}^0)$, which is hard to optimize.
-We apply the idea of EM-algorithm again here.
+We apply the idea of the EM-algorithm again here.
 We use notation $R_j$ to represent $R(X_{j}^1, X_{j}^0)$.
 For each $\pi \in R_j$, we can calculate its conditional probability given $X_{j}^1 \succ X_{j}^0$, denoted as $\hat{q}_{\pi}$ by:
 \beal{
@@ -66,8 +71,8 @@ where
 }
 
 
-Furthermore, according to the minorization-maximizaion algorithm used in~\cite{hunter:aos2004},
-we can obtain the lower bound for $\log P(\pi)$, which is defined by the Plackett-Luce model, by:
+Furthermore, according to the minorization-maximization (MM) algorithm used in~\cite{hunter:aos2004},
+we obtain the lower bound for $\log P(\pi)$, which is defined by the Plackett-Luce model, by:
 \beal{\label{eq:mm_algorithm}
 	\log P(\pi) &= \sum_{t=1}^{k-1} \biggl[
 		\log \eta_{\pi^{-1}(t)} - \log \sum_{s=t}^{k} \eta_{\pi^{-1}(s)}
@@ -81,7 +86,7 @@ where $\hat{\eta}_i$ is the estimated parameter of last iteration.
 
 
 By combining \eqref{eq:em_debiasing},~\eqref{eq:semi_ranking_to_sum_of_ranking} and \eqref{eq:mm_algorithm},
-we can obtain the objective function to optimize as:
+we obtain the objective function to optimize as:
 \beal{\label{eq:objective_function}
 	Q(\eta) &= \sum_{j=1}^{m_U}
 		\hat{\lambda}_j \biggl[
@@ -92,15 +97,15 @@ we can obtain the objective function to optimize as:
 			\log \eta_{\pi^{-1}(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi^{-1}(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi^{-1}(s)}}
 		\biggr]
 }%
-Notice that $Q(\eta)$ is actually a lowerbound of the original log-likelihood function.
-Moreover, for two EM-step and one MM-step we apply in deriving $Q$-function,
-it is provent that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$,
-we can achieve no less improvement on the loglikelihood.
-Therefore optimizing $Q(\eta)$ can also optimizes the loglikelihood.
+Notice that $Q(\eta)$ is actually a lower-bound of the original log-likelihood function.
+Moreover, for two EM-step and one MM-step we apply in deriving the $Q$-function,
+it is proven that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$,
+we can achieve no less improvement on the log-likelihood. \agp{I don't understand the previous sentence}
+Therefore optimizing $Q(\eta)$ can also optimize the log-likelihood.
 
 
 
-Take the derivative, we can obtain
+Take the derivative, we obtain
 \beal{\label{eq:derivative_of_objective_function}
     \frac{\partial Q(\eta)}{\partial \eta_i} &=
         \sum_{j \in M_1(i)}\frac{1}{\eta_i}
@@ -129,13 +134,13 @@ where
 
 By iteratively updating the scores to optimize the likelihood of the annotation on test data,
 we can obtain the inferred predictive distribution of each item.
-Based on which, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$,
+Based on this, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$,
 or $y_i'=0$ otherwise.
 Notice that we do not further tune the threshold in this step,
 as the scores we learned here are expected to be a reasonable estimate of the true $\eta_i$'s.
-Therefore, if the predictive distribution are known,
-learning theory guarantees that by using Bayes classifier (namely to take 0.5 as threshold)
-is supposed to yield the best expected performance.
+Therefore, if the predictive distribution \agp{fix if you changed it before} are known,
+learning theory guarantees us that by using Bayes classifier (namely to take 0.5 as threshold)
+is supposed to yield the best expected performance. \agp{what is supposed to yeild? rephrase sentecne}
 
 
 

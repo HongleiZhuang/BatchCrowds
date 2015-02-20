@@ -1,78 +1,87 @@
+%!TEX root=betamain.tex
+
+
 \section{Related Work}
 \label{sec:related}
 
+\agp{Say something about the three categories that you list below.}
 
+\agp{I fixed all the past tense references below. If I missed something, you should fix.}
 
 \vpara{Annotation bias in independent judgments.}
 A number of studies have been conducted on evaluating data quality collected from crowds, 
 and modeling worker behaviors to optimize the data quality.  
 
 However, these studies mainly consider the scenario when data items are judged independently.  
-Snow~\etal~\cite{snow:emnlp2008} explored the performance with non-expert workers in several NLP tasks.
+Snow~\etal~\cite{snow:emnlp2008} explore the performance of annotations by non-expert workers for several NLP tasks.
 Raykar~\etal~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010}
-studied how to learn a model with noisy labeling. 
+study how to learn a model with noisy labeling. 
 Specifically, they employ a logistic regression classifier, 
 and insert hidden variables indicating whether a worker tells the truth. 
 %They utilize an EM algorithm to infer the real ground-truth while training the model.
-Karger~\etal~\cite{karger:nips2011} proposed an iterative algorithm to infer workers' reliability 
+Karger~\etal~\cite{karger:nips2011} propose an iterative algorithm to infer workers' reliability 
 and aggregating their answers.  
 
-Whitehill~\etal~\cite{whitehill:nips2009} modeled the annotator ability, data item difficulty, and inferred the true label from the crowds in a unified model.
-Demeester~\etal~\cite{demeester:wsdm2014} discussed the disagreement between different users on assessment of web search results.
+Whitehill~\etal~\cite{whitehill:nips2009} model the annotator ability, data item difficulty, and infer the true label from the crowds in a unified model.
+Demeester~\etal~\cite{demeester:wsdm2014} discuss the disagreement between different users on assessment of web search results.
 However, they do not study the case when data items are grouped into batches.
 
-Venanzi~\etal~\cite{venanzi:www2014} proposed a community-based label aggregation model to identify different types of workers, 
+Venanzi~\etal~\cite{venanzi:www2014} propose a community-based label aggregation model to identify different types of workers, 
 and correct their labels correspondingly.  
-Das~\etal~\cite{das:kdd2013} addressed the interactions of opinions between people connected by networks.
-Their studies focus on another aspect of dependencies, 
+Das~\etal~\cite{das:kdd2013} address the interactions of opinions between people connected by networks.
+They focus on another aspect of dependencies, 
 which is the dependencies between workers, 
 while in our studies, we are more concerned about dependencies between data items and their judgments.  
 
+\agp{Say something like: Like this work, many of these papers
+also consider EM-based techniques; however, to the best of our knowledge,
+we are the first to articulate and provide solutions for the problem
+of debiasing of batches -- either at the start or the end of this portion.}
+
 
 \vpara{Annotation bias in sequential and batch judgments.}
-Scholer~\etal~\cite{scholer:sigir2013,scholer:sigir2011} studied the annotation disagreements in 
+Scholer~\etal~\cite{scholer:sigir2013,scholer:sigir2011} study the annotation disagreements in 
 a relevance assessment data set.  
 %TREC data set, which is on relevance assessment tasks in information retrieval.  
-They discovered the correlation between annotations of similar data items.  %, and the estimated time between the two annotation.  
-They also explored ``threshold priming'' in annotation, 
+They discover correlations between annotations of similar data items.  %, and the estimated time between the two annotation.  
+They also explore ``threshold priming'' in annotation, 
 where the annotators tend to make similar judgments or apply similar standard on consecutive data items they review. 
 %tend to make similar judgments to consecutive data items.  
-However, their studies focus on the scenario when data items are organized in a long sequence.  
+However, their work focuses on the scenario when data items are organized in a long sequence.  
 It confines the dependencies to exist only between consecutive data items.  
-Also, their studies focus more on qualitative conclusions, without a quantitative model to characterize and measure the discovered factors.  
-Carterette~\etal~\cite{carterette:effect2010} provided several assessor models for the TREC data set.  
-Mozer~\etal~\cite{mozer:nips2010} studied the similar ``relativity of
+Also, they focus more on qualitative conclusions, without a quantitative model to characterize and measure the discovered factors.  
+Carterette~\etal~\cite{carterette:effect2010} provide several assessor models for the TREC data set.  
+Mozer~\etal~\cite{mozer:nips2010} study the similar ``relativity of
 judgments'' phenomenon on sequential tasks instead of small batches.  
 Again, their focus is more on data items presented as a long sequence, while we focus more on data items presented in small batches.  
 %Also, they focused more on debiasing not active learning.  %but did not apply active learning based on the proposed models.   
 %p
 
-Our recent work~\cite{zhuang:wsdm2015} also considered the similar setting when data items are organized in small batches.  
-We verified the existence of annotation bias caused by batching data items.  
-We also designed an active learning algorithm to smartly assemble batches, 
-aiming to improve the performance of classifier trained on this annotation batches.  
-However, we did not focus on improving the quality of labels collected, 
+Our recent work~\cite{zhuang:wsdm2015} also considers a similar setting when data items are organized in small batches; we verify the existence of annotation bias caused by batching data items.  
+Our focus in that paper was to design an active learning algorithm to smartly assemble batches, 
+aiming to improve the performance of the classifier trained on this annotation batches.  
+Our focus was not on improving the quality of labels collected, 
 and we still used majority voting to obtain labels for data items.  
-In this paper, we elaborate this work by debiasing the obtained labels per se, 
-and expecting the higher label quality can benefit tasks including training and/or evaluating classifier, 
-which potentially can have a broader application.  
+In this paper, we focus on debiasing the obtained labels directly,
+the higher label quality can benefit tasks including training and/or evaluating classifiers, 
+with a broader range of applications.
 
 \vpara{Crowdsourced ranking and rating.}
 Studies on aggregating multiple rankings into a consistent ranking can be dated back to the seminal work of Arrow~\cite{arrow2012social}.  
-Negahban~\etal~\cite{negahban:nips2012} studied how to aggregate pairwise comparisons into a ranking 
+Negahban~\etal~\cite{negahban:nips2012} study how to aggregate pairwise comparisons into a ranking 
 by utilizing the Bradley-Terry model~\cite{bradley:1952}, which is a simplified version of Plackett-Luce model utilized in this paper.   
-Hunter~\etal~\cite{hunter:aos2004} proposed the minorization-maximization (MM) algorithm to infer Plackett-Luce model 
+Hunter~\etal~\cite{hunter:aos2004} propose the minorization-maximization (MM) algorithm to infer Plackett-Luce model 
 from multiple partial orderings.  
-Soufiani~\etal~\cite{soufiani:nips2013} generalized Negahban~\etal's work 
+Soufiani~\etal~\cite{soufiani:nips2013} generalize Negahban~\etal's work 
 and proposed a class of generalized method-of-moments (GMM) algorithm 
 to infer parameters of Plackett-Luce model from multiple orderings, 
 and compare the performance against MM-algorithm.  
-They then further extended~\cite{soufiani:icml2014} their algorithm 
-to be applied to a more general class of ranking models called random utility models (RUMs).  
+They then further extend their algorithm 
+to be applied to a more general class of ranking models called random utility models (RUMs)~\cite{soufiani:icml2014}.  
 In addition, the technique for rank aggregation has also been studied 
 in context of information retrieval~\cite{dwork:www2001,klementiev:icml2008,liu:www2007,qin:nips2010,volkovs:www2012}.  
 %A summary of early work can be found in~\cite{dwork:www2001}.
-However, most of them do not explicitly address the crowdsourcing settings 
+However, most of these papers do not explicitly address the crowdsourcing settings 
 to actually model the worker behavior.  
 Thus, their techniques are not directly applicable. 
 
@@ -92,7 +101,7 @@ while our model incorporates a ranking model but the ultimate goal is still to c
 %Furthermore, our model can deal with not only pairwise comparisons, 
 %but also the situation with more than two data items in a batch.  
 
-Several studies also focus on crowdsourced rating.  
+Several papers also consider crowdsourced rating.  
 Parameswaran~\etal~\cite{parameswaran:vldb2014} focused on crowdsourced rating on items, 
 and applied their system on a peer evaluation data set of a MOOC course.  
 Crowdsourcing has also been utilized for rating multimedia content quality~\cite{chen:mm2009} and relevance assessment~\cite{alonso:2008}.  

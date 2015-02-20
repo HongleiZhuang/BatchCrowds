@@ -1,3 +1,5 @@
+%!TEX root=betamain.tex
+
 \section{Experimental Results}
 \label{sec:exp}
 
@@ -6,12 +8,12 @@ to verify the effectiveness of our proposed worker model and debiasing technique
 
 \subsection{Experimental Data Sets}
 We first introduce the data sets we used in this experiments.  
-A summary of the data sets we used in our experiments are given in Table~\ref{tab:dataset}.  
+A summary of the data sets we use in our experiments is provided in Table~\ref{tab:dataset}.  
 
 \vpara{Synthetic data set.}
-We construct synthetic data sets following the worker annotation model we proposed in Section~\ref{sec:worker}.
+We construct synthetic data sets following the worker annotation model we propose in Section~\ref{sec:worker}.
 Suppose we have $n$ items in $X$, 
-we first generate their predictive probability $\eta_i$ for each $x_i \in X$ 
+we first generate their predictive probability \agp{fix here if changed before} $\eta_i$ for each $x_i \in X$ 
 from a Beta distribution $Beta(\alpha, \beta)$, 
 then generate the true labels $Y$ by drawing $y_i$ from a Bernoulli distribution parameterized by $\eta_i$ for each $i$.  
 In our synthetic data set, we set $\alpha = 2$ and $\beta = 4$ to simulate the case when negative data items overwhelm positive data items.
@@ -31,14 +33,17 @@ where $\rho$ is positive constant, set as $2$ in our experiments.
 %In our synthetic data set, we set $\lambda = 0.5$ and $\rho = 2$.  
 
 \vpara{Comments data set.}
-We utilize a real world crowdsourcing data set for annotating comments.  
+We utilize a real world crowdsourcing data set for annotating comments\agp{do you want
+to cite your previous paper?}.  
 The original crowdsourcing task was to identify inappropriate comments on LinkedIn posts published by companies or LinkedIn influencers.  
 Inappropriate comments are defined as comments containing promotional, profane, blatant soliciting, random greeting comments, 
 as well as comments with \emph{only} web links and contact information.  
 In order to collect annotation of comments, 
 for each post, $k$ comments are sampled and sent to CrowdFlower as a batch (unit).  
-Workers are also provided with a codebook (instruction) explaining how to annotate the data.  
-Each comment is regarded as a data item and can be annotated as positive (inappropriate comment) or negative (acceptable comment).  
+Workers are also provided with a codebook (i.e., a sequence of instructions) 
+explaining how to annotate the data items.  
+Each comment is regarded as a data item 
+and can be annotated as positive (inappropriate comment) or negative (acceptable comment).  
 Each batch is annotated by 5 or more workers.  
 
 In order to provide test questions and track the performance of each worker, 
@@ -46,9 +51,10 @@ some of the batches are annotated by 9 trained LinkedIn employees (experts) with
 The average Cohen's kappa for all expert pairs is 0.7881.  
 For this experiments, we only adopt the batches with all of their data items annotated by both crowds and experts 
 as we can use the experts' annotation as ground truth (aggregated by majority voting).  
-Out of these batches, 1,099 batches that are annotated before a worker actually starts on the job 
+Out of these batches, the 1,099 batches that are 
+annotated before a worker actually starts on the job 
 are utilized as training data set $B_L$.  
-while the other 5,267 batches are utilized as test data set $B_U$ to infer the 651 data items they covered.  
+while the other 5,267 batches are utilized as the test data set $B_U$ to infer the 651 data items the 5,267 batches covered.  
 
 
 \begin{table}[!t]
@@ -83,7 +89,7 @@ We compare the performance of our proposed method with several baselines:
         and apply the same threshold on the test data set.  
   \item \emph{Plackett-Luce Model (PL)}.  
         A strategy is to fit the Plackett-Luce model on the test data by inferring the scores $s(x_i)$ associated with each data items.  
-        We apply a Bayesian regularization on the inferred scores to confine it as $0 \leq s(x_i) \leq 1$.  
+        We apply a Bayesian regularization on the inferred scores to confine it to be $0 \leq s(x_i) \leq 1$.  
         We then infer a positive label to each data item with an inferred score $s(x_i) > 0.5$ and a negative label otherwise.  
   \item[*] \emph{Batch Annotation Model (BAM)}.  
         The debiasing strategy proposed in Section~\ref{sec:worker} and~\ref{sec:debias}.
@@ -103,7 +109,8 @@ For our proposed model,
 in training phase, we initialize $\lambda$ to be 0.5 and $p_{\tau}$ to be a random value between 0 and 1;
 in debiasing phase, we initialize the all the inferred scores as $0.1$. 
 For training the worker model, we set a fixed number of iteration as 100.  
-Our experimental results presented later show the model converge within number of iterations much fewer than 100.  
+Our experimental results presented later show the model converges within 
+a number of iterations much fewer than 100.  
 For debiasing, we calculate the log-likelihood of the model and stop when the relative change of log-likelihood is within 0.001.  
 
 
@@ -112,13 +119,13 @@ Now we present the experimental results.
 We first verify the learning algorithm of our model on the synthetic data set, 
 then present the learned model parameters on a real data set; 
 we also evaluate the effectiveness of our debiasing strategy on both synthetic data set and real data set, 
-which shows an improvement in terms of $F_1$-score; 
+which demonstrates an improvement in terms of $F_1$-score; 
 finally we conduct a study on different configurations of experiments 
 as a guideline for setting up a batched crowdsourcing task.  
 
 \vpara{Worker model learning.}
 We first verify the effectiveness of learning our proposed worker model.  
-On synthetic data set, the ``true'' value of probability of making independent judgments $\lambda$ is set to 0.5.  
+On our synthetic data set, the ``true'' value of probability of making independent judgments $\lambda$ is set to 0.5.  
 We learn the model from the synthetic training data and obtain the inferred $\hat{\lambda}$ as 0.4998, 
 which reasonably recovers the original value.  
 We also compare the original model parameters $p_{\tau}$'s to the inferred parameters in Figure~\ref{subfig:p_tau_synthetic}.  
@@ -142,7 +149,7 @@ and the ``true'' distribution $p_{\tau}$,
 when $p_{\tau}$ is generated with respect to different $\rho$ varying from 1 to 3.  
 In most of the settings, the error is below $2 \times 10^{-3}$, 
 which is fairly low.  
-Although we only instantiate $p_{\tau}$'s by power-law distribution, 
+Although we only instantiate $p_{\tau}$'s using a power-law distribution, 
 as the learning method does not confine the learned distribution to be parametric, 
 it can be directly applied to any other type of distributions.  
 
@@ -184,7 +191,7 @@ it can be directly applied to any other type of distributions.
 Given the effectiveness of our learning method verified, 
 we apply the worker model trying to fit the data set of annotating inappropriate comments.  
 The learned probability of a worker making independent judgments $\hat{\lambda}$ is 0.7877.  
-The learned distribution for determining the number of positive annotation in a batch is presented in Figure~\ref{subfig:p_tau_lnkd}.  
+The learned distribution for determining the number of positive annotations in a batch is presented in Figure~\ref{subfig:p_tau_lnkd}.  
 It shows that a worker tends to annotate the entire batch as negative (\ie~acceptable comment) with a probability over 0.6, 
 while picking only 1 of them as positive (\ie~inappropriate comment) also occurs with a relative high probability around 0.25.  
 The workers seem to be reluctant to annotate more than 1 comments in a size-5 batch.  
@@ -227,7 +234,7 @@ Our proposed method is able to achieve the best overall performance in terms of 
 and the precision and recall achieved by our method are also relatively balanced.  
 Notice that we do not directly apply any threshold tuning for our method and simply takes the threshold as 0.5.  
 
-In comments data set, na\"{i}ve majority voting strategy again obtains a poor recall below 80\%, 
+In comments data set, the na\"{i}ve majority voting strategy again obtains a poor recall below 80\%.
 After tuning the threshold, its recall rises to around 85\%, but still lower than our proposed method.  
 The scores learned by PL-model yield a comparable recall to majority voting with tuned threshold, 
 but fail to achieve a high precision.  
@@ -273,7 +280,8 @@ or to pick a reasonable threshold.
 
 \vpara{Batch number $m$ vs. item number $n$.}
 An interesting question to study is, 
-for a certain number of items, by labeling how many (random) batches of data items can one obtain an aggregated result accurate enough.
+for a certain number of items, how many (random) batches of data items 
+does one need to label to obtain an aggregated result accurate enough.
 We study this question by generating synthetic data sets 
 with different settings of number of batches $m_L$ and $m_U$ while number of data items $n_L$ and $n_U$ are fixed.  
 In this experiments, we set $n_L=1,000$ and $n_U=5,000$, 
@@ -293,15 +301,16 @@ However, when $m/n$ is relatively small,
 our proposed method can achieve much better results than most of other baselines.  
 When $m/n=2$, it achieves an accuracy approximately $9\%$ higher than MVT, 
 and an $F_1$-score around $5\%$ more than MVT.  
-An exception is the na\"{i}ve majority voting strategy achieves the best accuracy when $m/n=2$.  
+An exception is the na\"{i}ve majority voting strategy 
+that achieves the best accuracy when $m/n=2$.  
 This is due to the skewed distribution of data labels, 
 and by simply labeling all the data items as negative can get an accuracy of approximately $80\%$.  
 In comparison, the $F_1$-score of MV is only around $30\%$.  
 
-Another observation is in Figure~\ref{subfig:mnratio_f1}
-where the performance of majority voting drops as $m/n$ increases. 
+Another observation that we can make about Figure~\ref{subfig:mnratio_f1} 
+is that the performance of majority voting drops as $m/n$ increases. 
 This result indicates when workers are biased and no debiasing techniques are applied, 
-it does not help increasing the quantity of labels collected. 
+increasing the quantity of labels collected does not help. 
 
 \begin{figure}[!t]
   \centering
@@ -355,15 +364,15 @@ it does not help increasing the quantity of labels collected.
 
 \vpara{Size of training data set.}
 As our method requires a small set of training data, 
-there might be concern about how large a training data set is sufficient.  
-We test the performance of two methods that rely on training data sets - MVT and our proposed method - 
-on synthetic data sets and comments data set.  
-For synthetic data set, we keep the size of test data set as $n_U=5,000$ and $m_U=50,000$, 
+there might be some concerns about how large a training data set is sufficient.  
+We test the performance of two methods that rely on training data sets --- MVT and our proposed method --- 
+on synthetic data sets and the comments data set.  
+For the synthetic data set, we keep the size of test data set as $n_U=5,000$ and $m_U=50,000$, 
 and vary the size of training data set by setting $n_L$ as $10$, $20$, $50$, $100$, $200$, $500$, and $1,000$, 
-and setting $m_L$ as $10 n_L$.  
+while setting $m_L$ as $10 n_L$.  
 For each configuration, we generate synthetic data sets 10 times 
 and utilize the average performance on these 10 data sets to evaluate the debiasing performance.  
-For comments data set, we randomly sample $m_L$ batches from the training data set, 
+For the comments data set, we randomly sample $m_L$ batches from the training data set, 
 where $m_L$ is set to $100, 200, \ldots, 1000$.  
 Again, for each configuration of training data size, 
 we repeat the random sampling for 10 times and report the average performance.  
@@ -379,11 +388,12 @@ which is as $1/500$ large as the data set used for testing.
 The results imply our proposed method can obtain very high performance 
 with a small cost of labeling ground-truth data for collecting training data.  
 
-The results for comments data set are shown in Figure~\ref{fig:trainratio_lnkd}.  
+The results for the comments data set are shown in Figure~\ref{fig:trainratio_lnkd}.  
 Again, when training data size is extremely small (\eg~$m_L=100$), 
 the performance of MVT drops substantially (89\% in accuracy and 75\% in $F_1$-score), 
 while its performance gets more and more comparable to our method as the training data size increases.  
-In contrast, our proposed method remains a fairly stable performance for different size of training data set. 
+In contrast, our proposed method maintains a fairly stable 
+performance for different sizes of the training data set. 
 This verifies again the ability of our proposed method to yield high-quality results 
 with a sufficiently small training data set.  
 
