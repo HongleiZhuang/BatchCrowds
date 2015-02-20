@@ -1,8 +1,11 @@
+%!TEX root=betamain.tex
+
 \section{Crowdsourcing Worker Annotation Model on Batches}
 %\section{Worker Annotation Model On Small Batch of Data}
 \label{sec:worker}
 
-In this section, we first describe our model for workers' annotation behavior on a small batch of data;
+In this section, we first describe our model for workers' annotation behavior 
+on a small batch of data items;
 then we introduce how to train the model based on a training data set.
 %finally we presents the parameters of this model learned from a real world data set.
 
@@ -16,13 +19,17 @@ and annotate the top several items as positive, leaving the rest in the batch as
 %
 
 \vpara{Plackett-Luce model.}
-Before we delve in our model, we first recap a probability model for generating rankings
-based on scores associated with items, namely the Plackett-Luce model~\cite{luce:2005, plackett:1975} introduced in the 70s.
+Before we delve into our model, we first recap a probability model for generating rankings
+based on scores associated with items, 
+namely the classical Plackett-Luce model~\cite{luce:2005, plackett:1975} introduced in the 70s.
 Without loss of generality, suppose we are given a set of items $x_1, \ldots, x_k$.
 Each item $x_i$ is associated with a certain score $s(x_i) > 0$.  %\reminder{example needed here.}
-Here the score $s(x_i)$ models the tendency of ranking $x_i$ higher in a randomly generated ranking.
+Here the score $s(x_i)$ models the tendency of ranking 
+$x_i$ higher in a randomly generated ranking and 
+can be viewed as a measure of the inherent ``goodness'' of the item.
 A ranking of these items can be represented as a bijection $\pi : \{i\}_{i = 1}^k \mapsto \{x_i\}_{i = 1}^k$,
-which maps the $i$-th position in the ranking to the item at this position.
+that maps the $i$-th position in the ranking to the item at this position.
+\agp{Doesn't this map $i$ to item at position $i$ in the ranking?}
 The corresponding ranking list can be represented as
 $\pi(1) \succ \cdots \succ \pi(k)$.
 In Plackett-Luce model, the probability of generating a ranking $\pi$ is:
@@ -30,8 +37,9 @@ In Plackett-Luce model, the probability of generating a ranking $\pi$ is:
 P(\pi) = \prod_{i = 1}^k \frac{s(x_i)}{\sum_{r = i}^{k} s(x_r)}	
 }%
 The equation above can be interpreted as the following process:
-Initially we have a pool $A$ of all the data items.
-Each time one picks an item $x_i$ from a pool $A$ of data items with a probability proportional to its score, namely:
+Initially, we have a pool $A$ of all the data items.
+Each time one picks an item $x_i$ from a pool $A$ of data 
+items with a probability proportional to its score, namely:
 \beal{
 P(\text{picking $x_i$ from $A$}) = \frac{s(x_i)}{\sum_{x_r \in A} s(x_r)} \nonumber
 }
@@ -42,24 +50,26 @@ The probability of generating a ranking list according to this process is equiva
 %
 
 \vpara{Worker model.}
-Now we introduce our worker model for annotating small batches of data items.
+We now introduce our worker model for annotating small batches of data items.
 Again, without loss of generality, suppose we are given a batch $\bx_j$ where $x_{jl} = x_l$,
 namely the given data item batch can be denoted as $\bx_j=\{x_1, \ldots, x_k\}$.
  %of $(x_1, \ldots, x_k)$, namely $b_{ji} = i$.pp
 Also, recall that for each data item $x_i$, we denote its predictive probability $P(y_i = 1 | x_i)$ as $\eta_i$,
-which is not explicitly known.
+which is not explicitly known. \agp{It's odd to call this a predictive probability. Isn't
+this a measure of goodness or inherent value?}
 %Although this value is not explicitly known,
 %we assume the worker has the ability to estimate this value based on the features of data item.
 
 When a worker starts to work on a certain batch of data items,
-two different strategies might be taken:
+they may choose to use one of two strategies:
 \begin{itemize}
   \item \emph{Independent judging.}
-  If the worker has the ability to obtain an estimate of the absolute value $\eta_i$ for each data item,
+  If the worker has the ability to obtain an 
+  estimate of the absolute value $\eta_i$ for each data item, \agp{Why does the ability of obtaining an estimate matter? confused..}
   we suppose the worker judges each data item $x_i \in \bx_j$ independently
   by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
   \item \emph{Relative judging.}
-  If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item,
+  If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item \agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
   without knowing absolute value of $\eta_i$,
   we suppose the worker chooses to first rank all the data items based on their probability of being positive,
   then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.
@@ -92,21 +102,33 @@ while other data items not within the top-$p$ of the ranking $\pi$ are annotated
 The intuition of this model is to capture two behavior pattern of workers.
 In the independent judging scenario,
 workers can remain independent in judging different data items in the same batch,
+\agp{replace next phrase with:
+with each data item being judged based on its inherent score $\eta_i$.}
 with respect to the property of each data item $x_i$ characterized by $\eta_i$.
 %use an absolute standard to judge data items from different batches,p
 %and therefore remain consistent performance.
-Nevertheless, sometimes workers might judge data items within a batch by comparison.
+Nevertheless, sometimes workers might judge data items 
+within a batch by comparison.
 In the relative judging scenario,
-workers still have the ability to judge the relative relationships between data items in the same batch,
+workers still have the ability to judge the relative 
+relationships between data items in the same batch,
 which is captured by the Plackett-Luce model for generating the ranking.
 In order to determine the labels of data items,
 they have an expectation of label distribution,
 which is reflected by the distribution of generating $\tau$,
 as it characterizes the probability of having $\tau$ positives within $k$ data items.
-However, this distribution does not necessarily reflect the correct label distribution.
-When they try to apply their expectation of label distribution on the batch, bias might occur.
+\agp{check: (For instance, if workers expect
+there to be few positive items, then the probability of $\tau$
+being low is high, while if workers expect
+the batches to be balanced, then the probability of $\tau$ being close to
+$k/2$ is high relative to other values of $\tau$.}
+However, this distribution does not necessarily 
+reflect the correct label distribution.
+When they try to apply their expectation 
+of the label distribution on the batch, bias might occur.
 
 We summarize the process of generating annotation for a batch of data items in our proposed model as below:
+
 \begin{enumerate}
   \item \label{step:tosscoin}
         Toss a coin $Z \sim Bernoulli(\lambda)$.  \\
@@ -128,15 +150,20 @@ We summarize the process of generating annotation for a batch of data items in o
 
 
 \vpara{Model learning.}
-Parameters need to be determined in this worker model is:
+The parameters that need to be determined in this worker model include:
 the probability of making independent judgments $\lambda$,
 and the distribution of the number of positive annotation when making relative judgments,
 represented by $p_0, \ldots, p_k$, where $0 \leq p_{\tau} \leq 1$ and $\sum p_{\tau} = 1$.
 We assume these two parameters are fixed,
 independent of the data items in question.
+\agp{check:(Or at least, we assume that the two parameters are fixed
+for each new application of our techniques ---
+for instance, these parameters for content moderation
+may be very different from the same parameters for
+spam identification or sentiment analysis).}
 %p
 
-Suppose we are given a set of $n_L$ items $X_L$ with their predictive distribution $\eta_i$ known. %true labels $Y_L$ known.p
+Suppose we are given a set of $n_L$ items $X_L$ with their predictive distribution \agp{wasn't this inherent value? just checked -- it's not} $\eta_i$ known. %true labels $Y_L$ known.p
 Then, we form them into $m_L$ batches $B_L$, send them to the crowds,
 and obtain their annotation from workers, denoted as $Y_L'$.
 
@@ -189,7 +216,7 @@ However, in real data sets, we do not always know $\eta_i$ for each data item $x
 but only know their binary true labels $Y_L$.
 We can still learn the worker model based on this situation
 by substituting their labels $y_i \in \{0, 1\}$ into $\eta_i$.
-Directly substituting the value of 0 or 1 into $\eta_i$ may cause numerical problem in calculating $\lambda_j$.
+Directly substituting the value of 0 or 1 into $\eta_i$ may cause numerical problems in calculating $\lambda_j$.
 Therefore we regularize the score by using:
 \beal{
 	\eta_i = \frac{y_i + \epsilon}{1 + 2 \epsilon} \nonumber
