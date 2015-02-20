@@ -1,3 +1,6 @@
+%!TEX root=betamain.tex
+
+
 \section{Preliminaries}
 \label{sec:prelim}
 %
@@ -55,11 +58,11 @@ In this section, we formally define the concepts and notations we use in this pa
 we then give a formalize the problem of debiasing crowdsourced batches.
 
 
-\subsection{Notation Definition}
+\subsection{Basic Concepts and Terminology}
 
 First we need to formalize several basic concepts in a crowdsourcing platform.
 Suppose we are given a set of data items $X = \{x_i\}$, where $i=1, \ldots, n$.
-Each data item is associated with a label $y_i \in \mathcal{Y}$, where $Y = \{y_i\}_{i=1}^n$
+Each data item is associated with a label $y_i \in \mathcal{Y}$, where $Y = \{y_i\}_{i=1}^n$.
 In following discussion, we focus on a binary classification task, 
 where $\mathcal{Y} = \{0, 1\}$, 
 but our framework generalizes to multi-class or rating cases seamlessly.  
@@ -67,7 +70,7 @@ According to a standard formalization in learning theory for binary classificati
 we suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.
 We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$. 
 
-In a job submitted to a crowdsourcing platform,
+In a job or task submitted to a crowdsourcing platform,
 we can assemble several data items into a batch. %  (``unit'' in CrowdFlower terminology).p
 Each batch $\bb_j$ is represented by a set of indices of data items in the batch,
 denoted as $\{b_{j1}, \ldots, b_{jk}\}$, 
@@ -79,12 +82,17 @@ where $y_{jl}$ is the true label of $x_{jl}$ according to $Y$ for $\forall 1 \le
 In CrowdFlower language, 
 a batch corresponds to a single ``unit'', 
 % several data items are assembled into a single ``unit'',pp
-where a worker has to judge the entire unit at the same time.
+where a worker has to judge the entire unit at the same time;
+in Mechanical Turk language,
+a batch corresponds to a single ``HIT'' (short for Human Intelligence Task).
 Usually, data items in the same batch might share the same context, background, or the same instruction, 
 in order to reduce the overhead.  
-For example, if one is asked to judge whether a review about a restaurant is positive or negative, 
-it might save the time for workers if reviews of the same restaurant are grouped into the same batch, 
-as they only need to read the description of the restaurant for once before they can make multiple judgments.  
+For example, if one is asked to judge whether 
+a review about a restaurant is positive or negative, 
+it might save time for workers if 
+reviews of the same restaurant are grouped into the same batch, 
+as they only need to read the description of the restaurant once 
+before they can make multiple judgments on different reviews.  
 
 \hide{
     Notice that we are only concerned with the scenario when data items are formed into \emph{small batches}.
@@ -97,19 +105,23 @@ as they only need to read the description of the restaurant for once before they
 As we assemble data items into batches, 
 each worker has to judge the entire batch as a single judgment.  
 Given a batch $\bb_j$, the judgment provided by a worker can be represented as $\by_j' = (y_{j1}', \ldots, y_{jk}')$, 
-where $y_{jl}' \in \mathcal{Y}$ is the annotation of data item in $x_{jl}$, given by the worker.
+where $y_{jl}' \in \mathcal{Y}$ is the annotation of data item corresponding to 
+$x_{jl}$, provided by the worker.
 Noting that the worker annotation $\by_j'$ can be different from the true label $\by_j$.  
-We refer to worker annotation as ``annotation'', while the ground-truth label as ``label''.  
+We refer to worker annotation as ``annotation'', while the ground-truth label is referred to 
+as simply the ``label''.  
 
 In CrowdFlower, as a judgment can only be made based on a unit,
-workers are not allowed to submit partial results on a batch.
-However, one can always add an ``unknown'' option for every data items,
+workers are not allowed to submit partial results on a batch 
+(as with Mechanical Turk).
+However, one can always add an ``unknown'' option for every data item,
 so that the workers can provide partial results on a batch.
 Our model can also be easily adapted to the scenario with partial judgment on a batch.
 We do not allow users to provide partial feedback as it complicates the pricing system.  
+\agp{We don't need to say the previous sentence. Let's delete it. Replace with:
+For simplicity, we consider no partial judgments in the rest of the paper.}
 
-
-Thereby, we can first give a formalized definition of a batch of data items:
+Now, we are in a position to give a formal definition for a batch of data items:
 \begin{definition}
 [Batch]
 Given a data set $(X, Y)$,
@@ -121,7 +133,8 @@ $\by_j' = \{y_{j1}', \ldots, y_{jk}'\}$ is the worker annotation on the set of t
 \end{definition}
 
 %p
-Thereby we can denote the a set of batches:
+\noindent Additionally, a set of batches can be defined as:
+
 \begin{definition}
 Given a data set $(X, Y)$, 
 a set of batches extracted from the given data set is denoted as $A = (B, X_B, Y_B, Y_B')$, 
@@ -131,18 +144,19 @@ with their corresponding true labels $Y_B=\{\by_j\}_{j=1}^m$
 and worker annotations $Y_B'=\{\by_j'\}_{j=1}^m$.  
 \end{definition}
 
-\vpara{Remark.} 
-1) Notice that a data item $x_i \in X$ might appear in multiple batches in $A$.  
-If data items in two different batches share the same index as indicated by corresponding item in $\bb_j$, 
+\vpara{Remarks.} 
+1) Notice that a data item $x_i \in X$ may certainly appear in multiple batches in $A$.  
+If data items in two different batches share the same 
+index as indicated by corresponding item in $\bb_j$, 
 they refer to the same data item in $X$;  
 2) For the sake of fully utilizing the workforce of crowds, 
-without loss of generality, we focus on the scenario when all batches have the identical size $k$.  
+without loss of generality, we focus on the scenario when all batches have the identical size $k$. 
 However, our model generalizes to the case when batches have different sizes;    
-3) In real world crowdsourcing platform, a batch can actually be judged by multiple workers,
-which means there could be multiple $\by_j'$'s associated to a single $(\bb_j, \bx_j, \by_j)$.  
-However, for the purpose of debiasing, 
+3) In some real world crowdsourcing platforms, a batch can actually be judged by multiple workers,
+which means there could be multiple $\by_j'$'s associated to a single $(\bb_j, \bx_j, \by_j)$--- for instance, this is referred to as multiple {\em assignments} on Mechanical Turk.  
+However, for the purposes of debiasing, 
 it is equivalent to regard a single batch as multiple identical batches,
-and assign each batch with a unique judgment made by different workers. 
+and associate each batch with a unique judgment made by different workers. 
 
 %This does not affect our proposed model.  pp
 
@@ -179,8 +193,8 @@ and each batch $y_j \in Y_B$ indicates the corresponding labels $\{y_{j1}, \ldot
 
 \subsection{Problem Definition}
 
-Based on the notations, 
-now we formalize the research problem of debiasing crowdsourced batches as:
+Based on the concepts described thus far, 
+we can formalize the problem of debiasing crowdsourced batches as the following:
 
 \begin{problem} [Debiasing Crowdsourced Batches]
 Suppose we have a labeled data set $(X_L, Y_L)$ with $Y_L$ known, 
@@ -189,19 +203,37 @@ If we are then given another unlabeled data set $X_U$,
 as well as its extracted batches and crowdsourced annotation $(B_U, X_{B_U}, Y_{B_U}')$, 
 the objective is to infer the true labels $Y_U$ associated with $X_U$ from the crowdsourced annotation.  
 \end{problem}
-
-In application, the labeled data for training can be collected from the ``test questions'' with ground-truth labels, 
-inserted into the crowdsourcing platform for the purpose of quality control and monitor.  
-The usage of ``test questions'' are prevalent in crowdsourcing application.  
-As an example, in CrowdFlower, all workers have to go through a certain number of ``test questions'' with correct labels 
-and achieve an accuracy over a certain threshold (\eg~70\%) 
-before they can proceed to work on the regular task.  
-Also, additional hidden data items with known labels can be inserted into the regular tasks 
+\agp{should the previous be $Y_{B_U}$?}
+Notice that our problem formulation as described above requires
+as input labeled and annotated data items for training purposes. 
+In practice, the labeled data for training 
+can be collected from the ``test questions'' 
+with ground-truth labels, 
+inserted by the crowdsourcing platform for the 
+purpose of quality control and monitoring
+of workers.  
+The usage of test questions is standard practice: 
+As an example, in CrowdFlower, all workers have to attempt a 
+certain number of test questions with correct labels 
+and need to achieve an accuracy over a certain threshold (\eg~70\%) 
+before they can proceed to work on the regular task(s).  
+Also, additional hidden data items with known labels 
+can be inserted into the regular tasks
 to monitor the accuracy of workers.  
-We believe worker behaviors on these labeled data items can be further utilized for our training purpose.  
+In our setting, worker behavior on these
+test questions or labeled data can additionally be used
+for training purposes.
 
-In this version of definition, we assume identical worker behavior, 
-but it is straightforward to extend our model for different individual worker behavior.  
+Also notice that in this version of our problem
+formulation, we assume identical worker behavior;
+it is straightforward to extend our model when 
+different workers have different behavior when working on tasks.
+\agp{can we say something like this:
+In practice, the version where worker behavior is
+assumed to be identical is also more standard because
+often we don't have enough work done by each worker to
+ascertain individual worker behavior.} 
+
 
 
 \hide{

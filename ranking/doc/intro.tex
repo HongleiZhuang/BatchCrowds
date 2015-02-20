@@ -1,28 +1,51 @@
+%!TEX root=betamain.tex
+
+
 \section{Introduction}
 \label{sec:intro}
 
-Crowdsourcing provides an inexpensive and efficient method to annotate data on a large scale for various machine learning tasks
-by employing a massive workforce from global Internet users.
-Popular online crowdsourcing platform include
+Crowdsourcing provides an efficient method 
+to annotate data on a large scale for various machine learning tasks
+by employing a massive workforce drawn from global Internet users.
+Popular online crowdsourcing platforms include
 Amazon Mechanical Turk\footnote{\url{https://www.mturk.com/}} and CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.
-However, in contrast to expert annotated data,
-crowdsourced annotation usually suffers from a relatively higher level of errors, 
-due to crowd workers' lack of expertise or experience.  
+However, while crowdsourcing is relatively cheap compared
+to employing experts, getting large quantities of training data
+annotated by crowds (say thousands, or millions of data items) 
+can be rather expensive. 
+% However, in contrast to data annotated by experts,
+% crowdsourced annotation usually suffers from a relatively higher level of errors, 
+% due to crowd workers' lack of expertise or experience.  
 %which limits the adoption of crowdsourcing as a regular method of annotated data collection.
 
-
-Typically, in practice, multiple questions or data items are grouped into batches
-to be sent to workers on crowdsourcing platforms.
-First, sending batches of data items can save cost,
-as the necessary instructions or background for completing the tasks needs to be provided only once,
-limiting the overhead when the workers have to read elaborate instructions or necessary background before labeling each data item.
-Consider an example where a worker has to judge whether a comment is relevant to a certain document.  
-Here making a judgment on each comment requires reading through the entire document.
-In fact, from the workers' point of view,
+A key mechanism, often employed in practice for reducing costs, is {\em batching},
+i.e., grouping multiple data items (to be annotated together) into one single
+task as a batch. 
+Batching can save significant monetary costs, since the necessary instructions
+and background for completing the task needs to be provided just once
+for the entire batch. 
+Thus, the worker will spend less time on reviewing these instructions, 
+and more time on annotating data items, and therefore will be able to
+annotate more data items within the same time. 
+For instance, consider a scenario where a worker has to judge whether
+a comment is relevant to a document. 
+Here, making a judgment for each comment requires reading through the entire 
+document.
+Instead, with batching, the worker only needs to read the entire document
+once, and then make a judgment for all the comments in the batch. 
+% Typically, in practice, multiple questions or data items are grouped into batches
+% to be sent to workers on crowdsourcing platforms.
+% First, sending batches of data items can save cost,
+% as the necessary instructions or background for completing the tasks needs to be provided only once,
+% limiting the overhead when the workers have to read elaborate instructions or necessary background before labeling each data item.
+% Consider an example where a worker has to judge whether a comment is relevant to a certain document.  
+% Here making a judgment on each comment requires reading through the entire document.
+In fact, even from the workers' point of view,
 it is also more attractive to label batches of data items
 as they can save time on switching between different tasks.
-And also, once they start on a batch,
+Furthermore, once they start on a batch,
 they no longer have to ``fight'' for other high paying or attractive tasks.
+
 %
 
 
@@ -80,13 +103,16 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
 }
 
 
-However, even though batching is an attractive option in practice, 
+However, even though batching is an attractive option in practice
 due to its cost and time savings, having workers annotate batches can lead to severe correlation between annotations within batches.  
 %there could be correlations between annotations made by workers on data items within the same batch.
 For example, say we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.
-As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review in each crowdsourcing unit,
-every workers may have to spend some time on reading the instructions and the background movie before they can make a single judgment on a review.
-Although judgments are likely to be independent, this way of work assignment is too costly to be practical.
+As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review to be judged as part of each crowdsourcing unit task,
+workers will have to spend some time reading the instructions
+and possibly looking up the movie before 
+before they can make a single judgment on a review.
+Although judgments are likely to be independent, 
+this way of assigning work is too costly to be practical.
 Instead, if we assemble multiple reviews of the same movie into a batch, as shown in Figure~\ref{subfig:example_batch},
 workers can make multiple judgments after they read the instructions.  
 Nevertheless, in this case, the annotation of different reviews might interfere with each other.
@@ -94,7 +120,7 @@ For example, when the review ``Average In The Extreme'' does not seem like a pos
 when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).
 Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),
 it does not look as positive as a strongly effusive review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.
-Thus, overall these might be undesirable and misleading as it is inconsistent with the case when workers make independent judgments.
+Thus, overall these effects might be undesirable and misleading as it is inconsistent with the case when workers make independent judgments.
 Therefore, it is challenging to ascertain true labels of data items in batches.
 
 
@@ -112,13 +138,15 @@ This setting could be referred to as \emph{sequential judgments}.
 }
 
 
-The practice of crowdsourcing so far
-rarely pays attention to possible annotation error that might be introduced by grouping data items into batches.
+So far, there has been little to no work in exploring the 
+the possible annotation error introduced by grouping 
+data items into batches.
 Although batching data items has been adopted in many crowdsourced tasks such as
 %This judging-in-batch setting has been noticed and adopted in crowdsourcing practices of
 sorting~\cite{marcus:vldb2011}, object recognition~\cite{su:aaai2012} or clustering~\cite{gomes:nips2011}, 
-and anecdotally very widely used in practice.  
-The assumption is that the annotations are collected independently, which is not the case.
+and anecdotally very widely used in practice,   
+the assumption is often 
+that the annotations are collected independently, which is not the case.
 While there is limited work on judging data items in sequence~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
 it is not directly applicable to our setting where a batch of data items are presented and annotated in parallel.
 Our previous research~\cite{zhuang:wsdm2015} also noticed this specific type of annotation bias,
@@ -155,7 +183,7 @@ We defer the detailed discussion of the related work to Section~\ref{sec:related
 \end{figure}
 }
 
-There are several research challenges in studying this problem.
+There are several research challenges in solving this problem.
 First, how do we model workers' behavior when they make judgments in batches?
 Second, how do we leverage the model to debias the crowdsourced annotation of data batches?
 We make the following contributions in answering these questions:
