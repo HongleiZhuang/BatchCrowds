@@ -1,6 +1,6 @@
 %!TEX root=betamain.tex
 
-
+\vspace{0.2in}
 \section{Preliminaries}
 \label{sec:prelim}
 %
@@ -115,11 +115,10 @@ In CrowdFlower, as a judgment can only be made based on a unit,
 workers are not allowed to submit partial results on a batch 
 (as with Mechanical Turk).
 However, one can always add an ``unknown'' option for every data item,
-so that the workers can provide partial results on a batch.
-Our model can also be easily adapted to the scenario with partial judgment on a batch.
-We do not allow users to provide partial feedback as it complicates the pricing system.  
-\agp{We don't need to say the previous sentence. Let's delete it. Replace with:
-For simplicity, we consider no partial judgments in the rest of the paper.}
+so that the workers can provide partial results on a batch.  
+For simplicity, we consider no partial judgments in the rest of the paper.  
+% Our model can also be easily adapted to the scenario with partial judgment on a batch.
+%We do not allow users to provide partial feedback as it complicates the pricing system.  
 
 Now, we are in a position to give a formal definition for a batch of data items:
 \begin{definition}
@@ -201,9 +200,8 @@ Suppose we have a labeled data set $(X_L, Y_L)$ with $Y_L$ known,
 as well as its extracted batches and their crowdsourced annotation $(B_L, X_{B_L}, Y_{B_L}, Y_{B_L}')$.  
 If we are then given another unlabeled data set $X_U$, 
 as well as its extracted batches and crowdsourced annotation $(B_U, X_{B_U}, Y_{B_U}')$, 
-the objective is to infer the true labels $Y_U$ associated with $X_U$ from the crowdsourced annotation.  
+the objective is to infer the true labels $Y_{U}$ associated with $X_{U}$ from the crowdsourced annotation.  
 \end{problem}
-\agp{should the previous be $Y_{B_U}$?}
 Notice that our problem formulation as described above requires
 as input labeled and annotated data items for training purposes. 
 In practice, the labeled data for training 
@@ -224,15 +222,18 @@ In our setting, worker behavior on these
 test questions or labeled data can additionally be used
 for training purposes.
 
+
 Also notice that in this version of our problem
-formulation, we assume identical worker behavior;
-it is straightforward to extend our model when 
+formulation, we assume identical worker behavior.  
+In practice, it is more often to assume identical worker behavior, 
+as there are usually not enough work done by each worker to ascertain individual behavior.
+Also, it is straightforward to extend our model when 
 different workers have different behavior when working on tasks.
-\agp{can we say something like this:
-In practice, the version where worker behavior is
-assumed to be identical is also more standard because
-often we don't have enough work done by each worker to
-ascertain individual worker behavior.} 
+% \agp{can we say something like this:
+% In practice, the version where worker behavior is
+% assumed to be identical is also more standard because
+% often we don't have enough work done by each worker to
+% ascertain individual worker behavior.} 
 
 
 

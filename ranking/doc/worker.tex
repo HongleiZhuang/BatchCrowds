@@ -28,8 +28,8 @@ Here the score $s(x_i)$ models the tendency of ranking
 $x_i$ higher in a randomly generated ranking and 
 can be viewed as a measure of the inherent ``goodness'' of the item.
 A ranking of these items can be represented as a bijection $\pi : \{i\}_{i = 1}^k \mapsto \{x_i\}_{i = 1}^k$,
-that maps the $i$-th position in the ranking to the item at this position.
-\agp{Doesn't this map $i$ to item at position $i$ in the ranking?}
+that maps the $i$ to the data item at the $i$-th position in the ranking.
+%\agp{Doesn't this map $i$ to item at position $i$ in the ranking?} 
 The corresponding ranking list can be represented as
 $\pi(1) \succ \cdots \succ \pi(k)$.
 In Plackett-Luce model, the probability of generating a ranking $\pi$ is:
@@ -54,9 +54,10 @@ We now introduce our worker model for annotating small batches of data items.
 Again, without loss of generality, suppose we are given a batch $\bx_j$ where $x_{jl} = x_l$,
 namely the given data item batch can be denoted as $\bx_j=\{x_1, \ldots, x_k\}$.
  %of $(x_1, \ldots, x_k)$, namely $b_{ji} = i$.pp
-Also, recall that for each data item $x_i$, we denote its predictive probability $P(y_i = 1 | x_i)$ as $\eta_i$,
-which is not explicitly known. \agp{It's odd to call this a predictive probability. Isn't
-this a measure of goodness or inherent value?}
+Also, recall that for each data item $x_i$, we denote $P(y_i = 1 | x_i)$ as its inherent score $\eta_i$,
+which is not explicitly known. 
+%\agp{It's odd to call this a predictive probability. Isn't
+%this a measure of goodness or inherent value?}
 %Although this value is not explicitly known,
 %we assume the worker has the ability to estimate this value based on the features of data item.
 
@@ -64,12 +65,14 @@ When a worker starts to work on a certain batch of data items,
 they may choose to use one of two strategies:
 \begin{itemize}
   \item \emph{Independent judging.}
-  If the worker has the ability to obtain an 
-  estimate of the absolute value $\eta_i$ for each data item, \agp{Why does the ability of obtaining an estimate matter? confused..}
+  If the worker is making judgments based on the absolute value of $\eta_i$ for each data item, 
+  %\agp{Why does the ability of obtaining an estimate matter? confused..}
   we suppose the worker judges each data item $x_i \in \bx_j$ independently
   by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
   \item \emph{Relative judging.}
-  If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item \agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
+  If the worker is making judgments based on comparing data items within the same batch
+  %If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item 
+  %\agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
   without knowing absolute value of $\eta_i$,
   we suppose the worker chooses to first rank all the data items based on their probability of being positive,
   then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.
@@ -102,9 +105,7 @@ while other data items not within the top-$p$ of the ranking $\pi$ are annotated
 The intuition of this model is to capture two behavior pattern of workers.
 In the independent judging scenario,
 workers can remain independent in judging different data items in the same batch,
-\agp{replace next phrase with:
-with each data item being judged based on its inherent score $\eta_i$.}
-with respect to the property of each data item $x_i$ characterized by $\eta_i$.
+with each data item being judged based on its inherent score $\eta_i$.
 %use an absolute standard to judge data items from different batches,p
 %and therefore remain consistent performance.
 Nevertheless, sometimes workers might judge data items 
@@ -117,11 +118,11 @@ In order to determine the labels of data items,
 they have an expectation of label distribution,
 which is reflected by the distribution of generating $\tau$,
 as it characterizes the probability of having $\tau$ positives within $k$ data items.
-\agp{check: (For instance, if workers expect
+For instance, if workers expect
 there to be few positive items, then the probability of $\tau$
 being low is high, while if workers expect
 the batches to be balanced, then the probability of $\tau$ being close to
-$k/2$ is high relative to other values of $\tau$.}
+$k/2$ is high comparing to other values of $\tau$.
 However, this distribution does not necessarily 
 reflect the correct label distribution.
 When they try to apply their expectation 
@@ -154,18 +155,29 @@ The parameters that need to be determined in this worker model include:
 the probability of making independent judgments $\lambda$,
 and the distribution of the number of positive annotation when making relative judgments,
 represented by $p_0, \ldots, p_k$, where $0 \leq p_{\tau} \leq 1$ and $\sum p_{\tau} = 1$.
-We assume these two parameters are fixed,
-independent of the data items in question.
-\agp{check:(Or at least, we assume that the two parameters are fixed
-for each new application of our techniques ---
-for instance, these parameters for content moderation
-may be very different from the same parameters for
-spam identification or sentiment analysis).}
-%p
+We assume these two parameters are fixed for each new application of our techniques.  
+However, for different applications, these parameters might be different --- for instance, 
+these parameters for content moderation may be different from the same parameters for spam identification or sentiment analysis.  
 
-Suppose we are given a set of $n_L$ items $X_L$ with their predictive distribution \agp{wasn't this inherent value? just checked -- it's not} $\eta_i$ known. %true labels $Y_L$ known.p
+
+% independent of the data items in question.
+% \agp{check:(Or at least, we assume that the two parameters are fixed
+% for each new application of our techniques ---
+% for instance, these parameters for content moderation
+% may be very different from the same parameters for
+% spam identification or sentiment analysis).}
+
+
+Suppose we are given a set of $n_L$ items $X_L$ with their true labels $Y_L$, 
+or more ideally, their inherent scores $\{\eta_i\}_{x_i \in X_L}$.  
+If the inherent score of a data item $\eta_i$ is not given, 
+but only $y_i \in \{0, 1\}$ is known,
+as a heuristic, we can estimate $\eta_i$ by $\eta_i = (y_i + \epsilon)/(1 + 2 \epsilon)$
+where $\epsilon$ is a small constant, which is set to $10^{-3}$ in our experiments.
+%predictive distribution \agp{wasn't this inherent value? just checked -- it's not} $\eta_i$ known. %true labels $Y_L$ known.p
 Then, we form them into $m_L$ batches $B_L$, send them to the crowds,
-and obtain their annotation from workers, denoted as $Y_L'$.
+and obtain their annotation from workers, denoted as $Y_{B_L}'$.
+
 
 
 For simplicity, we write $x_{b_{jt}}$ as $x_{jt}$, and similar to $y_{jt}$ and $\eta_{jt}$.
@@ -211,7 +223,7 @@ And at M-step, we update the parameters $\hat{\lambda}$ and $\hat{p}_{\tau}$ by
 }%
 where $\hat{Z} = \sum_{j=1}^{m_L} (1 - \hat{\lambda}_j)$.
 
-
+\hide{
 However, in real data sets, we do not always know $\eta_i$ for each data item $x_i$,
 but only know their binary true labels $Y_L$.
 We can still learn the worker model based on this situation
@@ -222,7 +234,7 @@ Therefore we regularize the score by using:
 	\eta_i = \frac{y_i + \epsilon}{1 + 2 \epsilon} \nonumber
 }%
 where $\epsilon$ is a small constant which is set to $10^{-3}$ in our experiments.
-
+}
 
 
 

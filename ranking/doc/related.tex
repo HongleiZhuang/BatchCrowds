@@ -4,19 +4,24 @@
 \section{Related Work}
 \label{sec:related}
 
-\agp{Say something about the three categories that you list below.}
+%\agp{Say something about the three categories that you list below.}
 
-\agp{I fixed all the past tense references below. If I missed something, you should fix.}
+In this section, we first introduce existing studies on annotation bias of crowds, 
+when data items are presented either independently, or in a sequence or batches; 
+we then introduce rank aggregation techniques as well as their application on crowdsourced ranking or rating.  
 
-\agp{In some cases, it is not sufficient to say that the papers are not on the same topic,
-we need to argue that the techniques are different or the models are different. Take another pass on this section to make sure we say {\em something} about every set of papers.}
+%\agp{I fixed all the past tense references below. If I missed something, you should fix.}
+
+% \agp{In some cases, it is not sufficient to say that the papers are not on the same topic,
+% we need to argue that the techniques are different or the models are different. Take another pass on this section to make sure we say {\em something} about every set of papers.}
 
 \vpara{Annotation bias in independent judgments.}
-A number of studies have been conducted on evaluating data quality collected from crowds, 
-and modeling worker behaviors to optimize the data quality.  
-
-However, these studies mainly consider the scenario when data items are judged independently.  
+A number of studies have been conducted on verifying and quantifying annotation bias of crowd workers.  
+%However, these studies mainly consider the scenario when data items are judged independently.  
 Snow~\etal~\cite{snow:emnlp2008} explore the performance of annotations by non-expert workers for several NLP tasks.
+Demeester~\etal~\cite{demeester:wsdm2014} discuss the disagreement between different users on assessment of web search results.
+
+There are also extensive studies on modeling worker behaviors.  
 Raykar~\etal~\cite{raykar:nips2011ranking,raykar:icml2009,raykar:jmlr2010}
 study how to learn a model with noisy labeling. 
 Specifically, they employ a logistic regression classifier, 
@@ -24,10 +29,10 @@ and insert hidden variables indicating whether a worker tells the truth.
 %They utilize an EM algorithm to infer the real ground-truth while training the model.
 Karger~\etal~\cite{karger:nips2011} propose an iterative algorithm to infer workers' reliability 
 and aggregating their answers.  
-
 Whitehill~\etal~\cite{whitehill:nips2009} model the annotator ability, data item difficulty, and infer the true label from the crowds in a unified model.
-Demeester~\etal~\cite{demeester:wsdm2014} discuss the disagreement between different users on assessment of web search results.
-However, they do not study the case when data items are grouped into batches.
+Most of these work also proposes various generative model to capture worker behavior.  
+However, they assume judgments on different data items are independent, 
+which is not necessarily true when data items are grouped into batches.  
 
 Venanzi~\etal~\cite{venanzi:www2014} propose a community-based label aggregation model to identify different types of workers, 
 and correct their labels correspondingly.  
@@ -36,13 +41,15 @@ They focus on another aspect of dependencies,
 which is the dependencies between workers, 
 while in our studies, we are more concerned about dependencies between data items and their judgments.  
 
-\agp{Say something like: Like this work, many of these papers
-also consider EM-based techniques; however, to the best of our knowledge,
-we are the first to articulate and provide solutions for the problem
-of debiasing of batches -- either at the start or the end of this portion.}
+% \agp{Say something like: Like this work, many of these papers
+% also consider EM-based techniques; however, to the best of our knowledge,
+% we are the first to articulate and provide solutions for the problem
+% of debiasing of batches -- either at the start or the end of this portion.}
 
 
 \vpara{Annotation bias in sequential and batch judgments.}
+A few researchers also notice the correlation between judgments on different data items, 
+but their work are mainly developed in the setting when data items are reviewed in a sequence.  
 Scholer~\etal~\cite{scholer:sigir2013,scholer:sigir2011} study the annotation disagreements in 
 a relevance assessment data set.  
 %TREC data set, which is on relevance assessment tasks in information retrieval.  
@@ -56,11 +63,12 @@ Also, they focus more on qualitative conclusions, without a quantitative model t
 Carterette~\etal~\cite{carterette:effect2010} provide several assessor models for the TREC data set.  
 Mozer~\etal~\cite{mozer:nips2010} study the similar ``relativity of
 judgments'' phenomenon on sequential tasks instead of small batches.  
-Again, their focus is more on data items presented as a long sequence, while we focus more on data items presented in small batches.  
-%Also, they focused more on debiasing not active learning.  %but did not apply active learning based on the proposed models.   
-%p
+Again, their focus is more on data items presented as a long sequence, 
+while we focus more on data items presented in batches simultaneously.  
 
-Our recent work~\cite{zhuang:wsdm2015} also considers a similar setting when data items are organized in small batches; we verify the existence of annotation bias caused by batching data items.  
+Our recent work~\cite{zhuang:wsdm2015} also considers a similar setting 
+when data items are organized in small batches; 
+we verify the existence of annotation bias caused by batching data items.  
 Our focus in that paper was to design an active learning algorithm to smartly assemble batches, 
 aiming to improve the performance of the classifier trained on this annotation batches.  
 Our focus was not on improving the quality of labels collected, 
@@ -70,6 +78,13 @@ the higher label quality can benefit tasks including training and/or evaluating 
 with a broader range of applications.
 
 \vpara{Crowdsourced ranking and rating.}
+In our model, we employ the Plackett-Luce model to capture worker behavior, 
+and aggregate worker annotations on batches as rankings in order to infer true labels.  
+There is a related thread of work on rank aggregation; 
+however, to the best of our knowledge, 
+we are the first to model crowds' annotating behavior on batches by ranking, 
+and propose a debiasing strategy. 
+
 Studies on aggregating multiple rankings into a consistent ranking can be dated back to the seminal work of Arrow~\cite{arrow2012social}.  
 Negahban~\etal~\cite{negahban:nips2012} study how to aggregate pairwise comparisons into a ranking 
 by utilizing the Bradley-Terry model~\cite{bradley:1952}, which is a simplified version of Plackett-Luce model utilized in this paper.   
@@ -84,13 +99,14 @@ to be applied to a more general class of ranking models called random utility mo
 In addition, the technique for rank aggregation has also been studied 
 in context of information retrieval~\cite{dwork:www2001,klementiev:icml2008,liu:www2007,qin:nips2010,volkovs:www2012}.  
 %A summary of early work can be found in~\cite{dwork:www2001}.
-However, most of these papers do not explicitly address the crowdsourcing settings 
+These studies do not explicitly address the crowdsourcing settings 
 to actually model the worker behavior.  
-Thus, their techniques are not directly applicable. 
+Directly applying their techniques (\eg~\cite{hunter:aos2004}) may not necessarily lead to better performance, 
+as shown in our experiments.  
 
 There is related research on aggregating multiple rankings or leveraging crowds' power to obtain ranking of data items.  
-Chen~\etal~\cite{chen:wsdm2013} studied aggregating crowdsourced annotation on pairwise comparison to obtain a ranking on data items. 
-Mao~\etal~\cite{mao:aaai2013} showed how aggregated results of noisy voting obtained from crowdsourcing platform 
+Chen~\etal~\cite{chen:wsdm2013} study aggregating crowdsourced annotation on pairwise comparison to obtain a ranking on data items. 
+Mao~\etal~\cite{mao:aaai2013} show how aggregated results of noisy voting obtained from crowdsourcing platform 
 may differ by using different aggregating strategies.  
 However, their objective is just to obtain a ranking, 
 while our model incorporates a ranking model but the ultimate goal is still to collect labels for data items.  

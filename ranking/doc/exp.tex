@@ -13,7 +13,7 @@ A summary of the data sets we use in our experiments is provided in Table~\ref{t
 \vpara{Synthetic data set.}
 We construct synthetic data sets following the worker annotation model we propose in Section~\ref{sec:worker}.
 Suppose we have $n$ items in $X$, 
-we first generate their predictive probability \agp{fix here if changed before} $\eta_i$ for each $x_i \in X$ 
+we first generate their inherent scores $\eta_i$ for each $x_i \in X$ 
 from a Beta distribution $Beta(\alpha, \beta)$, 
 then generate the true labels $Y$ by drawing $y_i$ from a Bernoulli distribution parameterized by $\eta_i$ for each $i$.  
 In our synthetic data set, we set $\alpha = 2$ and $\beta = 4$ to simulate the case when negative data items overwhelm positive data items.
@@ -33,8 +33,7 @@ where $\rho$ is positive constant, set as $2$ in our experiments.
 %In our synthetic data set, we set $\lambda = 0.5$ and $\rho = 2$.  
 
 \vpara{Comments data set.}
-We utilize a real world crowdsourcing data set for annotating comments\agp{do you want
-to cite your previous paper?}.  
+We utilize a real world crowdsourcing data set for annotating comments, which is used in~\cite{zhuang:wsdm2015}.
 The original crowdsourcing task was to identify inappropriate comments on LinkedIn posts published by companies or LinkedIn influencers.  
 Inappropriate comments are defined as comments containing promotional, profane, blatant soliciting, random greeting comments, 
 as well as comments with \emph{only} web links and contact information.  

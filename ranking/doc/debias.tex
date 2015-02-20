@@ -30,7 +30,7 @@ The log-likelihood of the obtained annotation is:
 
 Notice that $\hat{\lambda}$ and $\hat{p}_{\tau_j}$ are parameters learned from Section~\ref{sec:worker},
 and $P(X_{j}^1 \succ X_{j}^0)$ is also a function of $\eta_{i}$'s.
-Similarly, \agp{similar to the previous section?} we apply an EM-algorithm here
+Similar to the previous section, we apply an EM-algorithm here
 by first calculating $\hat{\lambda}_j$ for each batch at the E-step 
 according to~\eqref{eq:e_step}
 but replacing $\lambda$ and $p_{\tau}$ by the value we learned during the training step.
@@ -99,8 +99,9 @@ we obtain the objective function to optimize as:
 }%
 Notice that $Q(\eta)$ is actually a lower-bound of the original log-likelihood function.
 Moreover, for two EM-step and one MM-step we apply in deriving the $Q$-function,
-it is proven that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$,
-we can achieve no less improvement on the log-likelihood. \agp{I don't understand the previous sentence}
+it is proven that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$, 
+the improvement of the log-likelihood is no less than the improvement we achieve on the $Q$-function.  
+%we can achieve no less improvement on the log-likelihood. \agp{I don't understand the previous sentence}
 Therefore optimizing $Q(\eta)$ can also optimize the log-likelihood.
 
 
@@ -133,14 +134,14 @@ where
 }
 
 By iteratively updating the scores to optimize the likelihood of the annotation on test data,
-we can obtain the inferred predictive distribution of each item.
+we can obtain the inferred $\eta_i$ of each item.
 Based on this, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$,
 or $y_i'=0$ otherwise.
 Notice that we do not further tune the threshold in this step,
 as the scores we learned here are expected to be a reasonable estimate of the true $\eta_i$'s.
-Therefore, if the predictive distribution \agp{fix if you changed it before} are known,
+Therefore, if the inherent scores are known,
 learning theory guarantees us that by using Bayes classifier (namely to take 0.5 as threshold)
-is supposed to yield the best expected performance. \agp{what is supposed to yeild? rephrase sentecne}
+is supposed to achieve the best expected performance in terms of square loss. %\agp{what is supposed to yeild? rephrase sentecne}
 
 
 
