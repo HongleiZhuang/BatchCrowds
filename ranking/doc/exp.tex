@@ -78,7 +78,7 @@ We compare the performance of our proposed method with several baselines:
   \item \emph{Majority Voting (MV)}.
         For each data item in the test data set, 
         simply determine its inferred label by the way it is annotated by the majority of workers.  
-        This aggregation strategy is often used in practice~\cite{sheng:kdd2008}.  %adopted by many crowdsourcing service.  
+        This aggregation strategy is often used in practice (\eg~\cite{sheng:kdd2008}).  %adopted by many crowdsourcing service.  
   \item \emph{Majority Voting with Tuned Threshold (MVT)}.
         Instead of simply applying majority voting, 
         we calculate the ratio of positive annotation on each item as a score, 
@@ -396,7 +396,7 @@ Again, when training data size is extremely small (\eg~$m_L=100$),
 the performance of MVT drops substantially (89\% in accuracy and 75\% in $F_1$-score), 
 while its performance gets more and more comparable to our method as the training data size increases.  
 In contrast, our proposed method maintains a fairly stable 
-performance for different sizes of the training data set. 
+performance (96\% in accuracy and 90\% in $F_1$-score) for different sizes of the training data set. 
 This verifies again the ability of our proposed method to yield high-quality results 
 with a sufficiently small training data set.  
 

@@ -74,7 +74,7 @@ they may choose to use one of two strategies:
   %If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item 
   %\agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
   without knowing absolute value of $\eta_i$,
-  we suppose the worker chooses to first rank all the data items based on their probability of being positive,
+  we suppose the worker chooses to first rank all the data items in the batch based on their inherent scores,
   then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.
   To be precise, the worker generates a ranking $\pi$ for $k$ items in the batch according to the Plackett-Luce model,
   with the scoring function defined as $s(x_i) = \eta_i$.
@@ -86,8 +86,8 @@ they may choose to use one of two strategies:
   while other data items not within the top-$\tau$ of the ranking $\pi$ are annotated as $y_i' = 0$.
 \end{itemize}
 To combine these two different scenarios,
-we suppose the worker is able to judge independently with a certain probability $0 < \lambda < 1$,
-while with probability $(1-\lambda)$ the worker can only make relative judgments.
+we suppose the worker chooses to judge independently with a certain probability $0 < \lambda < 1$,
+while with probability $(1-\lambda)$ the worker makes relative judgments.
 
 \hide{
 the worker chooses to judge each data item $x_i$ independently based on the $\eta_i$ value.

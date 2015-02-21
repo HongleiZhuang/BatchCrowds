@@ -78,7 +78,7 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
   \caption{\label{fig:example}
   Example of correlation between annotations on data items in the same batch.
   Workers are asked to label whether a review on the movie ``The Imitation Game'' crawled from IMDb is positive.
-  Assign each review-movie pair to workers separately can be costly,
+  Assign each review-movie pair to different workers separately can be costly,
   while assigning a batch of reviews together with a movie to workers might affect workers' judgments.
   }
 \end{figure*}
@@ -204,8 +204,8 @@ We make the following contributions in answering these questions:
 \end{enumerate}
 
 The rest of this paper is organized as follows:
-Section~\ref{sec:prelim} introduces the background of crowdsourcing, and formalizes the research problem;
-Section~\ref{sec:worker} proposes the worker model for annotating small batches of data;
+Section~\ref{sec:prelim} introduces the basic concepts and formalizes the research problem;
+Section~\ref{sec:worker} proposes the worker model for annotating batches of data;
 Section~\ref{sec:debias} presents a strategy to debias batch annotations;
 Section~\ref{sec:exp} describes experimental results;
 Section~\ref{sec:ext} discusses extensions of our proposed method;

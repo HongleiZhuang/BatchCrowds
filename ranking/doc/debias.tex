@@ -19,7 +19,7 @@ which yields $\hat{y}_i = 1$ if $\eta_i > 0.5$, or $\hat{y}_i = 0$ if $\eta_i \l
 
 We again adopt a maximum likelihood estimation techique.
 The log-likelihood of the obtained annotation is:
-\beal{
+\beal{\label{eq:log_l_eta}
 	\log L (\eta) = \sum_{j=1}^{m_U}
 	\log \biggl[
 		&\hat{\lambda} %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}
@@ -38,7 +38,7 @@ Then we have:
 \beal{\label{eq:em_debiasing}
 	\log L(\eta) &\geq \sum_{j=1}^{m_U}
 		\hat{\lambda}_j \biggl[
-			\sum_{x_{jt1} \in X_{j}^1} \log \eta_{jt1}  + \sum_{x_{jt0} \in X_{j}^0} \log (1 - \eta_{jt0})
+			\sum_{x_{jt_1} \in X_{j}^1} \log \eta_{jt_1}  + \sum_{x_{jt_0} \in X_{j}^0} \log (1 - \eta_{jt_0})
 		\biggr] \nonumber \\
 		& + \sum_{j=1}^{m_U} (1 - \hat{\lambda}_j) \bigl[\log \hat{p}_{\tau_j}  + \log P(X_{j}^1 \succ X_{j}^0) \bigr]
 }%
@@ -97,7 +97,7 @@ we obtain the objective function to optimize as:
 			\log \eta_{\pi(t)} - \frac{\sum_{s=t}^{k} \eta_{\pi(s)}}{\sum_{s=t}^{k} \hat{\eta}_{\pi(s)}}
 		\biggr]
 }%
-Notice that $Q(\eta)$ is actually a lower-bound of the original log-likelihood function.
+Notice that $Q(\eta)$ is actually a lower-bound of the original log-likelihood function~\eqref{eq:log_l_eta}.
 Moreover, for two EM-step and one MM-step we apply in deriving $Q(\eta)$,
 it is proven that by improving $Q(\eta)$ from this iteration $Q(\hat{\eta})$, 
 the improvement of the log-likelihood is no less than the improvement we achieve on the $Q(\eta)$.  
@@ -134,7 +134,7 @@ where
 }
 
 By iteratively updating the scores to optimize the likelihood of the annotation on test data,
-we can obtain the inferred $\eta_i$ of each item.
+we can obtain the inferred $\hat{\eta}_i$ of each item.
 Based on this, we can determine the inferred binary label for each data item by assigning $y_i'=1$ if $\hat{\eta}_i > 0.5$,
 or $y_i'=0$ otherwise.
 Notice that we do not further tune the threshold in this step,
@@ -144,7 +144,7 @@ learning theory guarantees us that by using Bayes classifier (namely to take 0.5
 is supposed to achieve the best expected performance in terms of square loss. %\agp{what is supposed to yeild? rephrase sentecne}
 
 
-The entire process of training model and leverarging the model to debias the obtained results 
+The entire process of training model and leverarging the model to debias the obtained annotations 
 are summarized in Algorithm~\ref{alg:debias}.  
 
 \incmargin{1em}
