@@ -5,7 +5,7 @@
 \label{sec:worker}
 
 In this section, we first describe our model for workers' annotation behavior 
-on a small batch of data items;
+on a batch of data items;
 then we introduce how to train the model based on a training data set.
 %finally we presents the parameters of this model learned from a real world data set.
 
@@ -13,7 +13,7 @@ Our key intuition is the follows:
 when a worker judges a batch of data items,
 she can either:
 1) choose to judge data items independently as if they are presented alone; or
-2) to rank all the data items according to their relative inherent values
+2) to rank all the data items according to their relative inherent scores
 and annotate the top several items as positive, leaving the rest in the batch as negative.
 
 %
@@ -50,7 +50,7 @@ The probability of generating a ranking list according to this process is equiva
 %
 
 \vpara{Worker model.}
-We now introduce our worker model for annotating small batches of data items.
+We now introduce our worker model for annotating batches of data items.
 Again, without loss of generality, suppose we are given a batch $\bx_j$ where $x_{jl} = x_l$,
 namely the given data item batch can be denoted as $\bx_j=\{x_1, \ldots, x_k\}$.
  %of $(x_1, \ldots, x_k)$, namely $b_{ji} = i$.pp
@@ -70,7 +70,7 @@ they may choose to use one of two strategies:
   we suppose the worker judges each data item $x_i \in \bx_j$ independently
   by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
   \item \emph{Relative judging.}
-  If the worker is making judgments based on comparing data items within the same batch
+  If the worker is making judgments by comparing data items within the same batch
   %If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item 
   %\agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
   without knowing absolute value of $\eta_i$,
@@ -81,7 +81,7 @@ they may choose to use one of two strategies:
   Then the worker draws an integer $0 \leq \tau \leq k$ from a certain distribution,
   where $p_\tau$ denotes the probability of drawing the integer $\tau$.
   For data items ranked as top-$\tau$ in the ranking,
-  denoted as $x_i \in \{\pi^{-1}(1), \ldots, \pi^{-1}(p)\}$ (could be empty if $p = 0$),
+  denoted as $x_i \in \{\pi(1), \ldots, \pi(\tau)\}$ (could be empty if $\tau = 0$),
   the worker annotates them as $y_i'=1$,
   while other data items not within the top-$\tau$ of the ranking $\pi$ are annotated as $y_i' = 0$.
 \end{itemize}
@@ -111,7 +111,7 @@ with each data item being judged based on its inherent score $\eta_i$.
 Nevertheless, sometimes workers might judge data items 
 within a batch by comparison.
 In the relative judging scenario,
-workers still have the ability to judge the relative 
+workers simply judge the relative 
 relationships between data items in the same batch,
 which is captured by the Plackett-Luce model for generating the ranking.
 In order to determine the labels of data items,
@@ -171,8 +171,8 @@ these parameters for content moderation may be different from the same parameter
 Suppose we are given a set of $n_L$ items $X_L$ with their true labels $Y_L$, 
 or more ideally, their inherent scores $\{\eta_i\}_{x_i \in X_L}$.  
 If the inherent score of a data item $\eta_i$ is not given, 
-but only $y_i \in \{0, 1\}$ is known,
-as a heuristic, we can estimate $\eta_i$ by $\eta_i = (y_i + \epsilon)/(1 + 2 \epsilon)$
+but only the binary label $y_i$ is known,
+we can estimate $\eta_i$ by $\eta_i = (y_i + \epsilon)/(1 + 2 \epsilon)$ 
 where $\epsilon$ is a small constant, which is set to $10^{-3}$ in our experiments.
 %predictive distribution \agp{wasn't this inherent value? just checked -- it's not} $\eta_i$ known. %true labels $Y_L$ known.p
 Then, we form them into $m_L$ batches $B_L$, send them to the crowds,
@@ -180,8 +180,8 @@ and obtain their annotation from workers, denoted as $Y_{B_L}'$.
 
 
 
-For simplicity, we write $x_{b_{jt}}$ as $x_{jt}$, and similar to $y_{jt}$ and $\eta_{jt}$.
-For each batch $b_j \in B_L$, we denote the set of items annotated by workers as positive as $X_{j}^1 = \{x_{jt} | y_{jt}' = 1\}$,
+%For simplicity, we write $x_{b_{jt}}$ as $x_{jt}$, and similar to $y_{jt}$ and $\eta_{jt}$.
+For each batch $\bb_j \in B_L$, we denote the set of items annotated by workers as positive as $X_{j}^1 = \{x_{jt} | y_{jt}' = 1\}$,
 and the set of items annotated as negative as $X_{j}^0 = \{x_{jt} | y_{jt}' = 0\}$.
 
 
@@ -207,7 +207,10 @@ namely:
 	P(X_{j}^1 \succ X_{j}^0) = \sum_{\pi \in R(X_{j}^1, X_{j}^0)} P(\pi) \nonumber
 }%
 where $R(X_1, X_0) = \{ \pi |\pi^{-1}(x_{0}) > \pi^{-1}(x_{1}),  \forall x_{1} \in X_1, x_0 \in X_0 \}$;
-and $P(\pi)$ is defined by the Plackett-Luce model, as presented in~\eqref{eq:plmodel}.
+and $P(\pi)$ is defined by the Plackett-Luce model, as presented in~\eqref{eq:plmodel}.  
+Notice that the calculation of the exact value of $P(X_{j}^1 \succ X_{j}^0)$ is hard when $k$ is large.  
+In our experiments, $k$ is small enough to enumerate entire set $R(X_{j}^1, X_{j}^0)$.  
+If $k$ is large, we can apply Monte Carlo method to estimate the value of $P(X_{j}^1 \succ X_{j}^0)$.  
 
 Applying an EM-algorithm, where at E-step, we can have
 \beal{ \label{eq:e_step}

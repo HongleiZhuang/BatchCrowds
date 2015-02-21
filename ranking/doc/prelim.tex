@@ -55,7 +55,7 @@ which better recovers the true labels of data items.
 %
 
 In this section, we formally define the concepts and notations we use in this paper;
-we then give a formalize the problem of debiasing crowdsourced batches.
+we then formalize the problem of debiasing crowdsourced batches.
 
 
 \subsection{Basic Concepts and Terminology}
@@ -68,7 +68,8 @@ where $\mathcal{Y} = \{0, 1\}$,
 but our framework generalizes to multi-class or rating cases seamlessly.  
 According to a standard formalization in learning theory for binary classification, 
 we suppose each $(x_i, y_i)$ is generated from a joint probability distribution $P_{\mathcal{X} \mathcal{Y}}$.
-We define $\eta_i$ to be the conditional probability $P(y_i = 1 | x_i)$. 
+We define an inherent score $\eta_{x_i}$ to be the conditional probability $P(y_i = 1 | x_i)$.  
+For simplicity, we denote the inherent score as $\eta_i$.  
 
 In a job or task submitted to a crowdsourcing platform,
 we can assemble several data items into a batch. %  (``unit'' in CrowdFlower terminology).p
@@ -225,7 +226,7 @@ for training purposes.
 
 Also notice that in this version of our problem
 formulation, we assume identical worker behavior.  
-In practice, it is more often to assume identical worker behavior, 
+This is a more standard setting in crowdsourcing practice 
 as there are usually not enough work done by each worker to ascertain individual behavior.
 Also, it is straightforward to extend our model when 
 different workers have different behavior when working on tasks.
@@ -268,4 +269,5 @@ building an accurate enough worker model for each worker is not realistic.
   $Y_B'$   & Set of all the worker annotation from crowds on data item batches in $X_B$ \\ \hline
   \end{tabular}
 }
+%\vspace{-0.3in}
 \end{table}

@@ -188,14 +188,14 @@ First, how do we model workers' behavior when they make judgments in batches?
 Second, how do we leverage the model to debias the crowdsourced annotation of data batches?
 We make the following contributions in answering these questions:
 \begin{enumerate}
-  \item \emph{Proposing an interpretable worker annotation model on small batches of data.}
+  \item \emph{Proposing an interpretable worker annotation model on batches of data.}
         We propose a novel worker model for binary annotation behavior with data items presented as batches.
         The model incorporates independent judgments and batch judgments based on ranking.
         Different from the factor graph model in our previous work~\cite{zhuang:wsdm2015},
         we focus on obtaining the true labels of data items instead of improving classifier performance.
   \item \emph{Debiasing annotation data obtained as batches.}
         Based on our proposed worker model, we provide an algorithm to debias the inferred labels
-        when they are collected from data items in small batches.
+        when they are collected from data items in batches.
   \item \emph{Conducting experiments on a real-world crowdsourcing platform.}
         We conduct experiments on both synthetic and real-world crowdsourcing data sets
         to verify the effectiveness of our proposed model and debiasing strategies.
