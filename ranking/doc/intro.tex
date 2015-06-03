@@ -40,11 +40,13 @@ once, and then make a judgment for all the comments in the batch.
 % limiting the overhead when the workers have to read elaborate instructions or necessary background before labeling each data item.
 % Consider an example where a worker has to judge whether a comment is relevant to a certain document.  
 % Here making a judgment on each comment requires reading through the entire document.
+\hide{ % HZ: tentatively removed
 In fact, even from the workers' point of view,
 it is also more attractive to label batches of data items
 as they can save time on switching between different tasks.
 Furthermore, once they start on a batch,
 they no longer have to ``fight'' for other high paying or attractive tasks.
+}
 
 %
 
@@ -108,16 +110,18 @@ due to its cost and time savings, having workers annotate batches can lead to se
 %there could be correlations between annotations made by workers on data items within the same batch.
 For example, say we have a task of annotating whether a review of the movie ``The Imitation Game'' crawled from IMDb is positive.
 As illustrated in Figure~\ref{subfig:example_ind}, if we only show one review to be judged as part of each crowdsourcing unit task,
-workers will have to spend some time reading the instructions
-and possibly looking up the movie 
+workers will have to spend some time 
+%reading the instructions and possibly 
+looking up the movie 
 before they can make a single judgment on a review.
 Although judgments are likely to be independent, 
 this way of assigning work is too costly to be practical.
 Instead, if we assemble multiple reviews of the same movie into a batch, as shown in Figure~\ref{subfig:example_batch},
-workers can make multiple judgments after they read the instructions.  
+workers can make multiple judgments after they look up a movie.  
+%read the instructions.  
 Nevertheless, in this case, the annotation of different reviews might interfere with each other.
-For example, when the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}),
-when grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).
+For example, the review ``Average In The Extreme'' does not seem like a positive review per se (Cf. top right in Figure~\ref{subfig:example_ind}),
+while grouped with the review ``Stack of Lies'', it looks much more like a positive review (Cf. top in Figure~\ref{subfig:example_batch}).
 Similarly, when the review ``Good enough but historically sketchy'' looks quite positive by itself (Cf. bottom left in Figure~\ref{subfig:example_ind}),
 it does not look as positive as a strongly effusive review simply saying ``Great movie'', as shown in the bottom of Figure~\ref{subfig:example_batch}.
 Thus, overall these effects might be undesirable and misleading as it is inconsistent with the case when workers make independent judgments.

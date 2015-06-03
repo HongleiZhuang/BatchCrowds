@@ -12,28 +12,33 @@ In rating estimation,
 each data item $x_i$ is no longer associated with a discrete label
 from a finite set of labels, 
 but instead, a real value $y_i \in \RR$.  
+\hide{
 Suppose workers are asked to provide ratings on each data item in batches, 
 and our goal is to identify the true (unknown) rating of each data item.  
 A na\"{i}ve way to aggregate their ratings on the same item 
 is to take the average value of their ratings as the estimated rating.  
 However, when multiple data items are grouped into batches, 
 there can be bias similar to the one introduced in this paper.
-
+}
 Although we do not explicitly formalize our problem for a rating task, 
 with some straightforward modifications, 
-our techniques can still be applied.  
+our techniques can still be applied 
+if the workers are asked to rate data items in batches.  
+
 Without loss of generality, we can assume $0 < y_i < \infty$.  
 If the actual rating can be negative, 
 we can always apply a certain sigmoid function to normalize the scores to be positive values.  
 For independent judging, we can design a well-regularized distribution with expectation of $y_i$ 
 for a worker to draw a rating,~\eg~Gaussian distribution centered at $y_i$.  
 For relative judging, we can still assume the worker to generate a ranking from Plackett-Luce model with parameters $y_i$'s, 
-and introduce distributions for generating rating of data items at different positions in the ranking, 
-which are to be learned from the training data.  
+and introduce distributions for generating rating for each data item
+from a distribution \emph{only} depending on their ranking, 
+%of data items at different positions in the ranking, 
+which can be learned from the training data.  
 For example, workers may tend to generate a rating from Gaussian distribution centered at $\mu_1=5.0$ for a top-ranked data item $\pi(1)$, 
 but generate a rating from another Gaussian distribution centered at $\mu_5=1.0$ for a data item ranked as the fifth $\pi(5)$.  
-If the training data is sparse and the ratings can take on any real values, 
-it is probably preferable to employ some parametric distributions.    
+\hide{If the training data is sparse and the ratings can take on any real values, 
+it is probably preferable to employ some parametric distributions.}
 Once the design of model is accomplished, 
 it is straightforward to apply the same technique described in this paper 
 to derive the debiasing strategy by maximizing the likelihood of observed annotations 
@@ -46,12 +51,11 @@ the label set $\cY$ may contain more than $2$ possible labels.
 Workers are usually requested to assign data items with different labels.  
 This is a natural extension from binary classification problem.  
 
-If the labels in $\cY$ have an order, 
+If the labels in $\cY$ are ordinal, 
 for example, judging whether a review is ``very helpful'', ``helpful'' or ``not helpful'', 
 the problem reduces to a rating estimation problem, 
 where the possible value of rating are discrete values.  
 We can simply apply the extended strategy described above.  
-
 If the labels in $\cY$ do not have an order, 
 %but the task does allow each data item to be assigned multiple labels, 
 the problem can be reduces to several binary classification problems, 

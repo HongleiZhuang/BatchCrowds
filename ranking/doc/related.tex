@@ -73,9 +73,14 @@ Our focus in that paper was to design an active learning algorithm to smartly as
 aiming to improve the performance of the classifier trained on this annotation batches.  
 Our focus was not on improving the quality of labels collected, 
 and we still used majority voting to obtain labels for data items.  
-In this paper, we focus on debiasing the obtained labels directly,
+In this paper, we focus on debiasing the obtained labels, 
+which can trigger a broader range of application 
+including both training and evaluating classifiers.
+\hide{
 the higher label quality can benefit tasks including training and/or evaluating classifiers, 
 with a broader range of applications.
+}
+
 
 \vpara{Crowdsourced ranking and rating.}
 In our model, we employ the Plackett-Luce model to capture worker behavior, 
