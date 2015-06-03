@@ -1,4 +1,4 @@
-\documentclass{sig-alternate}
+\documentclass{sig-alternate-2013}
 \usepackage{verbatim}
 \usepackage{graphicx,subfigure,multirow}
 \usepackage{epstopdf}
@@ -95,7 +95,19 @@
 \newcommand{\bm}[1]{\textcolor{blue}{#1}}
 
 
+\newfont{\mycrnotice}{ptmr8t at 7pt}
+\newfont{\myconfname}{ptmri8t at 7pt}
+\let\crnotice\mycrnotice%
+\let\confname\myconfname%
 
+\permission{Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from Permissions@acm.org.}
+\conferenceinfo{KDD'15,}{August 10-13, 2015, Sydney, NSW, Australia.} 
+\copyrightetc{\copyright~2015 ACM. ISBN \the\acmcopyr}
+\crdata{978-1-4503-3664-2/15/08\ ...\$15.00.\\
+DOI: http://dx.doi.org/10.1145/2783258.2783316}
+
+\clubpenalty=10000 
+\widowpenalty = 10000
 
 
 \begin{document}
@@ -154,6 +166,11 @@ Debiasing Crowdsourced Batches % Annotation \\ on Batches of Data Items
 \input{discussion.tex}
 \input{related.tex}
 \input{conclusion.tex}
+
+\scriptsize
+\vpara{Acknowledgements.}
+Research was sponsored in part by the U.S. Army Research Lab. under Cooperative Agreement No. W911NF-09-2-0053 (NSCTA), National Science Foundation IIS-1017362, IIS-1320617, IIS-1354329, and IIS-1513407, HDTRA1-10-1-0120, and grant 1U54GM114838 awarded by NIGMS through funds provided by the trans-NIH Big Data to Knowledge (BD2K) initiative (\url{www.bd2k.nih.gov}), the Faculty Research Award provided by Google, and MIAS, a DHS-IDS Center for Multimodal Information Access and Synthesis at UIUC. The content is solely the responsibility of the authors and does not necessarily represent the official views of the funding agencies and organizations.
+\normalsize
 
 
 %\balance
