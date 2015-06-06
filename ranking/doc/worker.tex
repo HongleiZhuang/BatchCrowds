@@ -70,12 +70,12 @@ they may choose to use one of two strategies:
   we suppose the worker judges each data item $x_i \in \bx_j$ independently
   by drawing the annotation $y_i'=1$ with probability $\eta_i$ and $y_i' = 0$ with probability $(1 - \eta_i)$.
   \item \emph{Relative judging.}
-  If the worker is making judgments by comparing data items within the same batch
+  If the worker is making judgments by comparing data items within the same batch,
   %If the worker can only tell the relative propensity of whether a data item is more likely to be positively labeled than another data item 
   %\agp{This is not dependent on the items right -- this is a random coin toss, it seems to indicate that it is dependent on the items..},
-  without knowing absolute value of $\eta_i$,
+  %without knowing absolute value of $\eta_i$,
   we suppose the worker chooses to first rank all the data items in the batch based on their inherent scores,
-  then annotates the top-$\tau$ items in the ranking as positive, leaving the other items annotated as negative.
+  then annotates several top-ranked items as positive, leaving the other items annotated as negative.
   To be precise, the worker generates a ranking $\pi$ for $k$ items in the batch according to the Plackett-Luce model,
   with the scoring function defined as $s(x_i) = \eta_i$.
   Then the worker draws an integer $0 \leq \tau \leq k$ from a certain distribution,
@@ -175,7 +175,7 @@ but only the binary label $y_i$ is known,
 we can estimate $\eta_i$ by $\eta_i = (y_i + \epsilon)/(1 + 2 \epsilon)$ 
 where $\epsilon$ is a small constant, which is set to $10^{-3}$ in our experiments.
 %predictive distribution \agp{wasn't this inherent value? just checked -- it's not} $\eta_i$ known. %true labels $Y_L$ known.p
-Then, we form them into $m_L$ batches $B_L$, send them to the crowds,
+Then, we form them into $m_L$ batches, represented by $B_L$, send them to the crowds,
 and obtain their annotation from workers, denoted as $Y_{B_L}'$.
 
 
