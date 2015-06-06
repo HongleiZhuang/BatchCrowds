@@ -10,7 +10,7 @@ by employing a massive workforce drawn from global Internet users.
 Popular online crowdsourcing platforms include
 Amazon Mechanical Turk\footnote{\url{https://www.mturk.com/}} and CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.
 However, while crowdsourcing is relatively cheap compared
-to employing experts, getting large quantities of training data
+to employing experts, getting large quantities of labeled data
 annotated by crowds (say thousands, or millions of data items) 
 can be rather expensive. 
 % However, in contrast to data annotated by experts,
@@ -40,10 +40,10 @@ once, and then make a judgment for all the comments in the batch.
 % limiting the overhead when the workers have to read elaborate instructions or necessary background before labeling each data item.
 % Consider an example where a worker has to judge whether a comment is relevant to a certain document.  
 % Here making a judgment on each comment requires reading through the entire document.
-\hide{ % HZ: tentatively removed
 In fact, even from the workers' point of view,
 it is also more attractive to label batches of data items
 as they can save time on switching between different tasks.
+\hide{ % HZ: tentatively removed
 Furthermore, once they start on a batch,
 they no longer have to ``fight'' for other high paying or attractive tasks.
 }
@@ -195,8 +195,11 @@ We make the following contributions in answering these questions:
   \item \emph{Proposing an interpretable worker annotation model on batches of data.}
         We propose a novel worker model for binary annotation behavior with data items presented as batches.
         The model incorporates independent judgments and batch judgments based on ranking.
-        Different from the factor graph model in our previous work~\cite{zhuang:wsdm2015},
-        we focus on obtaining the true labels of data items instead of improving classifier performance.
+        \hide{
+          %HZ: removed, too detail in the introduction
+          Different from the factor graph model in our previous work~\cite{zhuang:wsdm2015},
+          we focus on obtaining the true labels of data items instead of improving classifier performance.
+        }
   \item \emph{Debiasing annotation data obtained as batches.}
         Based on our proposed worker model, we provide an algorithm to debias the inferred labels
         when they are collected from data items in batches.

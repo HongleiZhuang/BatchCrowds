@@ -62,7 +62,8 @@ we then formalize the problem of debiasing crowdsourced batches.
 
 First we need to formalize several basic concepts in a crowdsourcing platform.
 Suppose we are given a set of data items $X = \{x_i\}$, where $i=1, \ldots, n$.
-Each data item is associated with a label $y_i \in \mathcal{Y}$, where $Y = \{y_i\}_{i=1}^n$.
+Each data item is associated with a label $y_i \in \mathcal{Y}$, 
+and we thereby define $Y = \{y_i\}_{i=1}^n$.
 In following discussion, we focus on a binary classification task, 
 where $\mathcal{Y} = \{0, 1\}$, 
 but our framework generalizes to multi-class or rating cases seamlessly (Cf. Section~\ref{sec:ext}).  
@@ -79,7 +80,7 @@ where $k$ is the size of a batch.
 To be strict, data items in the batch should be represented by $\bx_j = \{x_{b_{j1}}, \ldots, x_{b_{jk}}\}$.  
 However, for simplicity, we denote data items in the batch specified by $\bb_j$ as $\{x_{j1}, \ldots, x_{jk}\}$.  
 Similarly, we define $\by_j = \{y_{j1}, \ldots, y_{jk}\}$ to be true labels associated with data items in $\bx_j$, 
-where $y_{jl}$ is the true label of $x_{jl}$ according to $Y$ for $\forall 1 \leq l \leq k$.  
+where $y_{jl}$ is the true label of $x_{jl}$ according to $Y$, $\forall 1 \leq l \leq k$.  
 In CrowdFlower language, 
 a batch corresponds to a single ``unit'', 
 % several data items are assembled into a single ``unit'',pp
@@ -90,8 +91,8 @@ Usually, data items in the same batch might share the same context, background, 
 in order to reduce the overhead.  
 For example, if one is asked to judge whether 
 a review about a restaurant is positive or negative, 
-it might save time for workers if 
-reviews of the same restaurant are grouped into the same batch, 
+it might save time for workers  
+by grouping reviews of the same restaurant into the same batch, 
 as they only need to read the description of the restaurant once 
 before they can make multiple judgments on different reviews.  
 
@@ -105,12 +106,12 @@ before they can make multiple judgments on different reviews.
 
 As we assemble data items into batches, 
 each worker has to judge the entire batch as a single judgment.  
-Given a batch $\bb_j$, the judgment provided by a worker can be represented as $\by_j' = (y_{j1}', \ldots, y_{jk}')$, 
+Given a batch $\bb_j$, the judgment provided by a worker can be represented as $\by_j' = \{y_{j1}', \ldots, y_{jk}'\}$, 
 where $y_{jl}' \in \mathcal{Y}$ is the annotation of data item corresponding to 
 $x_{jl}$, provided by the worker.
 Noting that the worker annotation $\by_j'$ can be different from the true label $\by_j$.  
-We refer to worker annotation as ``annotation'', while the ground-truth label is referred to 
-as simply the ``label''.  
+We refer to worker annotation as ``\emph{annotation}'', 
+while the ground-truth label is referred to as simply the ``\emph{label}''.  
 
 In CrowdFlower, as a judgment can only be made based on a unit,
 workers are not allowed to submit partial results on a batch 
@@ -127,8 +128,8 @@ Now, we are in a position to give a formal definition for a batch of data items:
 Given a data set $(X, Y)$,
 a batch of data items with size $k$ extracted from the given data set can be represented as $(\bb_j, \bx_j, \by_j, \by_j')$, 
 where $\bb_j = (b_{j1}, \ldots, b_{jk})$ is a set of indices for $X$ and $Y$; 
-$\bx_j = \{x_{j1}, \ldots, x_{jk}\}$ is a set of all the data items, indexed by $\bb_j$ (\ie~$x_{jl} = x_{b_{jl}}$); 
-$\by_j = \{y_{j1}, \ldots, y_{jk}\}$ consists of the corresponding true labels of data items in $\bx_j$, also indexed by $\bb_j$; 
+$\bx_j = \{x_{j1}, \ldots, x_{jk}\}$ is a set of all the data items, indexed by $\bb_j$; % (\ie~$x_{jl} = x_{b_{jl}}$); 
+$\by_j = \{y_{j1}, \ldots, y_{jk}\}$ consists of the corresponding true labels of data items in $\bx_j$; %, also indexed by $\bb_j$; 
 $\by_j' = \{y_{j1}', \ldots, y_{jk}'\}$ is the worker annotation on the set of the batch.  
 \end{definition}
 
@@ -137,7 +138,7 @@ $\by_j' = \{y_{j1}', \ldots, y_{jk}'\}$ is the worker annotation on the set of t
 
 \begin{definition}
 Given a data set $(X, Y)$, 
-a set of batches extracted from the given data set is denoted as $A = (B, X_B, Y_B, Y_B')$, 
+a set of batches extracted from the given data set is denoted as $\cA = (B, X_B, Y_B, Y_B')$, 
 where $B=\{\bb_j\}_{j=1}^m$ consists of the indices of each batch; 
 $X_B=\{\bx_j\}_{j=1}^m$ is the set of data item batches, 
 with their corresponding true labels $Y_B=\{\by_j\}_{j=1}^m$ 
@@ -145,18 +146,19 @@ and worker annotations $Y_B'=\{\by_j'\}_{j=1}^m$.
 \end{definition}
 
 \vpara{Remarks.} 
-1) Notice that a data item $x_i \in X$ may certainly appear in multiple batches in $A$.  
-If data items in two different batches share the same 
-index as indicated by corresponding item in $\bb_j$, 
-they refer to the same data item in $X$;  
+1) Notice that a data item $x_i \in X$ may certainly appear in multiple batches in $\cA$.
+That is, $x_{jl}$ and $x_{j'l'}$ may refer to the same data item as long as $b_{jl} = b_{j'l'}$;
+% If data items in two different batches share the same 
+% index as indicated by corresponding item in $\bb_j$, 
+% they refer to the same data item in $X$;  
 2) For the sake of fully utilizing the workforce of crowds, 
 without loss of generality, we focus on the scenario when all batches have the identical size $k$. 
 However, our model generalizes to the case when batches have different sizes;    
 3) In some real world crowdsourcing platforms, a batch can actually be judged by multiple workers,
 which means there could be multiple $\by_j'$'s associated to a single $(\bb_j, \bx_j, \by_j)$--- for instance, this is referred to as multiple {\em assignments} on Mechanical Turk.  
 However, for the purposes of debiasing, 
-it is equivalent to regard a single batch as multiple identical batches,
-and associate each batch with a unique judgment made by different workers. 
+it is equivalent to regard a single batch as multiple batches with identical $(\bb_j, \bx_j, \by_j)$
+but associated with judgments made by different workers $\by_j'$. 
 
 %This does not affect our proposed model.  pp
 
@@ -227,7 +229,7 @@ for training purposes.
 Also notice that in this version of our problem
 formulation, we assume identical worker behavior.  
 This is a more standard setting in crowdsourcing practice 
-as there are usually not enough work done by each worker to ascertain individual behavior.
+as there is usually not enough work done by each worker to ascertain individual behavior.
 Also, it is straightforward to extend our model when 
 different workers have different behavior when working on tasks.
 % \agp{can we say something like this:
@@ -260,13 +262,13 @@ building an accurate enough worker model for each worker is not realistic.
   $X$      & Set of all the data items $\{x_i\}_{i=1}^n$  \\ \hline
   $Y$      & Set of all true labels associated with data items in $X$ \\ \hline
   $\bb_j$    & A set of data item indices $\{b_{jl}\}_{l=1}^{k}$ \\ \hline
-  $\bx_j$    & A data item batch $\{x_{jl}\}_{l=1}^{k}$ where $x_{jl}$ is extracted from the data item in $X$ with index specified by $b_{jl}$ \\ \hline
-  $\by_j$    & A label batch consists of true labels $\{y_{jl}\}_{l=1}^{k}$ associated with data items in $\bx_j$ \\ \hline
-  $\by_j'$   & Worker annotation collected from a crowdsourcing platform for data items in $\bx_j$ \\ \hline
+  \multirow{2}{*}{$\bx_j$}    & A data item batch $\{x_{jl}\}_{l=1}^{k}$ where $x_{jl}$ is extracted from the data item in $X$ with index specified by $b_{jl}$ \\ \hline
+  \multirow{2}{*}{$\by_j$}    & A label batch consists of true labels $\{y_{jl}\}_{l=1}^{k}$ associated with data items in $\bx_j$ \\ \hline
+  \multirow{2}{*}{$\by_j'$}   & Worker annotation collected from a crowdsourcing platform for data items in $\bx_j$ \\ \hline
   $B$      & Set of all the batches $\{\bb_j\}_{i=1}^m$ \\ \hline
   $X_B$    & Set of all the data item batches \\ \hline
-  $Y_B$    & Set of all the true labels associated with data item batches in $X_B$ \\ \hline
-  $Y_B'$   & Set of all the worker annotation from crowds on data item batches in $X_B$ \\ \hline
+  \multirow{2}{*}{$Y_B$}    & Set of all the true labels associated with data item batches in $X_B$ \\ \hline
+  \multirow{2}{*}{$Y_B'$}   & Set of all the worker annotation from crowds on data item batches in $X_B$ \\ \hline
   \end{tabular}
 }
 %\vspace{-0.3in}
