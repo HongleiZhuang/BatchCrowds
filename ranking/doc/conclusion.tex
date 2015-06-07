@@ -7,7 +7,16 @@ and submitted to workers to be judged simultaneously.
 We propose a novel worker model designed to capture this type of bias, 
 and show how to train the worker model on annotation data.  
 We also present how to debias the label obtained from crowds given a trained worker model.  
-We conduct experiments on both synthetic data and real world data to verify the effectiveness of our methods.  
+\zhl{
+We conduct experiments on both synthetic data and real world data, % to verify the effectiveness of our methods.  
+and observe that our proposed debiasing technique, 
+with a fairly small training data set, 
+can achieve up to +57\% $F_1$-score improvement in the synthetic data set 
+against the na\"{i}ve majority voting strategy, 
+and +17\% improvement over a tuned majority voting based on the given training data set.  
+In a real data set, our technique can also achieve up to +15\% improvement on $F_1$-score
+over the tuned majority voting strategy.  
+}
 
 The observation of batch annotation bias might exist in many scenarios other than crowdsourcing, 
 and therefore the debiasing strategy can trigger a broad range of applications. 

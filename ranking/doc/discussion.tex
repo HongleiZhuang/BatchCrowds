@@ -61,6 +61,27 @@ If the labels in $\cY$ do not have an order,
 the problem can be reduces to several binary classification problems, 
 which is straightforward to apply our strategy for debiasing workers' annotations.  
 
+
+\vpara{Personalized worker model.}
+\zhl{
+To address different behaviors of different workers, 
+we may want to employ different worker model separately for different workers, 
+instead of using an identical model for all the workers.  
+This can be achieved by rewriting~\eqref{eq:log_l_eta} as 
+\beal{\label{eq:log_l_eta_diff}
+	\log L (\eta) = \sum_{w=1}^W
+	\sum_{j=1}^{m_w}
+	\log \biggl[
+		&\hat{\lambda}_w %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}
+		\prod_{x_{jt_1} \in X_{w j}^1} \eta_{jt_1} \prod_{x_{jt_0} \in X_{w j}^0} (1 - \eta_{jt_0}) \nonumber \\
+		+ &(1 - \hat{\lambda}) \hat{p}_{w \tau_j} P(X_{w j}^1 \succ X_{w j}^0; w)
+	\biggr]
+}%
+where each $w$ indicates a worker and each worker annoatates $m_w$ batches.  
+}
+
+
+
 % If the labels in $\cY$ do not have an order, 
 % and it is required that each data item can only be assigned one label, 
 % we can still apply multiple binary classification framework, but 

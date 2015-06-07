@@ -146,6 +146,7 @@ and worker annotations $Y_B'=\{\by_j'\}_{j=1}^m$.
 \end{definition}
 
 \vpara{Remarks.} 
+\zhl{
 1) Notice that a data item $x_i \in X$ may certainly appear in multiple batches in $\cA$.
 That is, $x_{jl}$ and $x_{j'l'}$ may refer to the same data item as long as $b_{jl} = b_{j'l'}$;
 % If data items in two different batches share the same 
@@ -159,6 +160,7 @@ which means there could be multiple $\by_j'$'s associated to a single $(\bb_j, \
 However, for the purposes of debiasing, 
 it is equivalent to regard a single batch as multiple batches with identical $(\bb_j, \bx_j, \by_j)$
 but associated with judgments made by different workers $\by_j'$. 
+}
 
 %This does not affect our proposed model.  pp
 

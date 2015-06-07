@@ -153,9 +153,13 @@ the assumption is often
 that the annotations are collected independently, which is not the case.
 While there is limited work on judging data items in sequence~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
 it is not directly applicable to our setting where a batch of data items are presented and annotated in parallel.
-Our previous research~\cite{zhuang:wsdm2015} also noticed this specific type of annotation bias,
-but instead of focusing on debiasing,
-we exploited the bias to develop an active learning algorithm aiming to improve a certain classifier performance.
+\zhl{
+Our previous research~\cite{zhuang:wsdm2015} noticed this specific type of annotation bias, 
+and showed that in a binary classification task, annotations on about 35\% of positive items and 5\% of negative items might be biased.  
+In this work, we focus more on debiasing technology.  
+}
+%but instead of focusing on debiasing,
+%we exploited the bias to develop an active learning algorithm aiming to improve a certain classifier performance.
 We defer the detailed discussion of the related work to Section~\ref{sec:related}.
 
 
@@ -205,8 +209,15 @@ We make the following contributions in answering these questions:
         when they are collected from data items in batches.
   \item \emph{Conducting experiments on a real-world crowdsourcing platform.}
         We conduct experiments on both synthetic and real-world crowdsourcing data sets
-        to verify the effectiveness of our proposed model and debiasing strategies.
-        Experimental results show the effectiveness of our debiasing method over other baselines.
+        \zhl{
+        and show that our proposed debiasing strategy, with a small training set, 
+        can achieve up to +57\% improvement in terms of $F_1$-score 
+        comparing to the majority voting strategy, 
+        and still +15-17\% improvement if we tune the majority voting strategy based on a given training set.  
+        }
+        %to verify the effectiveness of our proposed model and debiasing strategies.
+        %Experimental results show that our prop
+        %the effectiveness of our debiasing method over other baselines.
         %the F1-score of the inferred labels on the real data set can be raised from 88\% to 90\%.
 \end{enumerate}
 
