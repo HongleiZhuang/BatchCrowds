@@ -5,7 +5,7 @@
 \label{sec:intro}
 
 Crowdsourcing provides an efficient method 
-to annotate data on a large scale for various machine learning tasks
+to annotate data on a large scale for various machine learning tasks, 
 by employing a massive workforce drawn from global Internet users.
 Popular online crowdsourcing platforms include
 Amazon Mechanical Turk\footnote{\url{https://www.mturk.com/}} and CrowdFlower\footnote{\url{http://www.crowdflower.com/}}.
@@ -83,6 +83,7 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
   Assign each review-movie pair to different workers separately can be costly,
   while assigning a batch of reviews together with a movie to workers might affect workers' judgments.
   }
+  \vspace{-0.15in}
 \end{figure*}
 
 
@@ -99,8 +100,8 @@ they no longer have to ``fight'' for other high paying or attractive tasks.
     \includegraphics[width=0.30\columnwidth]{figures/example_batch}
   }
   \caption{\label{fig:example}
-
   }
+
 \end{figure}
 }
 
@@ -146,20 +147,15 @@ So far, there has been little to no work in exploring the
 the possible annotation error introduced by grouping 
 data items into batches.
 Although batching data items has been adopted in many crowdsourced tasks such as
-%This judging-in-batch setting has been noticed and adopted in crowdsourcing practices of
 sorting~\cite{marcus:vldb2011}, object recognition~\cite{su:aaai2012} or clustering~\cite{gomes:nips2011}, 
 and anecdotally very widely used in practice,   
 the assumption is often 
 that the annotations are collected independently, which is not the case.
 While there is limited work on judging data items in sequence~\cite{mozer:nips2010,scholer:sigir2013,scholer:sigir2011},
 it is not directly applicable to our setting where a batch of data items are presented and annotated in parallel.
-\zhl{
-Our previous research~\cite{zhuang:wsdm2015} noticed this specific type of annotation bias, 
-and showed that in a binary classification task, annotations on about 35\% of positive items and 5\% of negative items might be biased.  
-In this work, we focus more on debiasing technology.  
-}
-%but instead of focusing on debiasing,
-%we exploited the bias to develop an active learning algorithm aiming to improve a certain classifier performance.
+Our previous research~\cite{zhuang:wsdm2015} identified batch annotation bias, 
+and demonstrated that in a binary classification, annotations on about 35\% of positive items and 5\% of negative items might be biased.  
+Here, we focus on developing debiasing techniques.  
 We defer the detailed discussion of the related work to Section~\ref{sec:related}.
 
 
@@ -189,6 +185,7 @@ We defer the detailed discussion of the related work to Section~\ref{sec:related
   while black boxes are factor functions modeling the dependencies.
   }
 \end{figure}
+
 }
 
 There are several research challenges in solving this problem.
@@ -209,12 +206,10 @@ We make the following contributions in answering these questions:
         when they are collected from data items in batches.
   \item \emph{Conducting experiments on a real-world crowdsourcing platform.}
         We conduct experiments on both synthetic and real-world crowdsourcing data sets
-        \zhl{
         and show that our proposed debiasing strategy, with a small training set, 
         can achieve up to +57\% improvement in terms of $F_1$-score 
-        comparing to the majority voting strategy, 
-        and still +15-17\% improvement if we tune the majority voting strategy based on a given training set.  
-        }
+        compared to the majority voting strategy, 
+        and up to +15-17\% improvement if we tune the majority voting strategy based on a given training set.  
         %to verify the effectiveness of our proposed model and debiasing strategies.
         %Experimental results show that our prop
         %the effectiveness of our debiasing method over other baselines.

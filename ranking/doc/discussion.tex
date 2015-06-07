@@ -6,6 +6,7 @@
 In this section, we discuss two straightforward extensions of our proposed worker model and debiasing strategies, 
 with respect to two useful applications other than binary classification: 
 rating estimation and multi-class classification.  
+We also discuss how to extend our model to the more general case when different workers have different biases.  
 
 \vpara{Rating estimation.}
 In rating estimation,
@@ -28,21 +29,27 @@ if the workers are asked to rate data items in batches.
 Without loss of generality, we can assume $0 < y_i < \infty$.  
 If the actual rating can be negative, 
 we can always apply a certain sigmoid function to normalize the scores to be positive values.  
-For independent judging, we can design a well-regularized distribution with expectation of $y_i$ 
-for a worker to draw a rating,~\eg~Gaussian distribution centered at $y_i$.  
-For relative judging, we can still assume the worker to generate a ranking from Plackett-Luce model with parameters $y_i$'s, 
-and introduce distributions for generating rating for each data item
-from a distribution \emph{only} depending on their ranking, 
+For independent judging, we can design a distribution \wrt~$y_i$ from where a worker draws a rating $y_i'$ for $x_i$,
+%well-regularized distribution with expectation of $y_i$ 
+%for a worker to draw a rating,
+~\eg~a Gaussian distribution $\cN(y_i, 1)$.  
+For relative judging, we can still assume that the worker generates a ranking from Plackett-Luce model with parameters $y_i$'s, 
+and introduce another distributions \wrt~the ranking of each data item $\pi^{-1}(x_i)$
+from where a worker generates the ratings.  
+%for generating rating for each data item
+%from a distribution \emph{only} depending on their ranking, 
 %of data items at different positions in the ranking, 
-which can be learned from the training data.  
-For example, workers may tend to generate a rating from Gaussian distribution centered at $\mu_1=5.0$ for a top-ranked data item $\pi(1)$, 
-but generate a rating from another Gaussian distribution centered at $\mu_5=1.0$ for a data item ranked as the fifth $\pi(5)$.  
+%which can be learned from the training data.  
+For example, $y_i' \sim \cN(\pi^{-1}(x_i), 1)$.  
+%workers may tend to generate a rating from Gaussian distribution centered at $\mu_1=5.0$ for a top-ranked data item $\pi(1)$, 
+%but generate a rating from another Gaussian distribution centered at $\mu_5=1.0$ for a data item ranked as the fifth $\pi(5)$.  
 \hide{If the training data is sparse and the ratings can take on any real values, 
 it is probably preferable to employ some parametric distributions.}
 Once the design of model is accomplished, 
 it is straightforward to apply the same technique described in this paper 
-to derive the debiasing strategy by maximizing the likelihood of observed annotations 
-to estimate the underlying ratings for unrated data items.  
+to derive the debiasing strategy.
+% by maximizing the likelihood of observed annotations 
+% to estimate the underlying ratings for unrated data items.  
 
 
 \vpara{Multi-class classification.}
@@ -63,7 +70,6 @@ which is straightforward to apply our strategy for debiasing workers' annotation
 
 
 \vpara{Personalized worker model.}
-\zhl{
 To address different behaviors of different workers, 
 we may want to employ different worker model separately for different workers, 
 instead of using an identical model for all the workers.  
@@ -74,11 +80,10 @@ This can be achieved by rewriting~\eqref{eq:log_l_eta} as
 	\log \biggl[
 		&\hat{\lambda}_w %\prod_{t=1}^{k} \eta_{jt}^{y_{jt}} (1 - \eta_{jt})^{(1 - y_{jt})}
 		\prod_{x_{jt_1} \in X_{w j}^1} \eta_{jt_1} \prod_{x_{jt_0} \in X_{w j}^0} (1 - \eta_{jt_0}) \nonumber \\
-		+ &(1 - \hat{\lambda}) \hat{p}_{w \tau_j} P(X_{w j}^1 \succ X_{w j}^0; w)
-	\biggr]
+		+ &(1 - \hat{\lambda}_w) \hat{p}_{w \tau_j} P(X_{w j}^1 \succ X_{w j}^0)
+	\biggr] \nonumber
 }%
-where each $w$ indicates a worker and each worker annoatates $m_w$ batches.  
-}
+where each $w$ corresponds a worker and each worker annotates $m_w$ batches.  
 
 
 
