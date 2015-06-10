@@ -88,7 +88,8 @@ We compare the performance of our proposed method with several baselines:
         and apply the same threshold on the test data set.  
   \item \emph{Plackett-Luce Model (PL)}.  
         A strategy is to fit the Plackett-Luce model on the test data by inferring the scores $s(x_i)$ associated with each data items.  
-        We apply a Bayesian regularization on the inferred scores to confine it to be $0 \leq s(x_i) \leq 1$.  
+        %We apply a Bayesian regularization on the inferred scores to confine it to be $0 \leq s(x_i) \leq 1$.  
+        We regularize the inferred scores to be $0 \leq s(x_i) \leq 1$.  
         We then infer a positive label to each data item with an inferred score $s(x_i) > 0.5$ and a negative label otherwise.  
   \item[*] \emph{Batch Annotation Model (BAM)}.  
         The debiasing strategy proposed in Section~\ref{sec:worker} and~\ref{sec:debias}.

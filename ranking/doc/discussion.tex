@@ -3,8 +3,8 @@
 \section{Extensions}
 \label{sec:ext}
 
-In this section, we discuss two straightforward extensions of our proposed worker model and debiasing strategies, 
-with respect to two useful applications other than binary classification: 
+In this section, we discuss several straightforward extensions of our proposed worker model and debiasing strategies, 
+with respect to some useful applications other than binary classification: 
 rating estimation and multi-class classification.  
 We also discuss how to extend our model to the more general case when different workers have different biases.  
 
@@ -61,11 +61,11 @@ This is a natural extension from binary classification problem.
 If the labels in $\cY$ are ordinal, 
 for example, judging whether a review is ``very helpful'', ``helpful'' or ``not helpful'', 
 the problem reduces to a rating estimation problem, 
-where the possible value of rating are discrete values.  
+where the possible values of rating are discrete values.  
 We can simply apply the extended strategy described above.  
 If the labels in $\cY$ do not have an order, 
 %but the task does allow each data item to be assigned multiple labels, 
-the problem can be reduces to several binary classification problems, 
+the problem can be reduced to several binary classification problems, 
 which is straightforward to apply our strategy for debiasing workers' annotations.  
 
 

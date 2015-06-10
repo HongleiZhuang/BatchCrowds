@@ -30,7 +30,7 @@ and insert hidden variables indicating whether a worker tells the truth.
 Karger~\etal~\cite{karger:nips2011} propose an iterative algorithm to infer workers' reliability 
 and aggregating their answers.  
 Whitehill~\etal~\cite{whitehill:nips2009} model the annotator ability, data item difficulty, and infer the true label from the crowds in a unified model.
-Most of these work also proposes various generative model to capture worker behavior.  
+Most of these studies also propose various generative model to capture worker behavior.  
 However, they assume judgments on different data items are independent, 
 which is not necessarily true when data items are grouped into batches.  
 
@@ -70,10 +70,10 @@ Our recent work~\cite{zhuang:wsdm2015} also considers a similar setting
 when data items are organized in batches; 
 we verify the existence of annotation bias caused by batching data items.  
 Our focus in that paper was to design an active learning algorithm to smartly assemble batches, 
-aiming to improve the performance of the classifier trained on this annotation batches.  
+aiming to improve the performance of the classifier trained on their annotations.  
 Our focus was not on improving the quality of labels collected, 
 and we still used majority voting to obtain labels for data items.  
-In this paper, we focus on debiasing the obtained labels, 
+In this paper, we focus on debiasing the obtained annotations, 
 which can trigger a broader range of application 
 including both training and evaluating classifiers.
 \hide{
@@ -96,7 +96,7 @@ by utilizing the Bradley-Terry model~\cite{bradley:1952}, which is a simplified 
 Hunter~\etal~\cite{hunter:aos2004} propose the minorization-maximization (MM) algorithm to infer Plackett-Luce model 
 from multiple partial orderings.  
 Soufiani~\etal~\cite{soufiani:nips2013} generalize Negahban~\etal's work 
-and proposed a class of generalized method-of-moments (GMM) algorithm 
+and propose a class of generalized method-of-moments (GMM) algorithm 
 to infer parameters of Plackett-Luce model from multiple orderings, 
 and compare the performance against MM-algorithm.  
 They then further extend their algorithm 
