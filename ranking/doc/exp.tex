@@ -159,11 +159,11 @@ it can be directly applied to any other type of distributions.
   \centering
   \subfigure[Parameter comparison of $p_{\tau}$'s]{
     \label{subfig:p_tau_synthetic}
-    \includegraphics[width=0.46\columnwidth]{figures/ptau_synthetic}
+    \includegraphics[width=0.46\columnwidth]{figures/ptau_synthetic_type1}
   }
   \subfigure[Convergence analysis]{
     \label{subfig:convergence_synthetic}
-    \includegraphics[width=0.46\columnwidth]{figures/loglikelihood_synthetic}
+    \includegraphics[width=0.46\columnwidth]{figures/loglikelihood_synthetic_type1}
   }
   \caption{\label{fig:synthetic_training}
   Learning worker model from the synthetic training data set.
@@ -175,16 +175,17 @@ it can be directly applied to any other type of distributions.
   \centering
   \subfigure[Estimation error of $\lambda$]{
     \label{subfig:lambda_esterr}
-    \includegraphics[width=0.46\columnwidth]{figures/lambda_esterr}
+    \includegraphics[width=0.46\columnwidth]{figures/lambda_esterr_type1}
   }
   \subfigure[Estimation error of $p_{\tau}$]{
     \label{subfig:ptau_esterr}
-    \includegraphics[width=0.46\columnwidth]{figures/ptau_esterr}
+    \includegraphics[width=0.46\columnwidth]{figures/ptau_esterr_type1}
   }
   \caption{\label{fig:esterr}
   Analysis of estimation error of parameters in the worker model under different configurations. 
   }
 \end{figure}
+
 
 
 
@@ -206,11 +207,11 @@ The model converges within 50 iterations.
   \centering
   \subfigure[Parameter analysis of $p_{\tau}$'s]{
     \label{subfig:p_tau_lnkd}
-    \includegraphics[width=0.46\columnwidth]{figures/ptau_lnkd}
+    \includegraphics[width=0.46\columnwidth]{figures/ptau_lnkd_type1}
   }
   \subfigure[Convergence analysis]{
     \label{subfig:convergence_lnkd}
-    \includegraphics[width=0.46\columnwidth]{figures/loglikelihood_lnkd}
+    \includegraphics[width=0.46\columnwidth]{figures/loglikelihood_lnkd_type1}
   }
   \caption{\label{fig:lnkd_training}
   Learning worker model from the comments training data set.
@@ -323,11 +324,11 @@ increasing the quantity of annotations collected does not help.
   \centering
   \subfigure[Accuracy with different $m/n$ ratio]{
     \label{subfig:mnratio_acc}
-    \includegraphics[width=0.46\columnwidth]{figures/mnratio_acc}
+    \includegraphics[width=0.46\columnwidth]{figures/mnratio_acc_type1}
   }
   \subfigure[$F_1$-score with different $m/n$ ratio]{
     \label{subfig:mnratio_f1}
-    \includegraphics[width=0.46\columnwidth]{figures/mnratio_f1}
+    \includegraphics[width=0.46\columnwidth]{figures/mnratio_f1_type1}
   }
   \caption{\label{fig:mnratio}
   Performance of debiasing strategies on synthetic data sets 
@@ -339,11 +340,11 @@ increasing the quantity of annotations collected does not help.
   \centering
   \subfigure[Accuracy with different sizes of training data set]{
     \label{subfig:trainratio_acc}
-    \includegraphics[width=0.46\columnwidth]{figures/trainratio_acc}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_acc_type1}
   }
   \subfigure[$F_1$-score with different sizes of training data set]{
     \label{subfig:trainratio_f1}
-    \includegraphics[width=0.46\columnwidth]{figures/trainratio_f1}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_f1_type1}
   }
   \caption{\label{fig:trainratio}
   Performance of debiasing strategies on synthetic data sets 
@@ -357,11 +358,11 @@ increasing the quantity of annotations collected does not help.
   \centering
   \subfigure[Accuracy with different sizes of training data set]{
     \label{subfig:trainratio_acc}
-    \includegraphics[width=0.46\columnwidth]{figures/trainratio_acc_lnkd}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_acc_lnkd_type1}
   }
   \subfigure[$F_1$-score with different sizes of training data set]{
     \label{subfig:trainratio_f1}
-    \includegraphics[width=0.46\columnwidth]{figures/trainratio_f1_lnkd}
+    \includegraphics[width=0.46\columnwidth]{figures/trainratio_f1_lnkd_type1}
   }
   \caption{\label{fig:trainratio_lnkd}
   Performance of debiasing strategies on comments data set 
@@ -370,6 +371,7 @@ increasing the quantity of annotations collected does not help.
   }
   \vspace{-0.2in}
 \end{figure}
+
 
 \vpara{Size of training data set.}
 As our method requires a small set of training data, 
